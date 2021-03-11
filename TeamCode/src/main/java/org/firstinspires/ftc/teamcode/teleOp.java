@@ -225,7 +225,8 @@ public class teleOp extends OpMode
 
 
         //Shooter
-        shooter.set(gamepad2.right_trigger * 0.90);
+        shooter.set(gamepad2.right_trigger * 1.00);
+        telemetry.addData("right_trigger", gamepad2.right_trigger);
 
         // Send power to wheel motors
         leftFront.set(leftFrontPower);
