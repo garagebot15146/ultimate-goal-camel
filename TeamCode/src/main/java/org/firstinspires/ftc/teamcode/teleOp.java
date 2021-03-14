@@ -81,6 +81,10 @@ public class teleOp extends OpMode
     double leftLiftDown = 0.6;
     double rightLiftDown = 0.4;
 
+    SimpleServo clawServo;
+    double clawClose = 0;
+    double clawOpen = 1;
+
     SimpleServo kicker;
     SimpleServo shootFlap;
 
@@ -111,6 +115,8 @@ public class teleOp extends OpMode
         kicker = new SimpleServo(hardwareMap, "kicker") ;
         shootFlap = new SimpleServo(hardwareMap, "shootFlap") ;
 
+        clawServo = new SimpleServo(hardwareMap, "clawServo");
+
         //Set Run modes
         leftFront.setRunMode(Motor.RunMode.RawPower);
         rightFront.setRunMode(Motor.RunMode.RawPower);
@@ -132,7 +138,7 @@ public class teleOp extends OpMode
         frontIntake.setInverted(true);
 
         //Initialize Servo Positions
-        kicker.setPosition(kickerInit);
+//        kicker.setPosition(kickerInit);
         shootFlap.setPosition(flapAngle);
 
         //Initialized
@@ -200,6 +206,13 @@ public class teleOp extends OpMode
             //This is normal.  Don't put anything here.
         }
 
+        //Claw Servo
+        if (gamepad1.left_trigger > 0.05) {
+            clawServo.setPosition(clawOpen);
+        } else {
+            clawServo.setPosition(clawClose);
+        }
+
         /////////////
         //GAMEPAD 2//
         /////////////
@@ -234,33 +247,33 @@ public class teleOp extends OpMode
         leftBack.set(leftBackPower);
         rightBack.set(rightBackPower);
 
-        //Lift
-        if (gamepad2.dpad_up) {
-            //Up
-            leftLift.setPosition(leftLiftUp);
-            rightLift.setPosition((rightLiftUp));
-        } else if (gamepad2.dpad_down) {
-            //Down
-            leftLift.setPosition(leftLiftDown);
-            rightLift.setPosition(rightLiftDown);
-        }
+//        //Lift
+//        if (gamepad2.dpad_up) {
+//            //Up
+//            leftLift.setPosition(leftLiftUp);
+//            rightLift.setPosition((rightLiftUp));
+//        } else if (gamepad2.dpad_down) {
+//            //Down
+//            leftLift.setPosition(leftLiftDown);
+//            rightLift.setPosition(rightLiftDown);
+//        }
 
-        //Kicker
-        if (gamepad2.a && !kickerHasRun && !gamepad2.start) {
-            currentTime = runtime.milliseconds();
-            kicker.setPosition(kickerTo);
-            kickerHasRun = true;
-        }
-
-        if (runtime.milliseconds() > currentTime + 200) {
-            kicker.setPosition(kickerInit);
-            kickerMethodRun = true;
-        }
-
-        if (kickerMethodRun && !gamepad2.a) {
-            kickerMethodRun = false;
-            kickerHasRun = false;
-        }
+//        //Kicker
+//        if (gamepad2.a && !kickerHasRun && !gamepad2.start) {
+//            currentTime = runtime.milliseconds();
+//            kicker.setPosition(kickerTo);
+//            kickerHasRun = true;
+//        }
+//
+//        if (runtime.milliseconds() > currentTime + 200) {
+//            kicker.setPosition(kickerInit);
+//            kickerMethodRun = true;
+//        }
+//
+//        if (kickerMethodRun && !gamepad2.a) {
+//            kickerMethodRun = false;
+//            kickerHasRun = false;
+//        }
 
     }
 
