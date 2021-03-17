@@ -82,8 +82,8 @@ public class teleOp extends OpMode
     double rightLiftDown = 0.4;
 
     SimpleServo clawServo;
-    double clawClose = 0;
-    double clawOpen = 1;
+    double clawClose = 0.9;
+    double clawOpen = 0.6;
 
     SimpleServo kicker;
     SimpleServo shootFlap;
