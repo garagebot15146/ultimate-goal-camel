@@ -71,6 +71,8 @@ public class teleOp extends OpMode
     Motor backIntake;
     Motor frontIntake;
 
+    private DcMotor clawArm = null;
+
     //Set Servo objects
     SimpleServo leftLift;
     SimpleServo rightLift;
@@ -82,7 +84,7 @@ public class teleOp extends OpMode
     double rightLiftDown = 0.4;
 
     SimpleServo clawServo;
-    double clawClose = 0.9;
+    double clawClose = 0.92;
     double clawOpen = 0.6;
 
     SimpleServo kicker;
@@ -109,6 +111,8 @@ public class teleOp extends OpMode
         backIntake = new Motor(hardwareMap, "backIntake", 5, 6);
         frontIntake = new Motor(hardwareMap, "frontIntake", 5, 6);
 
+        clawArm = hardwareMap.get(DcMotor.class, "clawArm");
+
         leftLift = new SimpleServo(hardwareMap, "leftLift");
         rightLift = new SimpleServo(hardwareMap, "rightLift");
 
@@ -122,6 +126,10 @@ public class teleOp extends OpMode
         rightFront.setRunMode(Motor.RunMode.RawPower);
         leftBack.setRunMode(Motor.RunMode.RawPower);
         rightBack.setRunMode(Motor.RunMode.RawPower);
+
+        clawArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        clawArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        clawArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         shooter.setRunMode(Motor.RunMode.RawPower);
         backIntake.setRunMode(Motor.RunMode.RawPower);
@@ -213,28 +221,47 @@ public class teleOp extends OpMode
             clawServo.setPosition(clawClose);
         }
 
+        //Testing clawArm
+        if (gamepad1.left_bumper) {
+            int newTarget = clawArm.getCurrentPosition() + (int)(537.6 * 0.2); //Ticks * Percentage of a rotation
+            clawArm.setTargetPosition(newTarget);
+            // Turn On RUN_TO_POSITION
+            clawArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            // reset the timeout time and start motion.
+            runtime.reset();
+            clawArm.setPower(0.3);
+
+            while (clawArm.isBusy()) {
+                //Nothing
+            }
+
+            //Stop
+            clawArm.setPower(0);
+            clawArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
         /////////////
         //GAMEPAD 2//
         /////////////
 
         //Intake
-        //backIntake.set(gamepad2.left_stick_y);
-        //frontIntake.set(gamepad2.left_stick_y);
-
-        //Test Intakes:
-        if (!gamepad2.b) {
-            frontIntake.set(gamepad2.left_stick_y);
-            backIntake.set(0);
+        if (gamepad2.b) {
+            //Slow
+            frontIntake.set(gamepad2.left_stick_y * 0.35);
+            backIntake.set(gamepad2.left_stick_y * 0.35);
         } else {
-            frontIntake.set(0);
+            //Fast
+            frontIntake.set(gamepad2.left_stick_y);
             backIntake.set(gamepad2.left_stick_y);
         }
 
-        //If intake is active, bring lift down
-        if(gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) {
-            leftLift.setPosition(leftLiftDown);
-            rightLift.setPosition(rightLiftDown);
-        }
+
+
+//        //If intake is active, bring lift down
+//        if(gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) {
+//            leftLift.setPosition(leftLiftDown);
+//            rightLift.setPosition(rightLiftDown);
+//        }
 
 
         //Shooter
