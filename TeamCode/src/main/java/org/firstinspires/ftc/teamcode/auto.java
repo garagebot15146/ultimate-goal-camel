@@ -39,7 +39,7 @@ public class auto extends LinearOpMode {
     double clawOpen = 0.6;
 
     private DcMotor shooter = null;
-    //    private Servo kicker = null;
+    private Servo kicker = null;
     double kickerInit = 0.2537;
     double kickerTo = 0.4412;
     private Servo shootFlap;
@@ -90,8 +90,8 @@ public class auto extends LinearOpMode {
 
         //Servos
         shooter = hardwareMap.get(DcMotor.class, "shooter");
-//        kicker = hardwareMap.get(Servo.class, "kicker");
-//        kicker.setPosition(kickerInit);
+        kicker = hardwareMap.get(Servo.class, "kicker");
+        kicker.setPosition(kickerInit);
         shootFlap = hardwareMap.get(Servo.class, "shootFlap");
         shootFlap.setPosition(flapAngle);
 
@@ -126,7 +126,7 @@ public class auto extends LinearOpMode {
         clawArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         clawArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        clawServo.setPosition(clawOpen);
+        clawServo.setPosition(clawClose);
 
 
 //        int cameraMonitorViewId = this
@@ -222,9 +222,9 @@ public class auto extends LinearOpMode {
 
     public void kick(int kickCount) {
         for (int i = 0; i < kickCount; i++) {
-//            kicker.setPosition(kickerTo);
-            sleep(200);
-//            kicker.setPosition(kickerInit);
+            kicker.setPosition(kickerTo);
+            sleep(150);
+            kicker.setPosition(kickerInit);
             sleep(200);
         }
     }
