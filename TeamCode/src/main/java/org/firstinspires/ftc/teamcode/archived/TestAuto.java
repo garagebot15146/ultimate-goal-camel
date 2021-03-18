@@ -18,8 +18,8 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 
-@Autonomous(name="Auto", group="Autonomous")
-//@Disabled
+@Autonomous(name="testAuto", group="Autonomous")
+@Disabled
 public class TestAuto extends LinearOpMode {
 
     //Declare motors/servos variables
