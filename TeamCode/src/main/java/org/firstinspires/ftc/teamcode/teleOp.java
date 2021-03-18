@@ -77,11 +77,11 @@ public class teleOp extends OpMode
     SimpleServo leftLift;
     SimpleServo rightLift;
 
-    double leftLiftUp = 1 - 0.92; //0 Top
-    double rightLiftUp = 0.89; //1 Top
+    double leftLiftUp = 1; //1 Top
+    double rightLiftUp = 1; //1 Top
 
-    double leftLiftDown = 0.6;
-    double rightLiftDown = 0.4;
+    double leftLiftDown = 0.43;
+    double rightLiftDown = 0.43;
 
     SimpleServo clawServo;
     double clawClose = 0.92;
@@ -96,7 +96,7 @@ public class teleOp extends OpMode
     boolean kickerHasRun = false;
     boolean kickerMethodRun = false;
 
-    double flapAngle = 0.05; //Higher = Steeper
+    double flapAngle = 0.0635; //Higher = Steeper
 
     //Initialize
     @Override
@@ -232,6 +232,12 @@ public class teleOp extends OpMode
             clawArm.setPower(0);
         }
 
+        // Send power to wheel motors
+        leftFront.set(leftFrontPower);
+        rightFront.set(rightFrontPower);
+        leftBack.set(leftBackPower);
+        rightBack.set(rightBackPower);
+
         /////////////
         //GAMEPAD 2//
         /////////////
@@ -243,7 +249,7 @@ public class teleOp extends OpMode
 
 //        //If intake is active, bring lift down
 //        if(gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) {
-//            leftLift.setPosition(leftLiftDown);
+//            leftLift.setPosition(1 - leftLiftDown);
 //            rightLift.setPosition(rightLiftDown);
 //        }
 
@@ -252,22 +258,16 @@ public class teleOp extends OpMode
         shooter.set(gamepad2.right_trigger * 1.00);
         telemetry.addData("right_trigger", gamepad2.right_trigger);
 
-        // Send power to wheel motors
-        leftFront.set(leftFrontPower);
-        rightFront.set(rightFrontPower);
-        leftBack.set(leftBackPower);
-        rightBack.set(rightBackPower);
-
-//        //Lift
-//        if (gamepad2.dpad_up) {
-//            //Up
-//            leftLift.setPosition(leftLiftUp);
-//            rightLift.setPosition((rightLiftUp));
-//        } else if (gamepad2.dpad_down) {
-//            //Down
-//            leftLift.setPosition(leftLiftDown);
-//            rightLift.setPosition(rightLiftDown);
-//        }
+        //Lift
+        if (gamepad2.dpad_up) {
+            //Up
+            leftLift.setPosition(1 - leftLiftUp);
+            rightLift.setPosition((rightLiftUp));
+        } else if (gamepad2.dpad_down) {
+            //Down
+            leftLift.setPosition(1 - leftLiftDown);
+            rightLift.setPosition(rightLiftDown);
+        }
 
         //Kicker
         if (gamepad2.a && !kickerHasRun && !gamepad2.start) {
@@ -287,6 +287,16 @@ public class teleOp extends OpMode
             kickerMethodRun = false;
             kickerHasRun = false;
         }
+
+        //shootFlap testing
+        if (gamepad2.left_bumper) {
+            flapAngle = flapAngle - 0.0005;
+        } else if (gamepad2.right_bumper) {
+            flapAngle = flapAngle + 0.0005;
+        }
+
+        shootFlap.setPosition(flapAngle);
+        telemetry.addData("flapAngle", flapAngle);
 
     }
 
