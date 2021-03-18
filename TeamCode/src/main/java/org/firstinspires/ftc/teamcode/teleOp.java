@@ -90,8 +90,8 @@ public class teleOp extends OpMode
     SimpleServo kicker;
     SimpleServo shootFlap;
 
-    double kickerInit = 0.2;
-    double kickerTo = 0.56;
+    double kickerInit = 0.2537;
+    double kickerTo = 0.4412;
 
     boolean kickerHasRun = false;
     boolean kickerMethodRun = false;
@@ -146,7 +146,7 @@ public class teleOp extends OpMode
         frontIntake.setInverted(true);
 
         //Initialize Servo Positions
-//        kicker.setPosition(kickerInit);
+        kicker.setPosition(kickerInit);
         shootFlap.setPosition(flapAngle);
 
         //Initialized
@@ -269,22 +269,24 @@ public class teleOp extends OpMode
 //            rightLift.setPosition(rightLiftDown);
 //        }
 
-//        //Kicker
-//        if (gamepad2.a && !kickerHasRun && !gamepad2.start) {
-//            currentTime = runtime.milliseconds();
-//            kicker.setPosition(kickerTo);
-//            kickerHasRun = true;
-//        }
-//
-//        if (runtime.milliseconds() > currentTime + 200) {
-//            kicker.setPosition(kickerInit);
-//            kickerMethodRun = true;
-//        }
-//
-//        if (kickerMethodRun && !gamepad2.a) {
-//            kickerMethodRun = false;
-//            kickerHasRun = false;
-//        }
+        //Kicker
+        if (gamepad2.a && !kickerHasRun && !gamepad2.start) {
+            currentTime = runtime.milliseconds();
+            kicker.setPosition(kickerTo);
+            kickerHasRun = true;
+            telemetry.addData("Kicked?", "Out");
+        }
+
+        if (runtime.milliseconds() > currentTime + 150) {
+            kicker.setPosition(kickerInit);
+            kickerMethodRun = true;
+            telemetry.addData("Kicked?", "In");
+        }
+
+        if (kickerMethodRun && !gamepad2.a) {
+            kickerMethodRun = false;
+            kickerHasRun = false;
+        }
 
     }
 

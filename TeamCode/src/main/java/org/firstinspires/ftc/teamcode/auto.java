@@ -37,8 +37,8 @@ public class auto extends LinearOpMode {
 
     private DcMotor shooter = null;
     //    private Servo kicker = null;
-    double kickerInit = 0.2;
-    double kickerTo = 0.56;
+    double kickerInit = 0.2537;
+    double kickerTo = 0.4412;
     private Servo shootFlap;
     double flapAngle = 0.06; //Higher = Steeper
 
