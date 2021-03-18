@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.vision.UGContourRingPipeline;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -29,18 +30,24 @@ public class TestAuto extends LinearOpMode {
     private DcMotor leftBack = null;
     private DcMotor rightBack = null;
 
+    private DcMotor clawArm = null;
+    private Servo clawServo = null;
+    double clawClose = 0.92;
+    double clawOpen = 0.6;
+
     private DcMotor shooter = null;
-    private Servo kicker = null;
+//    private Servo kicker = null;
     double kickerInit = 0.2;
     double kickerTo = 0.56;
     private Servo shootFlap;
     double flapAngle = 0.06; //Higher = Steeper
 
-    private Servo leftLift = null;
-    private Servo rightLift = null;
+//    private Servo leftLift = null;
+//    private Servo rightLift = null;
 
     double leftLiftUp = 1 - 0.92; //0 Top
     double rightLiftUp = 0.89; //1 Top
+
 
 
     //NEED TO FIND THESE NUMBERS. LEFT AT DEFAULT FOR NOW
@@ -76,18 +83,22 @@ public class TestAuto extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
+        clawArm = hardwareMap.get(DcMotor.class, "clawArm");
+        clawServo = hardwareMap.get(Servo.class, "clawServo");
+
         //Servos
         shooter = hardwareMap.get(DcMotor.class, "shooter");
-        kicker = hardwareMap.get(Servo.class, "kicker");
-        kicker.setPosition(kickerInit);
+//        kicker = hardwareMap.get(Servo.class, "kicker");
+//        kicker.setPosition(kickerInit);
         shootFlap = hardwareMap.get(Servo.class, "shootFlap");
         shootFlap.setPosition(flapAngle);
 
-        leftLift = hardwareMap.get(Servo.class, "leftLift");
-        rightLift = hardwareMap.get(Servo.class, "rightLift");
-
-        leftLift.setPosition(leftLiftUp);
-        rightLift.setPosition(rightLiftUp);
+//        leftLift = hardwareMap.get(Servo.class, "leftLift");
+//        rightLift = hardwareMap.get(Servo.class, "rightLift");
+//
+//
+//        leftLift.setPosition(leftLiftUp);
+//        rightLift.setPosition(rightLiftUp);
 
         //Set motor run modes
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -107,6 +118,13 @@ public class TestAuto extends LinearOpMode {
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
         shooter.setDirection(DcMotor.Direction.REVERSE);
+
+        //Claw Arm
+        clawArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        clawArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        clawArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        clawServo.setPosition(clawOpen);
 
 
 //        int cameraMonitorViewId = this
@@ -156,42 +174,79 @@ public class TestAuto extends LinearOpMode {
 //            default:
 //        }
 
-        //Movement
-        encoderDrive(0.3,  2,  2, 2, 2, 2);
-        sleep(500);
-        //Strafe
-        encoderDrive(0.3,  -18,  18, 18, -18, 5);
-        sleep(500);
-        //Forward
-        encoderDrive(0.3,  39,  39, 39, 39, 5);
-        //Turn on Fly Wheel
-        shooter.setPower(1);
+//        //Movement
+//        encoderDrive(0.3,  2,  2, 2, 2, 2);
+//        sleep(500);
+//        //Strafe
+//        encoderDrive(0.3,  -18,  18, 18, -18, 5);
+//        sleep(500);
+//        //Forward
+//        encoderDrive(0.3,  39,  39, 39, 39, 5);
+//        //Turn on Fly Wheel
+//        shooter.setPower(1);
+//        sleep(5000);
+//        kick(1);
+//        //2nd Goal
+//        encoderDrive(0.3,  6.5,  -6.5, -6.5, 6.5, 5);
+//        kick(1);
+//        //3rd Goal
+//        encoderDrive(0.3,  7,  -7, -7, 7, 5);
+//        kick(1);
+//        //Strafe right and rotate toward high goal
+//        shootFlap.setPosition(flapAngle + 0);
+//        encoderDrive(0.3,  8,  -8, -8, 8, 5);
+//        encoderDrive(0.3,  2,  -2, 2, -2, 5);
+//        kick (4);
+//        shooter.setPower(0);
+//        //Park
+//        encoderDrive(0.3,  8,  8, 8, 8, 5);
+        clawServo.setPosition(clawClose);
+        sleep(1000);
+        armAngle(135, 0.2);
         sleep(5000);
-        kick(1);
-        //2nd Goal
-        encoderDrive(0.3,  6.5,  -6.5, -6.5, 6.5, 5);
-        kick(1);
-        //3rd Goal
-        encoderDrive(0.3,  7,  -7, -7, 7, 5);
-        kick(1);
-        //Strafe right and rotate toward high goal
-        shootFlap.setPosition(flapAngle + 0);
-        encoderDrive(0.3,  8,  -8, -8, 8, 5);
-        encoderDrive(0.3,  2,  -2, 2, -2, 5);
-        kick (4);
-        shooter.setPower(0);
-        //Park
-        encoderDrive(0.3,  8,  8, 8, 8, 5);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
     }
 
+    public void armAngle(double degrees, double power) {
+        int newTarget = clawArm.getCurrentPosition() + (int)(degrees * 1.4933);
+        clawArm.setTargetPosition(newTarget);
+        // Turn On RUN_TO_POSITION
+        clawArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // reset the timeout time and start motion.
+        runtime.reset();
+        clawArm.setPower(power);
+
+        double currentTime = runtime.milliseconds();
+        int clawPosition = clawArm.getCurrentPosition();
+        boolean clawStuck = false;
+
+        while (clawArm.isBusy() && !clawStuck) {
+            //Check if motor stuck
+            if (runtime.milliseconds() > currentTime + 100) {
+                currentTime = runtime.milliseconds();
+
+                if (clawPosition + 4 > clawArm.getCurrentPosition()) {
+                    clawArm.setPower(0);
+                    clawStuck = true;
+                } else {
+                    clawPosition = clawArm.getCurrentPosition();
+                }
+
+            }
+        }
+
+        //Stop
+        clawArm.setPower(0);
+        clawArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
     public void kick (int kickCount) {
         for (int i = 0; i < kickCount; i++) {
-            kicker.setPosition(kickerTo);
+//            kicker.setPosition(kickerTo);
             sleep(200);
-            kicker.setPosition(kickerInit);
+//            kicker.setPosition(kickerInit);
             sleep(200);
         }
     }

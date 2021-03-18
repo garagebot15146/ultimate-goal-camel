@@ -217,27 +217,19 @@ public class teleOp extends OpMode
         //Claw Servo
         if (gamepad1.left_trigger > 0.05) {
             clawServo.setPosition(clawOpen);
+            telemetry.addData("clawStatus", "Open");
         } else {
             clawServo.setPosition(clawClose);
+            telemetry.addData("clawStatus", "Close");
         }
 
-        //Testing clawArm
-        if (gamepad1.left_bumper) {
-            int newTarget = clawArm.getCurrentPosition() + (int)(537.6 * 0.2); //Ticks * Percentage of a rotation
-            clawArm.setTargetPosition(newTarget);
-            // Turn On RUN_TO_POSITION
-            clawArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            // reset the timeout time and start motion.
-            runtime.reset();
-            clawArm.setPower(0.3);
-
-            while (clawArm.isBusy()) {
-                //Nothing
-            }
-
-            //Stop
+        //ClawArm
+        if (gamepad1.dpad_up) {
+            clawArm.setPower(0.15);
+        } else  if (gamepad1.dpad_down){
+            clawArm.setPower(-0.15);
+        } else {
             clawArm.setPower(0);
-            clawArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
         /////////////
@@ -245,16 +237,8 @@ public class teleOp extends OpMode
         /////////////
 
         //Intake
-        if (gamepad2.b) {
-            //Slow
-            frontIntake.set(gamepad2.left_stick_y * 0.35);
-            backIntake.set(gamepad2.left_stick_y * 0.35);
-        } else {
-            //Fast
             frontIntake.set(gamepad2.left_stick_y);
             backIntake.set(gamepad2.left_stick_y);
-        }
-
 
 
 //        //If intake is active, bring lift down
