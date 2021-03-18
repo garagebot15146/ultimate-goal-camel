@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.vision.UGContourRingPipeline;
@@ -13,12 +15,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 
-@Autonomous(name="Auto", group="Autonomous")
+@Autonomous(name = "Auto", group = "Autonomous")
 //@Disabled
 public class auto extends LinearOpMode {
 
@@ -49,15 +52,14 @@ public class auto extends LinearOpMode {
     double rightLiftUp = 0.89; //1 Top
 
 
-
     //NEED TO FIND THESE NUMBERS. LEFT AT DEFAULT FOR NOW
-    static final double     COUNTS_PER_MOTOR_REV    = 537.6 ;    // eg: TETRIX Motor Encoder
-    static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 3.77953 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+    static final double COUNTS_PER_MOTOR_REV = 537.6;    // eg: TETRIX Motor Encoder
+    static final double DRIVE_GEAR_REDUCTION = 1.0;     // This is < 1.0 if geared UP
+    static final double WHEEL_DIAMETER_INCHES = 3.77953;     // For figuring circumference
+    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     DRIVE_SPEED             = 0.6;
-    static final double     TURN_SPEED              = 0.5;
+    static final double DRIVE_SPEED = 0.6;
+    static final double TURN_SPEED = 0.5;
 
     //Vision
     private static final int CAMERA_WIDTH = 1280; // width  of wanted camera resolution
@@ -153,14 +155,20 @@ public class auto extends LinearOpMode {
 //
 //        camera.openCameraDeviceAsync(() -> camera.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPRIGHT));
 
+
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+
+        Trajectory myTrajectory = drive.trajectoryBuilder(new Pose2d())
+                .forward(20)
+                .build();
+
         //Initialized
         telemetry.addData("Status", "Initialized");
-
-//        String height = String.valueOf(pipeline.getHeight());
-
-        // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
+        if (isStopRequested()) return;
+
+        drive.followTrajectory(myTrajectory);
 //        switch (height) {
 //            case "ZERO":
 //                telemetry.addData("Path", "Running Path 0");
@@ -174,43 +182,13 @@ public class auto extends LinearOpMode {
 //            default:
 //        }
 
-//        //Movement
-//        encoderDrive(0.3,  2,  2, 2, 2, 2);
-//        sleep(500);
-//        //Strafe
-//        encoderDrive(0.3,  -18,  18, 18, -18, 5);
-//        sleep(500);
-//        //Forward
-//        encoderDrive(0.3,  39,  39, 39, 39, 5);
-//        //Turn on Fly Wheel
-//        shooter.setPower(1);
-//        sleep(5000);
-//        kick(1);
-//        //2nd Goal
-//        encoderDrive(0.3,  6.5,  -6.5, -6.5, 6.5, 5);
-//        kick(1);
-//        //3rd Goal
-//        encoderDrive(0.3,  7,  -7, -7, 7, 5);
-//        kick(1);
-//        //Strafe right and rotate toward high goal
-//        shootFlap.setPosition(flapAngle + 0);
-//        encoderDrive(0.3,  8,  -8, -8, 8, 5);
-//        encoderDrive(0.3,  2,  -2, 2, -2, 5);
-//        kick (4);
-//        shooter.setPower(0);
-//        //Park
-//        encoderDrive(0.3,  8,  8, 8, 8, 5);
-        clawServo.setPosition(clawClose);
-        sleep(1000);
-        armAngle(135, 0.2);
-        sleep(5000);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
     }
 
     public void armAngle(double degrees, double power) {
-        int newTarget = clawArm.getCurrentPosition() + (int)(degrees * 1.4933);
+        int newTarget = clawArm.getCurrentPosition() + (int) (degrees * 1.4933);
         clawArm.setTargetPosition(newTarget);
         // Turn On RUN_TO_POSITION
         clawArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -242,7 +220,7 @@ public class auto extends LinearOpMode {
         clawArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void kick (int kickCount) {
+    public void kick(int kickCount) {
         for (int i = 0; i < kickCount; i++) {
 //            kicker.setPosition(kickerTo);
             sleep(200);
@@ -250,6 +228,7 @@ public class auto extends LinearOpMode {
             sleep(200);
         }
     }
+
     public void encoderDrive(double speed,
                              double leftFrontInches, double rightFrontInches, double leftBackInches, double rightBackInches,
                              double timeoutS) {
@@ -262,10 +241,10 @@ public class auto extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            newLeftFrontTarget = leftFront.getCurrentPosition() + (int)(leftFrontInches * COUNTS_PER_INCH);
-            newRightFrontTarget = rightFront.getCurrentPosition() + (int)(rightFrontInches * COUNTS_PER_INCH);
-            newLeftBackTarget = leftBack.getCurrentPosition() + (int)(leftBackInches * COUNTS_PER_INCH);
-            newRightBackTarget = rightBack.getCurrentPosition() + (int)(rightBackInches * COUNTS_PER_INCH);
+            newLeftFrontTarget = leftFront.getCurrentPosition() + (int) (leftFrontInches * COUNTS_PER_INCH);
+            newRightFrontTarget = rightFront.getCurrentPosition() + (int) (rightFrontInches * COUNTS_PER_INCH);
+            newLeftBackTarget = leftBack.getCurrentPosition() + (int) (leftBackInches * COUNTS_PER_INCH);
+            newRightBackTarget = rightBack.getCurrentPosition() + (int) (rightBackInches * COUNTS_PER_INCH);
 
             leftFront.setTargetPosition(newLeftFrontTarget);
             rightFront.setTargetPosition(newRightFrontTarget);
