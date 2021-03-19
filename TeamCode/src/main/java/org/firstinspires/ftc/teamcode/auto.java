@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -158,29 +159,44 @@ public class auto extends LinearOpMode {
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        Trajectory myTrajectory = drive.trajectoryBuilder(new Pose2d())
-                .forward(20)
+//Distance Constant
+        double dc = 0.5;
+        double powerShotX = 62 * dc;
+        int powerShotDistance = 6;
+        Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d())
+                .strafeTo(new Vector2d(powerShotX, 36 * dc))
+                .build();
+        Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
+                .strafeTo(new Vector2d(powerShotX, (36 - powerShotDistance) * dc))
                 .build();
 
-        //Initialized
+        Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
+                .strafeTo(new Vector2d(powerShotX, (36 - 2 * powerShotDistance) * dc))
+                .build();
+
+        Trajectory trajectory4 = drive.trajectoryBuilder(trajectory3.end())
+                .strafeTo(new Vector2d(powerShotX, (36 - 3 * powerShotDistance) * dc))
+                .build();
+
+        Trajectory returnHome = drive.trajectoryBuilder(trajectory3.end())
+                .strafeTo(new Vector2d(3, 0))
+                .build();
+
         telemetry.addData("Status", "Initialized");
         waitForStart();
 
         if (isStopRequested()) return;
 
-        drive.followTrajectory(myTrajectory);
-//        switch (height) {
-//            case "ZERO":
-//                telemetry.addData("Path", "Running Path 0");
-//                break;
-//            case "ONE":
-//                telemetry.addData("Path", "Running Path 1");
-//                break;
-//            case "FOUR":
-//                telemetry.addData("Path", "Running Path 4");
-//                break;
-//            default:
-//        }
+        //Move to Power Shot
+        drive.followTrajectory(trajectory1);
+        sleep(1000);
+        drive.followTrajectory(trajectory2);
+        sleep(1000);
+        drive.followTrajectory(trajectory3);
+        sleep(1000);
+        drive.followTrajectory(trajectory4);
+        sleep(4000);
+        drive.followTrajectory(returnHome);
 
 
         telemetry.addData("Path", "Complete");

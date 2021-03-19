@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 import java.util.Objects;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * This routine is designed to calculate the maximum angular velocity your bot can achieve under load.
@@ -23,6 +24,7 @@ import java.util.Objects;
 
 @Config
 @Autonomous(group = "drive")
+@Disabled
 public class MaxAngularVeloTuner extends LinearOpMode {
     public static double RUNTIME = 4.0;
 

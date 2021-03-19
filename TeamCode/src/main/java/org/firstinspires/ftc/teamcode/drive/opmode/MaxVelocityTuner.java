@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 import java.util.Objects;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * This routine is designed to calculate the maximum velocity your bot can achieve under load. It
@@ -25,6 +26,7 @@ import java.util.Objects;
  */
 @Config
 @Autonomous(group = "drive")
+@Disabled
 public class MaxVelocityTuner extends LinearOpMode {
     public static double RUNTIME = 2.0;
 
