@@ -44,7 +44,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 @Autonomous(group = "drive")
 //@Disabled
 public class ManualFeedforwardTuner extends LinearOpMode {
-    public static double DISTANCE = 73; // in
+    public static double DISTANCE = 60 ; // in
 
     private FtcDashboard dashboard = FtcDashboard.getInstance();
 
