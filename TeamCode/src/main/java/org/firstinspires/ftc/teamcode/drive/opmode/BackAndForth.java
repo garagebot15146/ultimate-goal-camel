@@ -27,7 +27,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  */
 @Config
 @Autonomous(group = "drive")
-@Disabled
+//@Disabled
 public class BackAndForth extends LinearOpMode {
 
     public static double DISTANCE = 50;
