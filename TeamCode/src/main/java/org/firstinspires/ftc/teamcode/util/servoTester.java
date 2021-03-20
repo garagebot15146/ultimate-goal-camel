@@ -62,15 +62,18 @@ public class servoTester extends OpMode
     double currentTime;
 
     //Declare servo object
-    SimpleServo kicker;
+    SimpleServo leftLift;
+    SimpleServo rightLift;
 
-    double servoInit = 0.5;
+    double servo1Init = 0.5;
+    double servo2Init = 0.5;
 
     //Initialize
     @Override
     public void init() {
         //Define servo hardware maps
-        kicker = new SimpleServo(hardwareMap, "kicker") ;
+        leftLift = new SimpleServo(hardwareMap, "leftLift") ;
+        rightLift = new SimpleServo(hardwareMap, "rightLift") ;
 
         //Initialized
         telemetry.addData("Status", "Initialized");
@@ -99,30 +102,62 @@ public class servoTester extends OpMode
         if(gamepad1.a) {
             //Fast
             if(gamepad1.dpad_up) {
-                servoInit = servoInit + 0.001;
+                servo1Init = servo1Init + 0.001;
             } else if (gamepad1.dpad_down) {
-                servoInit = servoInit - 0.001;
+                servo1Init = servo1Init - 0.001;
             }
         } else {
             //Slow
             if(gamepad1.dpad_up) {
-                servoInit = servoInit + 0.0001;
+                servo1Init = servo1Init + 0.0001;
             } else if (gamepad1.dpad_down) {
-                servoInit = servoInit - 0.0001;
+                servo1Init = servo1Init - 0.0001;
             }
         }
 
         //Correct for out of bounds numbers
-        if (servoInit < 0) {
-            servoInit = 0;
-        } else if (servoInit > 1) {
-            servoInit = 1;
+        if (servo1Init < 0) {
+            servo1Init = 0;
+        } else if (servo1Init > 1) {
+            servo1Init = 1;
         }
 
-        telemetry.addData("Servo Position", servoInit);
+        /////////////
+        //GAMEPAD 2//
+        /////////////
+
+        //Use dpad to move servo
+        if(gamepad2.a) {
+            //Fast
+            if(gamepad2.dpad_up) {
+                servo2Init = servo2Init + 0.001;
+            } else if (gamepad2.dpad_down) {
+                servo2Init = servo2Init - 0.001;
+            }
+        } else {
+            //Slow
+            if(gamepad2.dpad_up) {
+                servo2Init = servo2Init + 0.0001;
+            } else if (gamepad2.dpad_down) {
+                servo2Init = servo2Init - 0.0001;
+            }
+        }
+
+        //Correct for out of bounds numbers
+        if (servo2Init < 0) {
+            servo2Init = 0;
+        } else if (servo2Init > 1) {
+            servo2Init = 1;
+        }
+
+        telemetry.addData("Servo 1 Position", servo1Init);
+        telemetry.addData("Servo 2 Position", servo2Init);
 
         //CHANGE THIS if using a different servo
-        kicker.setPosition(servoInit);
+        leftLift.setPosition(servo1Init);
+        rightLift.setPosition(servo2Init);
+
+
 
     }
 

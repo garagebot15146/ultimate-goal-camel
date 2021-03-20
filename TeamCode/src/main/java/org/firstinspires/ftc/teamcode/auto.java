@@ -36,21 +36,24 @@ public class auto extends LinearOpMode {
 
     private DcMotor clawArm = null;
     private Servo clawServo = null;
-    double clawClose = 0.92;
+    double clawClose = 0.90;
     double clawOpen = 0.6;
 
     private DcMotor shooter = null;
     private Servo kicker = null;
-    double kickerInit = 0.2537;
-    double kickerTo = 0.4412;
+    double kickerInit = 0.3200;
+    double kickerTo = 0.5848;
     private Servo shootFlap;
-    double flapAngle = 0.06; //Higher = Steeper
+    double flapAngle = 0.1; //Higher = Steeper
 
-//    private Servo leftLift = null;
-//    private Servo rightLift = null;
+    private Servo leftLift = null;
+    private Servo rightLift = null;
 
-    double leftLiftUp = 1 - 0.92; //0 Top
-    double rightLiftUp = 0.89; //1 Top
+    double leftLiftUp = 0.9376; //1 Top
+    double rightLiftUp = 0.9613; //1 Top
+
+    double leftLiftDown = 0.4815;
+    double rightLiftDown = 0.4783;
 
 
     //NEED TO FIND THESE NUMBERS. LEFT AT DEFAULT FOR NOW
@@ -96,12 +99,11 @@ public class auto extends LinearOpMode {
         shootFlap = hardwareMap.get(Servo.class, "shootFlap");
         shootFlap.setPosition(flapAngle);
 
-//        leftLift = hardwareMap.get(Servo.class, "leftLift");
-//        rightLift = hardwareMap.get(Servo.class, "rightLift");
-//
-//
-//        leftLift.setPosition(leftLiftUp);
-//        rightLift.setPosition(rightLiftUp);
+        leftLift = hardwareMap.get(Servo.class, "leftLift");
+        rightLift = hardwareMap.get(Servo.class, "rightLift");
+
+        leftLift.setPosition(1 - leftLiftUp);
+        rightLift.setPosition(rightLiftUp);
 
         //Set motor run modes
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -187,17 +189,19 @@ public class auto extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        //Move to Power Shot
-        drive.followTrajectory(trajectory1);
-        sleep(1000);
-        drive.followTrajectory(trajectory2);
-        sleep(1000);
-        drive.followTrajectory(trajectory3);
-        sleep(1000);
-        drive.followTrajectory(trajectory4);
-        sleep(4000);
-        drive.followTrajectory(returnHome);
+//        //Move to Power Shot
+//        drive.followTrajectory(trajectory1);
+//        sleep(1000);
+//        drive.followTrajectory(trajectory2);
+//        sleep(1000);
+//        drive.followTrajectory(trajectory3);
+//        sleep(1000);
+//        drive.followTrajectory(trajectory4);
+//        sleep(4000);
+//        drive.followTrajectory(returnHome);
 
+        armAngle(-90, 0.3);
+        sleep(4000);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -221,7 +225,8 @@ public class auto extends LinearOpMode {
             if (runtime.milliseconds() > currentTime + 100) {
                 currentTime = runtime.milliseconds();
 
-                if (clawPosition + 4 > clawArm.getCurrentPosition()) {
+                if (((clawPosition + 4 > clawArm.getCurrentPosition()) && degrees > 0) ||
+                        (clawPosition - 4 < clawArm.getCurrentPosition()) && degrees < 0) {
                     clawArm.setPower(0);
                     clawStuck = true;
                 } else {

@@ -60,6 +60,7 @@ public class teleOp extends OpMode
     //Declare runtime variable
     private ElapsedTime runtime = new ElapsedTime();
     double currentTime;
+    double shooterTime = runtime.milliseconds();
 
     //Set Motor objects
     Motor leftFront;
@@ -77,26 +78,31 @@ public class teleOp extends OpMode
     SimpleServo leftLift;
     SimpleServo rightLift;
 
-    double leftLiftUp = 1; //1 Top
-    double rightLiftUp = 1; //1 Top
+    double leftLiftUp = 0.9376; //1 Top
+    double rightLiftUp = 0.9613; //1 Top
 
-    double leftLiftDown = 0.43;
-    double rightLiftDown = 0.43;
+    double leftLiftDown = 0.4815;
+    double rightLiftDown = 0.4783;
 
     SimpleServo clawServo;
-    double clawClose = 0.92;
+    double clawClose = 0.90;
     double clawOpen = 0.6;
 
     SimpleServo kicker;
     SimpleServo shootFlap;
 
-    double kickerInit = 0.2537;
-    double kickerTo = 0.4412;
+    double kickerInit = 0.3200;
+    double kickerTo = 0.5848;
 
     boolean kickerHasRun = false;
     boolean kickerMethodRun = false;
 
-    double flapAngle = 0.0635; //Higher = Steeper
+    double flapAngleGoal = 0.121; //Higher = Steeper
+    double flapAnglePowerShot = 0.1;
+
+    //Shooter RPM
+    double shooterPosition;
+    double shooterRPM;
 
     //Initialize
     @Override
@@ -147,7 +153,7 @@ public class teleOp extends OpMode
 
         //Initialize Servo Positions
         kicker.setPosition(kickerInit);
-        shootFlap.setPosition(flapAngle);
+        shootFlap.setPosition(flapAngleGoal);
 
         //Initialized
         telemetry.addData("Status", "Initialized");
@@ -217,10 +223,8 @@ public class teleOp extends OpMode
         //Claw Servo
         if (gamepad1.left_trigger > 0.05) {
             clawServo.setPosition(clawOpen);
-            telemetry.addData("clawStatus", "Open");
         } else {
             clawServo.setPosition(clawClose);
-            telemetry.addData("clawStatus", "Close");
         }
 
         //ClawArm
@@ -247,16 +251,22 @@ public class teleOp extends OpMode
             backIntake.set(gamepad2.left_stick_y);
 
 
-//        //If intake is active, bring lift down
-//        if(gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) {
-//            leftLift.setPosition(1 - leftLiftDown);
-//            rightLift.setPosition(rightLiftDown);
-//        }
+        //If intake is active, bring lift down
+        if(gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) {
+            leftLift.setPosition(1 - leftLiftDown);
+            rightLift.setPosition(rightLiftDown);
+        }
 
 
         //Shooter
         shooter.set(gamepad2.right_trigger * 1.00);
-        telemetry.addData("right_trigger", gamepad2.right_trigger);
+
+        //Measure RPM
+        if (shooterTime + 100 < runtime.milliseconds()) {
+            shooterTime = runtime.milliseconds();
+            shooterRPM = (shooter.getCurrentPosition() - shooterPosition) / 28 * 10 * 60;
+            shooterPosition = shooter.getCurrentPosition();
+        }
 
         //Lift
         if (gamepad2.dpad_up) {
@@ -270,17 +280,15 @@ public class teleOp extends OpMode
         }
 
         //Kicker
-        if (gamepad2.a && !kickerHasRun && !gamepad2.start) {
+        if (gamepad2.a && !kickerHasRun && !gamepad2.start && shooterRPM > 4000) {
             currentTime = runtime.milliseconds();
             kicker.setPosition(kickerTo);
             kickerHasRun = true;
-            telemetry.addData("Kicked?", "Out");
         }
 
         if (runtime.milliseconds() > currentTime + 150) {
             kicker.setPosition(kickerInit);
             kickerMethodRun = true;
-            telemetry.addData("Kicked?", "In");
         }
 
         if (kickerMethodRun && !gamepad2.a) {
@@ -290,13 +298,14 @@ public class teleOp extends OpMode
 
         //shootFlap testing
         if (gamepad2.left_bumper) {
-            flapAngle = flapAngle - 0.0005;
+            flapAngleGoal = flapAngleGoal - 0.0005;
         } else if (gamepad2.right_bumper) {
-            flapAngle = flapAngle + 0.0005;
+            flapAngleGoal = flapAngleGoal + 0.0005;
         }
 
-        shootFlap.setPosition(flapAngle);
-        telemetry.addData("flapAngle", flapAngle);
+        shootFlap.setPosition(flapAngleGoal);
+        telemetry.addData("flapAngle", flapAngleGoal);
+        telemetry.addData("Shooter RPM", (int) shooterRPM);
 
     }
 
