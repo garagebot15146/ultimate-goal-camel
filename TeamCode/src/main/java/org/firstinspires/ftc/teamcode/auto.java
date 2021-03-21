@@ -53,8 +53,8 @@ public class auto extends LinearOpMode {
     private Servo leftLift = null;
     private Servo rightLift = null;
 
-    double leftLiftUp = 0.9376; //1 Top
-    double rightLiftUp = 0.9613; //1 Top
+    double leftLiftUp = 0.9476; //1 Top
+    double rightLiftUp = 0.9713; //1 Top
 
     double leftLiftDown = 0.4815;
     double rightLiftDown = 0.4783;

@@ -78,8 +78,8 @@ public class teleOp extends OpMode
     SimpleServo leftLift;
     SimpleServo rightLift;
 
-    double leftLiftUp = 0.9376; //1 Top
-    double rightLiftUp = 0.9613; //1 Top
+    double leftLiftUp = 0.9476; //1 Top
+    double rightLiftUp = 0.9713; //1 Top
 
     double leftLiftDown = 0.4815;
     double rightLiftDown = 0.4783;
@@ -220,22 +220,6 @@ public class teleOp extends OpMode
             //This is normal.  Don't put anything here.
         }
 
-        //Claw Servo
-        if (gamepad1.left_trigger > 0.05) {
-            clawServo.setPosition(clawOpen);
-        } else {
-            clawServo.setPosition(clawClose);
-        }
-
-        //ClawArm
-        if (gamepad1.dpad_up) {
-            clawArm.setPower(0.15);
-        } else  if (gamepad1.dpad_down){
-            clawArm.setPower(-0.15);
-        } else {
-            clawArm.setPower(0);
-        }
-
         // Send power to wheel motors
         leftFront.set(leftFrontPower);
         rightFront.set(rightFrontPower);
@@ -280,7 +264,7 @@ public class teleOp extends OpMode
         }
 
         //Kicker
-        if (gamepad2.a && !kickerHasRun && !gamepad2.start && shooterRPM > 4000) {
+        if (gamepad2.a && !kickerHasRun && !gamepad2.start) {
             currentTime = runtime.milliseconds();
             kicker.setPosition(kickerTo);
             kickerHasRun = true;
@@ -296,15 +280,33 @@ public class teleOp extends OpMode
             kickerHasRun = false;
         }
 
-        //shootFlap testing
-        if (gamepad2.left_bumper) {
-            flapAngleGoal = flapAngleGoal - 0.0005;
-        } else if (gamepad2.right_bumper) {
-            flapAngleGoal = flapAngleGoal + 0.0005;
+        //shootFlap
+        if (gamepad2.y) {
+            //Power Shot (Lower)
+            shootFlap.setPosition(flapAnglePowerShot);
+        } else if (gamepad2.b) {
+            //Goal (Higher)
+            shootFlap.setPosition(flapAngleGoal);
         }
 
-        shootFlap.setPosition(flapAngleGoal);
-        telemetry.addData("flapAngle", flapAngleGoal);
+        //ClawArm
+        if (gamepad2.left_bumper) {
+            //Up
+            clawArm.setPower(0.3);
+        } else  if (gamepad2.right_bumper){
+            //Down
+            clawArm.setPower(-0.3);
+        } else {
+            clawArm.setPower(0);
+        }
+
+        //Claw Servo
+        if (gamepad2.x) {
+            clawServo.setPosition(clawOpen);
+        } else {
+            clawServo.setPosition(clawClose);
+        }
+
         telemetry.addData("Shooter RPM", (int) shooterRPM);
 
     }
