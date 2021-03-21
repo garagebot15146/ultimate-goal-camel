@@ -265,13 +265,14 @@ public class auto extends LinearOpMode {
         sleep(300);
         //Prepare to intake one ring
         drive.followTrajectory(trajectoryB5);
-        backIntake.setPower(0);
         shooter.setPower(1);
         shootFlap.setPosition(flapAngleGoal);
         drive.followTrajectory(trajectoryB6);
+        backIntake.setPower(0);
         basketUp();
         armAngle(-90, 0.3);
         clawServo.setPosition(clawOpen);
+        sleep(200);
         drive.followTrajectory(trajectoryB7);
         clawServo.setPosition(clawClose);
         sleep(500);
