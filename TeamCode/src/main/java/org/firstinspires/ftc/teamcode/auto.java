@@ -34,6 +34,9 @@ public class auto extends LinearOpMode {
     private DcMotor leftBack = null;
     private DcMotor rightBack = null;
 
+    private DcMotor frontIntake = null;
+    private DcMotor backIntake = null;
+
     private DcMotor clawArm = null;
     private Servo clawServo = null;
     double clawClose = 0.90;
@@ -44,7 +47,8 @@ public class auto extends LinearOpMode {
     double kickerInit = 0.3200;
     double kickerTo = 0.5848;
     private Servo shootFlap;
-    double flapAngle = 0.1; //Higher = Steeper
+    double flapAngleGoal = 0.121; //Higher = Steeper
+    double flapAnglePowerShot = 0.1;
 
     private Servo leftLift = null;
     private Servo rightLift = null;
@@ -89,6 +93,9 @@ public class auto extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
+        frontIntake = hardwareMap.get(DcMotor.class, "frontIntake");
+        backIntake = hardwareMap.get(DcMotor.class, "backIntake");
+
         clawArm = hardwareMap.get(DcMotor.class, "clawArm");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
 
@@ -97,7 +104,7 @@ public class auto extends LinearOpMode {
         kicker = hardwareMap.get(Servo.class, "kicker");
         kicker.setPosition(kickerInit);
         shootFlap = hardwareMap.get(Servo.class, "shootFlap");
-        shootFlap.setPosition(flapAngle);
+        shootFlap.setPosition(flapAnglePowerShot);
 
         leftLift = hardwareMap.get(Servo.class, "leftLift");
         rightLift = hardwareMap.get(Servo.class, "rightLift");
@@ -122,6 +129,9 @@ public class auto extends LinearOpMode {
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
+        frontIntake.setDirection(DcMotor.Direction.FORWARD);
+        backIntake.setDirection(DcMotor.Direction.FORWARD);
+
         shooter.setDirection(DcMotor.Direction.REVERSE);
 
         //Claw Arm
@@ -130,6 +140,7 @@ public class auto extends LinearOpMode {
         clawArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         clawServo.setPosition(clawClose);
+        basketUp();
 
 
 //        int cameraMonitorViewId = this
@@ -161,47 +172,127 @@ public class auto extends LinearOpMode {
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-//Distance Constant
+//CASE B START
+        //Distance Constant
         double dc = 0.5;
-        double powerShotX = 62 * dc;
-        int powerShotDistance = 6;
-        Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d())
-                .strafeTo(new Vector2d(powerShotX, 36 * dc))
+        double powerShotX = 87 * dc;
+        int powerShotDistance = 10;
+        double powerShotStrafe = 48.5;
+        Trajectory trajectoryB1 = drive.trajectoryBuilder(new Pose2d())
+                .strafeTo(new Vector2d(powerShotX, (powerShotStrafe + 1.5) * dc))
                 .build();
-        Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
-                .strafeTo(new Vector2d(powerShotX, (36 - powerShotDistance) * dc))
-                .build();
-
-        Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
-                .strafeTo(new Vector2d(powerShotX, (36 - 2 * powerShotDistance) * dc))
+        Trajectory trajectoryB2 = drive.trajectoryBuilder(trajectoryB1.end())
+                .strafeTo(new Vector2d(powerShotX, (powerShotStrafe - powerShotDistance) * dc))
                 .build();
 
-        Trajectory trajectory4 = drive.trajectoryBuilder(trajectory3.end())
-                .strafeTo(new Vector2d(powerShotX, (36 - 3 * powerShotDistance) * dc))
+        Trajectory trajectoryB3 = drive.trajectoryBuilder(trajectoryB2.end())
+                .strafeTo(new Vector2d(powerShotX, (powerShotStrafe - 2 * powerShotDistance) * dc))
                 .build();
 
-        Trajectory returnHome = drive.trajectoryBuilder(trajectory3.end())
-                .strafeTo(new Vector2d(3, 0))
+        Trajectory trajectoryB4 = drive.trajectoryBuilder(trajectoryB3.end())
+                .strafeTo(new Vector2d(123 * dc, 2 * dc))
                 .build();
+
+        Trajectory trajectoryB5 = drive.trajectoryBuilder(trajectoryB4.end())
+                .strafeTo(new Vector2d(40 * dc, -5 * dc))
+                .addDisplacementMarker(10 * dc, () -> {
+                    backIntake.setPower(1);
+                })
+                .build();
+
+        Trajectory trajectoryB6 = drive.trajectoryBuilder(trajectoryB5.end())
+                .lineToLinearHeading(new Pose2d(30 * dc, 20 * dc, Math.toRadians(-96)))
+                .build();
+
+        Trajectory trajectoryB7 = drive.trajectoryBuilder(trajectoryB6.end())
+                .lineToLinearHeading(new Pose2d(30 * dc, -3 * dc, Math.toRadians(-96)))
+                .build();
+
+        Trajectory trajectoryB8 = drive.trajectoryBuilder(trajectoryB7.end())
+                .lineToLinearHeading(new Pose2d(50 * dc, 8 * dc, Math.toRadians(0)))
+                .build();
+
+        Trajectory trajectoryB9 = drive.trajectoryBuilder(trajectoryB8.end())
+                .lineToLinearHeading(new Pose2d(powerShotX, 8 * dc, Math.toRadians(0)))
+                .addDisplacementMarker(25 * dc, () -> {
+                    kick(1);
+                    shooter.setPower(0);
+                })
+                .build();
+
+        Trajectory trajectoryB10 = drive.trajectoryBuilder(trajectoryB9.end())
+                .strafeTo(new Vector2d(123 * dc, 8 * dc))
+                .build();
+
+        Trajectory trajectoryB11 = drive.trajectoryBuilder(trajectoryB10.end())
+                .strafeTo(new Vector2d(110 * dc, 8 * dc))
+                .build();
+
+        Trajectory returnHome = drive.trajectoryBuilder(trajectoryB11.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
+                .lineToLinearHeading(new Pose2d(3 * dc, 0 * dc, Math.toRadians(0)))
+                .build();
+//CASE B END
 
         telemetry.addData("Status", "Initialized");
         waitForStart();
 
         if (isStopRequested()) return;
 
-//        //Move to Power Shot
-//        drive.followTrajectory(trajectory1);
-//        sleep(1000);
-//        drive.followTrajectory(trajectory2);
-//        sleep(1000);
-//        drive.followTrajectory(trajectory3);
-//        sleep(1000);
-//        drive.followTrajectory(trajectory4);
+        //Turn on shooter. Move to Power Shot
+        shooter.setPower(1);
+        drive.followTrajectory(trajectoryB1);
+                sleep(500);
+        //Take shot 1
+        kick(1);
+        drive.followTrajectory(trajectoryB2);
+        sleep(100);
+        //Take shot 2
+        kick(1);
+        drive.followTrajectory(trajectoryB3);
+        sleep(100);
+        //Take shot 3
+        kick(1);
+        shooter.setPower(0);
+        //Basket down. Drive to zone
+        basketDown();
+        drive.followTrajectory(trajectoryB4);
+        //Drop off wobble goal
+        armAngle(-90, 0.3);
+        clawServo.setPosition(clawOpen);
+        sleep(500);
+        armAngle(120, 0.4);
+        clawServo.setPosition(clawClose);
+        sleep(300);
+        //Prepare to intake one ring
+        drive.followTrajectory(trajectoryB5);
+        backIntake.setPower(0);
+        shooter.setPower(1);
+        shootFlap.setPosition(flapAngleGoal);
+        drive.followTrajectory(trajectoryB6);
+        basketUp();
+        armAngle(-90, 0.3);
+        clawServo.setPosition(clawOpen);
+        drive.followTrajectory(trajectoryB7);
+        clawServo.setPosition(clawClose);
+        sleep(500);
+        //Drive to zone again
+        drive.followTrajectory(trajectoryB8);
+        drive.followTrajectory(trajectoryB9);
+        drive.followTrajectory(trajectoryB10);
+        //Drop off wobble goal 2
+        clawServo.setPosition(clawOpen);
+        sleep(500);
+        armAngle(120, 0.4);
+        clawServo.setPosition(clawClose);
+        drive.followTrajectory(trajectoryB11);
+
+
+
+
 //        sleep(4000);
+//        //Return home
 //        drive.followTrajectory(returnHome);
 
-        armAngle(-90, 0.3);
-        sleep(4000);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -248,6 +339,16 @@ public class auto extends LinearOpMode {
             kicker.setPosition(kickerInit);
             sleep(200);
         }
+    }
+
+    public void basketUp() {
+        leftLift.setPosition(1 - leftLiftUp);
+        rightLift.setPosition(rightLiftUp);
+    }
+
+    public void basketDown() {
+        leftLift.setPosition(1 - leftLiftDown);
+        rightLift.setPosition(rightLiftDown);
     }
 
     public void encoderDrive(double speed,
