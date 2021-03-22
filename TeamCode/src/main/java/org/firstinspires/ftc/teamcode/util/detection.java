@@ -48,14 +48,14 @@ public class detection extends LinearOpMode {
 
         UGContourRingPipeline.Config.setHORIZON(HORIZON);
 
-        camera.openCameraDeviceAsync(() -> camera.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPRIGHT));
+        camera.openCameraDeviceAsync(() -> camera.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPSIDE_DOWN));
 
         FtcDashboard.getInstance().startCameraStream(camera, 30);
         waitForStart();
 
         while (opModeIsActive()) {
-            String height = "[HEIGHT]" + " " + pipeline.getHeight();
-            telemetry.addData("[Ring Stack] >>", height);
+            String height = "Stack Height" + " " + pipeline.getHeight();
+            telemetry.addData("Which Stack", height);
             telemetry.update();
         }
 
