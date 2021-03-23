@@ -60,7 +60,6 @@ public class auto extends LinearOpMode {
     double rightLiftDown = 0.4783;
 
 
-    //NEED TO FIND THESE NUMBERS. LEFT AT DEFAULT FOR NOW
     static final double COUNTS_PER_MOTOR_REV = 537.6;    // eg: TETRIX Motor Encoder
     static final double DRIVE_GEAR_REDUCTION = 1.0;     // This is < 1.0 if geared UP
     static final double WHEEL_DIAMETER_INCHES = 3.77953;     // For figuring circumference

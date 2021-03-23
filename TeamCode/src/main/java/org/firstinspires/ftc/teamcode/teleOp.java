@@ -38,6 +38,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -61,6 +68,11 @@ public class teleOp extends OpMode
     private ElapsedTime runtime = new ElapsedTime();
     double currentTime;
     double shooterTime = runtime.milliseconds();
+    double vibrateTime = runtime.milliseconds();
+
+    //Initialize IMU
+    BNO055IMU imu;
+    Orientation lastAngles = new Orientation();
 
     //Set Motor objects
     Motor leftFront;
@@ -83,6 +95,10 @@ public class teleOp extends OpMode
 
     double leftLiftDown = 0.4815;
     double rightLiftDown = 0.4783;
+
+    boolean g1rightbumperpressed = false;
+    boolean vibrated = false;
+    boolean switchVibrate = false;
 
     SimpleServo clawServo;
     double clawClose = 0.90;
@@ -155,8 +171,20 @@ public class teleOp extends OpMode
         kicker.setPosition(kickerInit);
         shootFlap.setPosition(flapAngleGoal);
 
+        //Hardware Map IMU
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+        parameters.mode                = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = false;
+
+        imu.initialize(parameters);
+
         //Initialized
         telemetry.addData("Status", "Initialized");
+        telemetry.update();
     }
 
     //Repeat loop prior to hitting play
@@ -226,14 +254,61 @@ public class teleOp extends OpMode
         leftBack.set(leftBackPower);
         rightBack.set(rightBackPower);
 
+        //Vibrate Basket
+
+        if (gamepad1.right_bumper) {
+            g1rightbumperpressed = true;
+            //Check if 200 ms has passed
+            if (vibrateTime + 75 < runtime.milliseconds()) {
+                //If 200ms has passed
+                vibrateTime = runtime.milliseconds();
+
+                //vibrated true means up oscillation
+                if (vibrated == true) {
+                    //Oscillate up
+                    leftLift.setPosition(1 - (leftLiftUp + 0.02));
+                    rightLift.setPosition(rightLiftUp + 0.02);
+                } else {
+                    //Oscillate Down
+                    leftLift.setPosition(1 - (leftLiftUp - 0.02));
+                    rightLift.setPosition(rightLiftUp - 0.02);
+                }
+
+                //Switch vibrated variable
+                if (vibrated == true) {
+                    vibrated = false;
+                } else {
+                    vibrated = true;
+                }
+            }
+        } else if (!gamepad1.right_bumper && g1rightbumperpressed == true) {
+            //When release right bumper, return lift to up position (trigger once)
+            leftLift.setPosition(1 - leftLiftUp);
+            rightLift.setPosition(rightLiftUp);
+            g1rightbumperpressed = false;
+        }
+
+
+
         /////////////
         //GAMEPAD 2//
         /////////////
 
         //Intake
-            frontIntake.set(gamepad2.left_stick_y);
-            backIntake.set(gamepad2.left_stick_y);
 
+        if (gamepad2.left_stick_y > 0.1) {
+            //In
+            frontIntake.set(1);
+            backIntake.set(1);
+        } else if (gamepad2.left_stick_y < -0.1 ) {
+            //Out
+            frontIntake.set(-1);
+            backIntake.set(-1);
+        } else {
+            //Stop
+            frontIntake.set(0);
+            backIntake.set(0);
+        }
 
         //If intake is active, bring lift down
         if(gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) {
@@ -307,7 +382,13 @@ public class teleOp extends OpMode
             clawServo.setPosition(clawClose);
         }
 
+        //IMU
+        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        telemetry.addData("1 imu heading", lastAngles.firstAngle);
+
+
         telemetry.addData("Shooter RPM", (int) shooterRPM);
+
 
     }
 
