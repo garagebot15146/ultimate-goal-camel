@@ -90,11 +90,11 @@ public class teleOp extends OpMode
     SimpleServo leftLift;
     SimpleServo rightLift;
 
-    double leftLiftUp = 0.9476; //1 Top
-    double rightLiftUp = 0.9713; //1 Top
+    double leftLiftUp = 0.9176; //1 Top
+    double rightLiftUp = 0.9413; //1 Top
 
-    double leftLiftDown = 0.4815;
-    double rightLiftDown = 0.4783;
+    double leftLiftDown = 0.45;
+    double rightLiftDown = 0.45;
 
     boolean g1rightbumperpressed = false;
     boolean vibrated = false;
@@ -113,7 +113,7 @@ public class teleOp extends OpMode
     boolean kickerHasRun = false;
     boolean kickerMethodRun = false;
 
-    double flapAngleGoal = 0.121; //Higher = Steeper
+    double flapAngleGoal = 0.12; //Higher = Steeper
     double flapAnglePowerShot = 0.1;
 
     //Shooter RPM
@@ -259,19 +259,19 @@ public class teleOp extends OpMode
         if (gamepad1.right_bumper) {
             g1rightbumperpressed = true;
             //Check if 200 ms has passed
-            if (vibrateTime + 75 < runtime.milliseconds()) {
+            if (vibrateTime + 150 < runtime.milliseconds()) {
                 //If 200ms has passed
                 vibrateTime = runtime.milliseconds();
 
                 //vibrated true means up oscillation
                 if (vibrated == true) {
                     //Oscillate up
-                    leftLift.setPosition(1 - (leftLiftUp + 0.02));
-                    rightLift.setPosition(rightLiftUp + 0.02);
+                    leftLift.setPosition(1 - (leftLiftUp + 0));
+                    rightLift.setPosition(rightLiftUp + 0);
                 } else {
                     //Oscillate Down
-                    leftLift.setPosition(1 - (leftLiftUp - 0.02));
-                    rightLift.setPosition(rightLiftUp - 0.02);
+                    leftLift.setPosition(1 - (leftLiftUp - 0.08));
+                    rightLift.setPosition(rightLiftUp - 0.08);
                 }
 
                 //Switch vibrated variable
