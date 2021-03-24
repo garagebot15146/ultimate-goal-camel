@@ -50,9 +50,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  */
 @Config
 @Autonomous(group = "drive")
-@Disabled
+//@Disabled
 public class DriveVelocityPIDTuner extends LinearOpMode {
-    public static double DISTANCE = 72; // in
+    public static double DISTANCE = 60; // in
 
     enum Mode {
         DRIVER_MODE,
