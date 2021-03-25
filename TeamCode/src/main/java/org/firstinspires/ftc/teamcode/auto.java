@@ -176,7 +176,7 @@ public class auto extends LinearOpMode {
         double dc = 0.5;
         double powerShotX = 87 * dc;
         int powerShotDistance = 10;
-        double powerShotStrafe = 48.5;
+        double powerShotStrafe = 52.5;
         Trajectory trajectoryB1 = drive.trajectoryBuilder(new Pose2d())
                 .strafeTo(new Vector2d(powerShotX, (powerShotStrafe + 1.5) * dc))
                 .build();
@@ -240,51 +240,51 @@ public class auto extends LinearOpMode {
         //Turn on shooter. Move to Power Shot
         shooter.setPower(1);
         drive.followTrajectory(trajectoryB1);
-                sleep(500);
+                sleep(1000);
         //Take shot 1
         kick(1);
         drive.followTrajectory(trajectoryB2);
-        sleep(100);
+//        sleep(1000);
         //Take shot 2
         kick(1);
         drive.followTrajectory(trajectoryB3);
-        sleep(100);
+//        sleep(100);
         //Take shot 3
         kick(1);
-        shooter.setPower(0);
-        //Basket down. Drive to zone
-        basketDown();
-        drive.followTrajectory(trajectoryB4);
-        //Drop off wobble goal
-        armAngle(-90, 0.3);
-        clawServo.setPosition(clawOpen);
-        sleep(500);
-        armAngle(120, 0.4);
-        clawServo.setPosition(clawClose);
-        sleep(300);
-        //Prepare to intake one ring
-        drive.followTrajectory(trajectoryB5);
-        shooter.setPower(1);
-        shootFlap.setPosition(flapAngleGoal);
-        drive.followTrajectory(trajectoryB6);
-        backIntake.setPower(0);
-        basketUp();
-        armAngle(-90, 0.3);
-        clawServo.setPosition(clawOpen);
-        sleep(200);
-        drive.followTrajectory(trajectoryB7);
-        clawServo.setPosition(clawClose);
-        sleep(500);
-        //Drive to zone again
-        drive.followTrajectory(trajectoryB8);
-        drive.followTrajectory(trajectoryB9);
-        drive.followTrajectory(trajectoryB10);
-        //Drop off wobble goal 2
-        clawServo.setPosition(clawOpen);
-        sleep(500);
-        armAngle(120, 0.4);
-        clawServo.setPosition(clawClose);
-        drive.followTrajectory(trajectoryB11);
+//        shooter.setPower(0);
+//        //Basket down. Drive to zone
+//        basketDown();
+//        drive.followTrajectory(trajectoryB4);
+//        //Drop off wobble goal
+//        armAngle(-90, 0.3);
+//        clawServo.setPosition(clawOpen);
+//        sleep(500);
+//        armAngle(120, 0.4);
+//        clawServo.setPosition(clawClose);
+//        sleep(300);
+//        //Prepare to intake one ring
+//        drive.followTrajectory(trajectoryB5);
+//        shooter.setPower(1);
+//        shootFlap.setPosition(flapAngleGoal);
+//        drive.followTrajectory(trajectoryB6);
+//        backIntake.setPower(0);
+//        basketUp();
+//        armAngle(-90, 0.3);
+//        clawServo.setPosition(clawOpen);
+//        sleep(200);
+//        drive.followTrajectory(trajectoryB7);
+//        clawServo.setPosition(clawClose);
+//        sleep(500);
+//        //Drive to zone again
+//        drive.followTrajectory(trajectoryB8);
+//        drive.followTrajectory(trajectoryB9);
+//        drive.followTrajectory(trajectoryB10);
+//        //Drop off wobble goal 2
+//        clawServo.setPosition(clawOpen);
+//        sleep(500);
+//        armAngle(120, 0.4);
+//        clawServo.setPosition(clawClose);
+//        drive.followTrajectory(trajectoryB11);
 
 
 
