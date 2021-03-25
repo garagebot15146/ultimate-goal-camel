@@ -87,6 +87,8 @@ public class teleOp extends OpMode
     private DcMotor clawArm = null;
 
     //Set Servo objects
+
+    //Lift
     SimpleServo leftLift;
     SimpleServo rightLift;
 
@@ -100,12 +102,13 @@ public class teleOp extends OpMode
     boolean vibrated = false;
     boolean switchVibrate = false;
 
+    //Claw
     SimpleServo clawServo;
     double clawClose = 0.90;
     double clawOpen = 0.6;
 
+    //Kicker
     SimpleServo kicker;
-    SimpleServo shootFlap;
 
     double kickerInit = 0.3200;
     double kickerTo = 0.5848;
@@ -113,8 +116,14 @@ public class teleOp extends OpMode
     boolean kickerHasRun = false;
     boolean kickerMethodRun = false;
 
+    //shootFlap
+    SimpleServo shootFlap;
     double flapAngleGoal = 0.12; //Higher = Steeper
     double flapAnglePowerShot = 0.1;
+
+    SimpleServo leftBlocker;
+    double leftBlockerInit = 0.41;
+    double leftBlockerTo = 0.94;
 
     //Shooter RPM
     double shooterPosition;
@@ -143,6 +152,8 @@ public class teleOp extends OpMode
 
         clawServo = new SimpleServo(hardwareMap, "clawServo");
 
+        leftBlocker = new SimpleServo(hardwareMap, "leftBlocker");
+
         //Set Run modes
         leftFront.setRunMode(Motor.RunMode.RawPower);
         rightFront.setRunMode(Motor.RunMode.RawPower);
@@ -170,6 +181,8 @@ public class teleOp extends OpMode
         //Initialize Servo Positions
         kicker.setPosition(kickerInit);
         shootFlap.setPosition(flapAngleGoal);
+
+        leftBlocker.setPosition(leftBlockerInit);
 
         //Hardware Map IMU
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -288,7 +301,12 @@ public class teleOp extends OpMode
             g1rightbumperpressed = false;
         }
 
-
+        //Blockers
+        if(gamepad1.left_bumper) {
+            leftBlocker.setPosition(leftBlockerTo);
+        } else {
+            leftBlocker.setPosition(leftBlockerInit);
+        }
 
         /////////////
         //GAMEPAD 2//
