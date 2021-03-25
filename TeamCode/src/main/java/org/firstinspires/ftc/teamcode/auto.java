@@ -175,13 +175,13 @@ public class auto extends LinearOpMode {
         //Distance Constant
         double dc = 0.5;
         double powerShotX = 87 * dc;
-        double powerShotStrafe = 37 * dc;
+        double powerShotStrafe = 40 * dc;
         Trajectory trajectoryB1 = drive.trajectoryBuilder(new Pose2d())
                 .strafeTo(new Vector2d(powerShotX, powerShotStrafe))
                 .build();
 
         Trajectory trajectoryB2 = drive.trajectoryBuilder(trajectoryB1.end())
-                .strafeTo(new Vector2d(123 * dc, 2 * dc))
+                .strafeTo(new Vector2d(124.3 * dc, 0 * dc))
                 .build();
 
         Trajectory trajectoryB3 = drive.trajectoryBuilder(trajectoryB2.end())
@@ -192,11 +192,11 @@ public class auto extends LinearOpMode {
                 .build();
 
         Trajectory trajectoryB4 = drive.trajectoryBuilder(trajectoryB3.end())
-                .lineToLinearHeading(new Pose2d(30 * dc, 20 * dc, Math.toRadians(-90)))
+                .lineToLinearHeading(new Pose2d(31 * dc, 20 * dc, Math.toRadians(-90)))
                 .build();
 
         Trajectory trajectoryB5 = drive.trajectoryBuilder(trajectoryB4.end())
-                .lineToLinearHeading(new Pose2d(30 * dc, -1 * dc, Math.toRadians(-90)))
+                .lineToLinearHeading(new Pose2d(31 * dc, 0 * dc, Math.toRadians(-90)))
                 .build();
 
         Trajectory trajectoryB6 = drive.trajectoryBuilder(trajectoryB5.end())
@@ -210,16 +210,16 @@ public class auto extends LinearOpMode {
                     shooter.setPower(0);
                 })
                 .build();
-//
-//        Trajectory trajectoryB10 = drive.trajectoryBuilder(trajectoryB9.end())
-//                .strafeTo(new Vector2d(123 * dc, 8 * dc))
-//                .build();
-//
-//        Trajectory trajectoryB11 = drive.trajectoryBuilder(trajectoryB10.end())
-//                .strafeTo(new Vector2d(110 * dc, 8 * dc))
-//                .build();
 
-        Trajectory returnHome = drive.trajectoryBuilder(trajectoryB4.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
+        Trajectory trajectoryB8 = drive.trajectoryBuilder(trajectoryB7.end())
+                .strafeTo(new Vector2d(118 * dc, 14.5 * dc))
+                .build();
+
+        Trajectory trajectoryB9 = drive.trajectoryBuilder(trajectoryB8.end())
+                .strafeTo(new Vector2d(107 * dc, 30 * dc))
+                .build();
+
+        Trajectory returnHome = drive.trajectoryBuilder(trajectoryB9.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
                 .lineToLinearHeading(new Pose2d(3 * dc, 0 * dc, Math.toRadians(0)))
                 .build();
 //CASE B END
@@ -235,16 +235,14 @@ public class auto extends LinearOpMode {
         sleep(1000);
         //Take shot 1
         kick(1);
-        drive.turn(Math.toRadians(5));
-//        drive.followTrajectory(trajectoryB2);
+        drive.turn(Math.toRadians(4));
         //Take shot 2
         kick(1);
-//        drive.followTrajectory(trajectoryB3);
-        //Take shot 3
         drive.turn(Math.toRadians(-10));
+        //Take shot 3
         kick(1);
         shooter.setPower(0);
-        drive.turn(Math.toRadians(5));
+        drive.turn(Math.toRadians(6));
         //Basket down. Drive to zone
         basketDown();
         drive.followTrajectory(trajectoryB2);
@@ -271,18 +269,16 @@ public class auto extends LinearOpMode {
         //Drive to zone again
         drive.followTrajectory(trajectoryB6);
         drive.followTrajectory(trajectoryB7);
-//        drive.followTrajectory(trajectoryB10);
-//        //Drop off wobble goal 2
-//        clawServo.setPosition(clawOpen);
-//        sleep(500);
-//        armAngle(120, 0.4);
-//        clawServo.setPosition(clawClose);
-//        drive.followTrajectory(trajectoryB11);
-
-
-//        sleep(4000);
-//        //Return home
-//        drive.followTrajectory(returnHome);
+        drive.followTrajectory(trajectoryB8);
+        //Drop off wobble goal 2
+        clawServo.setPosition(clawOpen);
+        sleep(500);
+        armAngle(120, 0.4);
+        clawServo.setPosition(clawClose);
+        drive.followTrajectory(trajectoryB9);
+        sleep(4000);
+        //Return home
+        drive.followTrajectory(returnHome);
 
 
         telemetry.addData("Path", "Complete");
