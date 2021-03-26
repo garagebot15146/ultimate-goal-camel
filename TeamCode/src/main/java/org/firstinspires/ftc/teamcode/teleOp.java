@@ -73,6 +73,8 @@ public class teleOp extends OpMode
     //Initialize IMU
     BNO055IMU imu;
     Orientation lastAngles = new Orientation();
+    double angleOffset = 0;
+    double localAngle;
 
     //Set Motor objects
     Motor leftFront;
@@ -83,6 +85,7 @@ public class teleOp extends OpMode
     Motor shooter;
     boolean shooterToggle = false;
     boolean shooterOn = false;
+    boolean g2RightTriggerPressed = false;
 
     Motor backIntake;
     Motor frontIntake;
@@ -213,7 +216,9 @@ public class teleOp extends OpMode
     //Play once
     @Override
     public void start() {
+
         runtime.reset();
+        currentTime = runtime.milliseconds();
     }
 
     //Play loop
@@ -296,6 +301,12 @@ public class teleOp extends OpMode
             blockerToggle = false;
         }
 
+        //Re-Orient Heading (Counterclockwise positive)
+        if (gamepad1.right_bumper) {
+            angleOffset = lastAngles.firstAngle;
+        }
+        localAngle = lastAngles.firstAngle - angleOffset;
+
         //Vibrate Basket
 //        if (gamepad1.right_bumper) {
 //            g1rightbumperpressed = true;
@@ -372,11 +383,17 @@ public class teleOp extends OpMode
         } else if (!gamepad2.y && shooterToggle == true) {
             shooterToggle = false;
         }
-        //Right Trigger (Vanilla)
-        if (gamepad2.right_trigger > 0.1) {
-            shooter.set(gamepad2.right_trigger * 1.00);
+        //Right Trigger (Vanilla) Takes priority
+        if (gamepad2.right_trigger > 0.1 && g2RightTriggerPressed == false) {
+            //On
+            shooter.set(1);
             shooterToggle = false;
             shooterOn = false;
+            g2RightTriggerPressed = true;
+        } else if (gamepad2.right_trigger < 0.1 && g2RightTriggerPressed == true) {
+            //Off
+            g2RightTriggerPressed = false;
+            shooter.set(0);
         }
 
         //Measure RPM
@@ -398,19 +415,14 @@ public class teleOp extends OpMode
         }
 
         //Kicker
-        if (gamepad2.a && !kickerHasRun && !gamepad2.start) {
+        if (gamepad2.a && !kickerHasRun && !gamepad2.start && runtime.milliseconds() > currentTime + 300) {
             currentTime = runtime.milliseconds();
             kicker.setPosition(kickerTo);
             kickerHasRun = true;
         }
 
-        if (runtime.milliseconds() > currentTime + 150) {
+        if (runtime.milliseconds() > currentTime + 150 && kickerHasRun == true) {
             kicker.setPosition(kickerInit);
-            kickerMethodRun = true;
-        }
-
-        if (kickerMethodRun && !gamepad2.a) {
-            kickerMethodRun = false;
             kickerHasRun = false;
         }
 
@@ -434,7 +446,7 @@ public class teleOp extends OpMode
 
         //IMU
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        telemetry.addData("1 imu heading", lastAngles.firstAngle);
+        telemetry.addData("1 imu heading", localAngle);
 
 
         telemetry.addData("Shooter RPM", (int) shooterRPM);
