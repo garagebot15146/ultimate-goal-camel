@@ -26,6 +26,12 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 //@Disabled
 public class auto extends LinearOpMode {
 
+    enum PATH {
+        A,
+        B,
+        C
+    }
+
     //Declare motors/servos variables
     private ElapsedTime runtime = new ElapsedTime();
     //Initialize Motors/Servos
@@ -142,40 +148,44 @@ public class auto extends LinearOpMode {
         basketUp();
 
 
-//        int cameraMonitorViewId = this
-//                .hardwareMap
-//                .appContext
-//                .getResources().getIdentifier(
-//                        "cameraMonitorViewId",
-//                        "id",
-//                        hardwareMap.appContext.getPackageName()
-//                );
-////        if (USING_WEBCAM) {
-//        camera = OpenCvCameraFactory
-//                .getInstance()
-//                .createWebcam(hardwareMap.get(WebcamName.class, WEBCAM_NAME), cameraMonitorViewId);
-////        } else {
-////            camera = OpenCvCameraFactory
-////                    .getInstance()
-////                    .createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
-////        }
-//
-//        camera.setPipeline(pipeline = new UGContourRingPipeline(telemetry, DEBUG));
-//
-//        UGContourRingPipeline.Config.setCAMERA_WIDTH(CAMERA_WIDTH);
-//
-//        UGContourRingPipeline.Config.setHORIZON(HORIZON);
-//
-//        camera.openCameraDeviceAsync(() -> camera.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPRIGHT));
-
-
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-//CASE B START
-        //Distance Constant
+//Path Constants
         double dc = 0.5;
         double powerShotX = 87 * dc;
         double powerShotStrafe = 40 * dc;
+
+//CASE A INIT START
+        Trajectory trajectoryA1 = drive.trajectoryBuilder(new Pose2d())
+                .strafeTo(new Vector2d(powerShotX, powerShotStrafe))
+                .build();
+
+        Trajectory trajectoryA2 = drive.trajectoryBuilder(trajectoryA1.end())
+                .strafeTo(new Vector2d(90 * dc, -20 * dc))
+                .build();
+
+        Trajectory trajectoryA3 = drive.trajectoryBuilder(trajectoryA2.end())
+                .lineToLinearHeading(new Pose2d(31 * dc, 20 * dc, Math.toRadians(-90)))
+                .build();
+
+        Trajectory trajectoryA4 = drive.trajectoryBuilder(trajectoryA3.end())
+                .lineToLinearHeading(new Pose2d(31 * dc, 0 * dc, Math.toRadians(-90)))
+                .build();
+
+        Trajectory trajectoryA5 = drive.trajectoryBuilder(trajectoryA4.end())
+                .lineToLinearHeading(new Pose2d(90 * dc, -20 * dc, Math.toRadians(0)))
+                .build();
+
+        Trajectory trajectoryA6 = drive.trajectoryBuilder(trajectoryA5.end())
+                .strafeTo(new Vector2d(107 * dc, 30 * dc))
+                .build();
+
+        Trajectory returnHomeA = drive.trajectoryBuilder(trajectoryA6.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
+                .lineToLinearHeading(new Pose2d(3 * dc, 0 * dc, Math.toRadians(0)))
+                .build();
+//CASE A INIT END
+
+//CASE B INIT START
         Trajectory trajectoryB1 = drive.trajectoryBuilder(new Pose2d())
                 .strafeTo(new Vector2d(powerShotX, powerShotStrafe))
                 .build();
@@ -219,71 +229,155 @@ public class auto extends LinearOpMode {
                 .strafeTo(new Vector2d(107 * dc, 30 * dc))
                 .build();
 
-        Trajectory returnHome = drive.trajectoryBuilder(trajectoryB9.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
+        Trajectory returnHomeB = drive.trajectoryBuilder(trajectoryB9.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
                 .lineToLinearHeading(new Pose2d(3 * dc, 0 * dc, Math.toRadians(0)))
                 .build();
-//CASE B END
+//CASE B INIT END
 
         telemetry.addData("Status", "Initialized");
         waitForStart();
 
         if (isStopRequested()) return;
 
-        //Turn on shooter. Move to Power Shot
-        shooter.setPower(1);
-        drive.followTrajectory(trajectoryB1);
-        sleep(1000);
-        //Take shot 1
-        kick(1);
-        drive.turn(Math.toRadians(4));
-        //Take shot 2
-        kick(1);
-        drive.turn(Math.toRadians(-10));
-        //Take shot 3
-        kick(1);
-        shooter.setPower(0);
-        drive.turn(Math.toRadians(6));
-        //Basket down. Drive to zone
-        basketDown();
-        drive.followTrajectory(trajectoryB2);
-        //Drop off wobble goal
-        armAngle(-90, 0.3);
-        clawServo.setPosition(clawOpen);
-        sleep(500);
-        armAngle(120, 0.4);
-        clawServo.setPosition(clawClose);
-        sleep(300);
-        //Prepare to intake one ring
-        drive.followTrajectory(trajectoryB3);
-        shooter.setPower(1);
-        shootFlap.setPosition(flapAngleGoal);
-        drive.followTrajectory(trajectoryB4);
-        backIntake.setPower(0);
-        basketUp();
-        armAngle(-90, 0.3);
-        clawServo.setPosition(clawOpen);
-        sleep(200);
-        drive.followTrajectory(trajectoryB5);
-        clawServo.setPosition(clawClose);
-        sleep(500);
-        //Drive to zone again
-        drive.followTrajectory(trajectoryB6);
-        drive.followTrajectory(trajectoryB7);
-        drive.followTrajectory(trajectoryB8);
-        //Drop off wobble goal 2
-        clawServo.setPosition(clawOpen);
-        sleep(500);
-        armAngle(120, 0.4);
-        clawServo.setPosition(clawClose);
-        drive.followTrajectory(trajectoryB9);
-        sleep(4000);
-        //Return home
-        drive.followTrajectory(returnHome);
+        PATH path = PATH.A;
 
+        switch (path) {
+            case A:
+                telemetry.addData("Path A", "Complete");
+                telemetry.update();
+                break;
+            case B:
+                telemetry.addData("Path B", "Complete");
+                telemetry.update();
+                break;
+            case C:
+                telemetry.addData("Path C", "Complete");
+                telemetry.update();
+                break;
+        }
 
-        telemetry.addData("Path", "Complete");
-        telemetry.update();
+////CASE A DRIVE START
+//        //Turn on shooter. Move to Power Shot
+//        shooter.setPower(1);
+//        drive.followTrajectory(trajectoryA1);
+//        sleep(1000);
+//        //Take shot 1
+//        kick(1);
+//        //Turn to left powershot
+//        drive.turn(Math.toRadians(4));
+//        //Take shot 2
+//        kick(1);
+//        //Turn to right powershot
+//        drive.turn(Math.toRadians(-10));
+//        //Take shot 3
+//        kick(1);
+//        shooter.setPower(0);
+//        //Reset heading to 0
+//        drive.turn(Math.toRadians(6));
+//        //Basket down. Drive to zone
+//        basketDown();
+//        drive.followTrajectory(trajectoryA2);
+//        //Drop off wobble goal
+//        armAngle(-90, 0.3);
+//        clawServo.setPosition(clawOpen);
+//        sleep(500);
+//        armAngle(120, 0.4);
+//        clawServo.setPosition(clawClose);
+//        sleep(300);
+//        shooter.setPower(1);
+//        shootFlap.setPosition(flapAngleGoal);
+//        //Prepare to pickup second wobble goal
+//        drive.followTrajectory(trajectoryA3);
+//        backIntake.setPower(0);
+//        basketUp();
+//        armAngle(-90, 0.3);
+//        clawServo.setPosition(clawOpen);
+//        sleep(200);
+//        //Collect second wobble goal
+//        drive.followTrajectory(trajectoryB4);
+//        clawServo.setPosition(clawClose);
+//        sleep(500);
+//        //Move to zone again
+//        drive.followTrajectory(trajectoryB5);
+//        //Drop off wobble goal 2
+//        clawServo.setPosition(clawOpen);
+//        sleep(500);
+//        armAngle(120, 0.4);
+//        clawServo.setPosition(clawClose);
+//        //Park on tape
+//        drive.followTrajectory(trajectoryB6);
+//        sleep(4000);
+//        //Return home
+//        drive.followTrajectory(returnHomeB);
+//        telemetry.addData("Path A", "Complete");
+//        telemetry.update();
+////CASE A DRIVE END
+//
+////CASE B DRIVE START
+//        //Turn on shooter. Move to Power Shot
+//        shooter.setPower(1);
+//        drive.followTrajectory(trajectoryB1);
+//        sleep(1000);
+//        //Take shot 1
+//        kick(1);
+//        //Turn to left powershot
+//        drive.turn(Math.toRadians(4));
+//        //Take shot 2
+//        kick(1);
+//        //Turn to right powershot
+//        drive.turn(Math.toRadians(-10));
+//        //Take shot 3
+//        kick(1);
+//        shooter.setPower(0);
+//        //Reset heading to 0
+//        drive.turn(Math.toRadians(6));
+//        //Basket down. Drive to zone
+//        basketDown();
+//        drive.followTrajectory(trajectoryB2);
+//        //Drop off wobble goal
+//        armAngle(-90, 0.3);
+//        clawServo.setPosition(clawOpen);
+//        sleep(500);
+//        armAngle(120, 0.4);
+//        clawServo.setPosition(clawClose);
+//        sleep(300);
+//        //Prepare to intake one ring
+//        drive.followTrajectory(trajectoryB3);
+//        shooter.setPower(1);
+//        shootFlap.setPosition(flapAngleGoal);
+//        //Prepare to pickup second wobble goal
+//        drive.followTrajectory(trajectoryB4);
+//        backIntake.setPower(0);
+//        basketUp();
+//        armAngle(-90, 0.3);
+//        clawServo.setPosition(clawOpen);
+//        sleep(200);
+//        //Collect second wobble goal
+//        drive.followTrajectory(trajectoryB5);
+//        clawServo.setPosition(clawClose);
+//        sleep(500);
+//        //Drive to align with goal
+//        drive.followTrajectory(trajectoryB6);
+//        //Shoot ring
+//        drive.followTrajectory(trajectoryB7);
+//        //Move to zone again
+//        drive.followTrajectory(trajectoryB8);
+//        //Drop off wobble goal 2
+//        clawServo.setPosition(clawOpen);
+//        sleep(500);
+//        armAngle(120, 0.4);
+//        clawServo.setPosition(clawClose);
+//        //Park on tape
+//        drive.followTrajectory(trajectoryB9);
+//        sleep(4000);
+//        //Return home
+//        drive.followTrajectory(returnHomeB);
+//        telemetry.addData("Path B", "Complete");
+//        telemetry.update();
+////CASE B DRIVE END
+
     }
+
 
     public void armAngle(double degrees, double power) {
         int newTarget = clawArm.getCurrentPosition() + (int) (degrees * 1.4933);
