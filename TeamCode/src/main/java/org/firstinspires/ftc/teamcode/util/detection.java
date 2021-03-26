@@ -16,7 +16,7 @@ public class detection extends LinearOpMode {
     private static final int CAMERA_WIDTH = 1280; // width  of wanted camera resolution
     private static final int CAMERA_HEIGHT = 720; // height of wanted camera resolution
 
-    private static final int HORIZON = 100; // horizon value to tune
+    private static final int HORIZON = 270; // horizon value to tune
 
     private static final boolean DEBUG = false; // if debug is wanted, change to true
 
@@ -48,7 +48,7 @@ public class detection extends LinearOpMode {
 
         UGContourRingPipeline.Config.setHORIZON(HORIZON);
 
-        camera.openCameraDeviceAsync(() -> camera.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPSIDE_DOWN));
+        camera.openCameraDeviceAsync(() -> camera.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPRIGHT));
 
         FtcDashboard.getInstance().startCameraStream(camera, 30);
         waitForStart();

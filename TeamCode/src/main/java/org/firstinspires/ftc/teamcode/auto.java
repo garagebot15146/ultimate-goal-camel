@@ -15,7 +15,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -26,13 +25,6 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 @Autonomous(name = "Auto", group = "Autonomous")
 //@Disabled
 public class auto extends LinearOpMode {
-
-    enum PATH {
-        A,
-        B,
-        C,
-        D
-    }
 
     //Declare motors/servos variables
     private ElapsedTime runtime = new ElapsedTime();
@@ -84,7 +76,7 @@ public class auto extends LinearOpMode {
     private static final int CAMERA_WIDTH = 1280; // width  of wanted camera resolution
     private static final int CAMERA_HEIGHT = 720; // height of wanted camera resolution
 
-    private static final int HORIZON = 100; // horizon value to tune
+    private static final int HORIZON = 270; // horizon value to tune
 
     private static final boolean DEBUG = false; // if debug is wanted, change to true
 
@@ -179,7 +171,7 @@ public class auto extends LinearOpMode {
 
         UGContourRingPipeline.Config.setHORIZON(HORIZON);
 
-        camera.openCameraDeviceAsync(() -> camera.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPSIDE_DOWN));
+        camera.openCameraDeviceAsync(() -> camera.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPRIGHT));
 
         FtcDashboard.getInstance().startCameraStream(camera, 30);
 
@@ -284,39 +276,31 @@ public class auto extends LinearOpMode {
                 .strafeTo(new Vector2d(130 * dc, 1 * dc))
                 .build();
 
-//        Trajectory trajectoryC4 = drive.trajectoryBuilder(trajectoryC3.end())
-//                .strafeTo(new Vector2d(75 * dc, 1 * dc))
-//                .build();
-
-        Trajectory trajectoryD1 = drive.trajectoryBuilder(trajectoryC3.end())
-                .strafeTo(new Vector2d( 55 * dc, 1 * dc))
+        Trajectory trajectoryC4 = drive.trajectoryBuilder(trajectoryC3.end())
+                .strafeTo(new Vector2d( 50 * dc, 1 * dc))
                 .build();
 
-        Trajectory trajectoryD2 = drive.trajectoryBuilder(trajectoryD1.end())
-                .strafeTo(new Vector2d(90 * dc, 1 * dc))
+        Trajectory trajectoryC5 = drive.trajectoryBuilder(trajectoryC4.end())
+                .strafeTo(new Vector2d(65 * dc, 1 * dc))
                 .build();
 
-        Trajectory trajectoryD3 = drive.trajectoryBuilder(trajectoryD2.end())
-                .strafeTo(new Vector2d(35 * dc, 1 * dc))
+        Trajectory trajectoryC6 = drive.trajectoryBuilder(trajectoryC5.end())
+                .strafeTo(new Vector2d(25 * dc, 1 * dc))
                 .build();
 
-        Trajectory trajectoryD4 = drive.trajectoryBuilder(trajectoryD3.end())
-                .strafeTo(new Vector2d(-5 * dc, 1 * dc))
+        Trajectory trajectoryC7 = drive.trajectoryBuilder(trajectoryC6.end())
+                .lineToLinearHeading(new Pose2d(32 * dc, 15 * dc, Math.toRadians(-90)))
                 .build();
 
-//        Trajectory trajectoryC5 = drive.trajectoryBuilder(trajectoryC4.end())
-//                .lineToLinearHeading(new Pose2d(31 * dc, 20 * dc, Math.toRadians(-90)))
-//                .build();
+        Trajectory trajectoryC8 = drive.trajectoryBuilder(trajectoryC7.end())
+                .lineToLinearHeading(new Pose2d(32 * dc, 0 * dc, Math.toRadians(-90)))
+                .build();
 //
-//        Trajectory trajectoryC6 = drive.trajectoryBuilder(trajectoryC5.end())
-//                .lineToLinearHeading(new Pose2d(31 * dc, 0 * dc, Math.toRadians(-90)))
-//                .build();
-//
-//        Trajectory trajectoryC7 = drive.trajectoryBuilder(trajectoryC6.end())
+//        Trajectory trajectoryC8 = drive.trajectoryBuilder(trajectoryC7.end())
 //                .lineToLinearHeading(new Pose2d(50 * dc, 8 * dc, Math.toRadians(0)))
 //                .build();
 //
-//        Trajectory trajectoryC8 = drive.trajectoryBuilder(trajectoryC7.end())
+//        Trajectory trajectoryC9 = drive.trajectoryBuilder(trajectoryC8.end())
 //                .lineToLinearHeading(new Pose2d(powerShotX, 8 * dc, Math.toRadians(0)))
 //                .addDisplacementMarker(25 * dc, () -> {
 //                    kicker.setPosition(kickerTo);
@@ -324,31 +308,35 @@ public class auto extends LinearOpMode {
 //                })
 //                .build();
 //
-//        Trajectory trajectoryC9 = drive.trajectoryBuilder(trajectoryC8.end())
+//        Trajectory trajectoryC10 = drive.trajectoryBuilder(trajectoryC9.end())
 //                .strafeTo(new Vector2d(118 * dc, 14.5 * dc))
 //                .build();
 //
-//        Trajectory trajectoryC10 = drive.trajectoryBuilder(trajectoryC9.end())
+//        Trajectory trajectoryC11 = drive.trajectoryBuilder(trajectoryC10.end())
 //                .strafeTo(new Vector2d(107 * dc, 30 * dc))
 //                .build();
 //
-//        Trajectory returnHomeC = drive.trajectoryBuilder(trajectoryC10.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
+//        Trajectory returnHomeC = drive.trajectoryBuilder(trajectoryC11.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
 //                .lineToLinearHeading(new Pose2d(3 * dc, 0 * dc, Math.toRadians(0)))
 //                .build();
 //CASE C INIT END
 
-        telemetry.addData("Status", "Initialized");
-        String height = "Stack Height" + " " + pipeline.getHeight();
-        telemetry.addData("Which Stack Init", height);
+        telemetry.addData("Status", "Wait for 3 seconds");
         telemetry.update();
         waitForStart();
 
+
         if (isStopRequested()) return;
 
-        PATH path = PATH.D;
+        telemetry.update();
+        String height = "FOUR";
+//        String height = pipeline.getHeight().name();
+        telemetry.addData("Ring Stack", height);
+        telemetry.update();
+        FtcDashboard.getInstance().stopCameraStream();
 
-        switch (path) {
-            case A:
+        switch (height) {
+            case "ZERO":
                 //Turn on shooter. Move to Power Shot
                 shooter.setPower(1);
                 drive.followTrajectory(trajectoryA1);
@@ -400,7 +388,7 @@ public class auto extends LinearOpMode {
                 telemetry.addData("Path A", "Complete");
                 telemetry.update();
                 break;
-            case B:
+            case "ONE":
                 //Turn on shooter. Move to Power Shot
                 shooter.setPower(1);
                 drive.followTrajectory(trajectoryB1);
@@ -463,7 +451,7 @@ public class auto extends LinearOpMode {
                 telemetry.addData("Path B", "Complete");
                 telemetry.update();
                 break;
-            case C:
+            case "FOUR":
                 //Turn on shooter. Move to Power Shot
                 shooter.setPower(1);
                 drive.followTrajectory(trajectoryC1);
@@ -494,41 +482,42 @@ public class auto extends LinearOpMode {
                 sleep(300);
                 //Move to ring Y
                 drive.followTrajectory(trajectoryC3);
-//                //Prepare to intake one ring
-//                drive.followTrajectory(trajectoryC4);
                 backIntake.setPower(1);
                 shooter.setPower(1);
-                drive.followTrajectory(trajectoryD1);
+                drive.followTrajectory(trajectoryC4);
+                shooter.setPower(-1);
+                drive.followTrajectory(trajectoryC5);
                 sleep(800);
-                backIntake.setPower(-1);
-                sleep(400);
-                backIntake.setPower(1);
-                sleep(1300);
-                basketUp();
-                drive.followTrajectory(trajectoryD2);
-                kick(1);
-                kick(1);
-                kick(1);
-                basketDown();
-                drive.followTrajectory(trajectoryD3);
-                sleep(800);
-                backIntake.setPower(-1);
-                sleep(400);
-                backIntake.setPower(1);
-                sleep(900);
-//                sleep(2000);
-//                shooter.setPower(1);
-//                shootFlap.setPosition(flapAngleGoal);
-//                //Prepare to pickup second wobble goal
+                shooter.setPower(1);
+                drive.followTrajectory(trajectoryC6);
+                sleep(2000);
 //                drive.followTrajectory(trajectoryC4);
-//                backIntake.setPower(0);
+//                sleep(800);
+//                backIntake.setPower(-1);
+//                sleep(350);
+//                backIntake.setPower(1);
+//                drive.followTrajectory(trajectoryC5);
+//                sleep(800);
+//                backIntake.setPower(-1);
+//                sleep(350);
+//                backIntake.setPower(1);
+//                drive.followTrajectory(trajectoryC6);
+//                sleep(1200);
 //                basketUp();
+//                sleep(1000);
+//                kick(1);
+//                kick(1);
+//                kick(1);
+//                sleep(500);
+//                drive.followTrajectory(trajectoryC7);
 //                armAngle(-90, 0.3);
 //                clawServo.setPosition(clawOpen);
 //                sleep(200);
 //                //Collect second wobble goal
-//                drive.followTrajectory(trajectoryC5);
+//                drive.followTrajectory(trajectoryC8);
 //                clawServo.setPosition(clawClose);
+//                backIntake.setPower(0);
+//                basketUp();
 //                sleep(500);
 //                //Drive to align with goal
 //                drive.followTrajectory(trajectoryC6);
@@ -550,10 +539,9 @@ public class auto extends LinearOpMode {
                 telemetry.addData("Path C", "Complete");
                 telemetry.update();
                 break;
-            case D:
-                telemetry.addData("Which Stack Op", height);
+            case "TESTING":
+                telemetry.addData("Path Testing", "Complete");
                 telemetry.update();
-                FtcDashboard.getInstance().stopCameraStream();
 //                basketDown();
 //                shootFlap.setPosition(flapAngleGoal);
 //                Trajectory trajectoryD1 = drive.trajectoryBuilder(new Pose2d())
