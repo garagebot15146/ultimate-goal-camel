@@ -38,6 +38,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -60,6 +67,12 @@ public class teleOp extends OpMode
     //Declare runtime variable
     private ElapsedTime runtime = new ElapsedTime();
     double currentTime;
+    double shooterTime = runtime.milliseconds();
+    double vibrateTime = runtime.milliseconds();
+
+    //Initialize IMU
+    BNO055IMU imu;
+    Orientation lastAngles = new Orientation();
 
     //Set Motor objects
     Motor leftFront;
@@ -68,35 +81,58 @@ public class teleOp extends OpMode
     Motor rightBack;
 
     Motor shooter;
+    boolean shooterToggle = false;
+    boolean shooterOn = false;
+
     Motor backIntake;
     Motor frontIntake;
 
     private DcMotor clawArm = null;
 
     //Set Servo objects
+
+    //Lift
     SimpleServo leftLift;
     SimpleServo rightLift;
 
-    double leftLiftUp = 1 - 0.92; //0 Top
-    double rightLiftUp = 0.89; //1 Top
+    double leftLiftUp = 0.9176; //1 Top
+    double rightLiftUp = 0.9413; //1 Top
 
-    double leftLiftDown = 0.6;
-    double rightLiftDown = 0.4;
+    double leftLiftDown = 0.45;
+    double rightLiftDown = 0.45;
 
+    boolean g1rightbumperpressed = false;
+    boolean vibrated = false;
+    boolean switchVibrate = false;
+
+    //Claw
     SimpleServo clawServo;
-    double clawClose = 0.92;
+    double clawClose = 0.90;
     double clawOpen = 0.6;
 
+    //Kicker
     SimpleServo kicker;
-    SimpleServo shootFlap;
 
-    double kickerInit = 0.2;
-    double kickerTo = 0.56;
+    double kickerInit = 0.3200;
+    double kickerTo = 0.5848;
 
     boolean kickerHasRun = false;
     boolean kickerMethodRun = false;
 
-    double flapAngle = 0.05; //Higher = Steeper
+    //shootFlap
+    SimpleServo shootFlap;
+    double flapAngleGoal = 0.12; //Higher = Steeper
+    double flapAnglePowerShot = 0.1;
+
+    SimpleServo leftBlocker;
+    double leftBlockerInit = 0.41;
+    double leftBlockerTo = 0.94;
+    boolean blockerToggle = false;
+    boolean blockerDown = false;
+
+    //Shooter RPM
+    double shooterPosition;
+    double shooterRPM;
 
     //Initialize
     @Override
@@ -120,6 +156,8 @@ public class teleOp extends OpMode
         shootFlap = new SimpleServo(hardwareMap, "shootFlap") ;
 
         clawServo = new SimpleServo(hardwareMap, "clawServo");
+
+        leftBlocker = new SimpleServo(hardwareMap, "leftBlocker");
 
         //Set Run modes
         leftFront.setRunMode(Motor.RunMode.RawPower);
@@ -146,11 +184,25 @@ public class teleOp extends OpMode
         frontIntake.setInverted(true);
 
         //Initialize Servo Positions
-//        kicker.setPosition(kickerInit);
-        shootFlap.setPosition(flapAngle);
+        kicker.setPosition(kickerInit);
+        shootFlap.setPosition(flapAngleGoal);
+
+        leftBlocker.setPosition(leftBlockerInit);
+
+        //Hardware Map IMU
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+        parameters.mode                = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = false;
+
+        imu.initialize(parameters);
 
         //Initialized
         telemetry.addData("Status", "Initialized");
+        telemetry.update();
     }
 
     //Repeat loop prior to hitting play
@@ -214,93 +266,179 @@ public class teleOp extends OpMode
             //This is normal.  Don't put anything here.
         }
 
-        //Claw Servo
-        if (gamepad1.left_trigger > 0.05) {
-            clawServo.setPosition(clawOpen);
-        } else {
-            clawServo.setPosition(clawClose);
-        }
-
-        //Testing clawArm
-        if (gamepad1.left_bumper) {
-            int newTarget = clawArm.getCurrentPosition() + (int)(537.6 * 0.2); //Ticks * Percentage of a rotation
-            clawArm.setTargetPosition(newTarget);
-            // Turn On RUN_TO_POSITION
-            clawArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            // reset the timeout time and start motion.
-            runtime.reset();
-            clawArm.setPower(0.3);
-
-            while (clawArm.isBusy()) {
-                //Nothing
-            }
-
-            //Stop
-            clawArm.setPower(0);
-            clawArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-        /////////////
-        //GAMEPAD 2//
-        /////////////
-
-        //Intake
-        if (gamepad2.b) {
-            //Slow
-            frontIntake.set(gamepad2.left_stick_y * 0.35);
-            backIntake.set(gamepad2.left_stick_y * 0.35);
-        } else {
-            //Fast
-            frontIntake.set(gamepad2.left_stick_y);
-            backIntake.set(gamepad2.left_stick_y);
-        }
-
-
-
-//        //If intake is active, bring lift down
-//        if(gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) {
-//            leftLift.setPosition(leftLiftDown);
-//            rightLift.setPosition(rightLiftDown);
-//        }
-
-
-        //Shooter
-        shooter.set(gamepad2.right_trigger * 1.00);
-        telemetry.addData("right_trigger", gamepad2.right_trigger);
-
         // Send power to wheel motors
         leftFront.set(leftFrontPower);
         rightFront.set(rightFrontPower);
         leftBack.set(leftBackPower);
         rightBack.set(rightBackPower);
 
-//        //Lift
-//        if (gamepad2.dpad_up) {
-//            //Up
-//            leftLift.setPosition(leftLiftUp);
-//            rightLift.setPosition((rightLiftUp));
-//        } else if (gamepad2.dpad_down) {
-//            //Down
-//            leftLift.setPosition(leftLiftDown);
-//            rightLift.setPosition(rightLiftDown);
+        //shootFlap
+        if (gamepad1.dpad_left) {
+            //Power Shot (Lower)
+            shootFlap.setPosition(flapAnglePowerShot);
+        } else if (gamepad1.dpad_right) {
+            //Goal (Higher)
+            shootFlap.setPosition(flapAngleGoal);
+        }
+
+        //Blockers
+        if (gamepad1.left_bumper && blockerToggle == false) {
+            blockerToggle = true;
+            //If blocker is already down, move it up and vise versa
+            if (blockerDown == false) {
+                leftBlocker.setPosition(leftBlockerTo);
+                blockerDown = true;
+            } else if (blockerDown == true) {
+                leftBlocker.setPosition(leftBlockerInit);
+                blockerDown = false;
+            }
+        } else if (!gamepad1.left_bumper && blockerToggle == true) {
+            blockerToggle = false;
+        }
+
+        //Vibrate Basket
+//        if (gamepad1.right_bumper) {
+//            g1rightbumperpressed = true;
+//            //Check if 200 ms has passed
+//            if (vibrateTime + 150 < runtime.milliseconds()) {
+//                //If 200ms has passed
+//                vibrateTime = runtime.milliseconds();
+//
+//                //vibrated true means up oscillation
+//                if (vibrated == true) {
+//                    //Oscillate up
+//                    leftLift.setPosition(1 - (leftLiftUp + 0));
+//                    rightLift.setPosition(rightLiftUp + 0);
+//                } else {
+//                    //Oscillate Down
+//                    leftLift.setPosition(1 - (leftLiftUp - 0.08));
+//                    rightLift.setPosition(rightLiftUp - 0.08);
+//                }
+//
+//                //Switch vibrated variable
+//                if (vibrated == true) {
+//                    vibrated = false;
+//                } else {
+//                    vibrated = true;
+//                }
+//            }
+//        } else if (!gamepad1.right_bumper && g1rightbumperpressed == true) {
+//            //When release right bumper, return lift to up position (trigger once)
+//            leftLift.setPosition(1 - leftLiftUp);
+//            rightLift.setPosition(rightLiftUp);
+//            g1rightbumperpressed = false;
 //        }
 
-//        //Kicker
-//        if (gamepad2.a && !kickerHasRun && !gamepad2.start) {
-//            currentTime = runtime.milliseconds();
-//            kicker.setPosition(kickerTo);
-//            kickerHasRun = true;
-//        }
-//
-//        if (runtime.milliseconds() > currentTime + 200) {
-//            kicker.setPosition(kickerInit);
-//            kickerMethodRun = true;
-//        }
-//
-//        if (kickerMethodRun && !gamepad2.a) {
-//            kickerMethodRun = false;
-//            kickerHasRun = false;
-//        }
+        /////////////
+        //GAMEPAD 2//
+        /////////////
+
+        //Intake
+        if (gamepad2.left_stick_y > 0.1) {
+            //In
+            frontIntake.set(1);
+            backIntake.set(1);
+        } else if (gamepad2.left_stick_y < -0.1 ) {
+            //Out
+            frontIntake.set(-1);
+            backIntake.set(-1);
+        } else {
+            //Stop
+            frontIntake.set(0);
+            backIntake.set(0);
+        }
+
+        //If intake is active, bring lift down
+        if(gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) {
+            leftLift.setPosition(1 - leftLiftDown);
+            rightLift.setPosition(rightLiftDown);
+        }
+
+
+        //Shooter
+        //Toggle
+        if (gamepad2.y && shooterToggle == false) {
+            shooterToggle = true;
+
+            if (shooterOn == false) {
+                //Toggle On
+                shooter.set(1);
+                shooterOn = true;
+            } else if (shooterOn == true) {
+                //Toggle off
+                shooter.set(0);
+                shooterOn = false;
+            }
+        } else if (!gamepad2.y && shooterToggle == true) {
+            shooterToggle = false;
+        }
+        //Right Trigger (Vanilla)
+        if (gamepad2.right_trigger > 0.1) {
+            shooter.set(gamepad2.right_trigger * 1.00);
+            shooterToggle = false;
+            shooterOn = false;
+        }
+
+        //Measure RPM
+        if (shooterTime + 100 < runtime.milliseconds()) {
+            shooterTime = runtime.milliseconds();
+            shooterRPM = (shooter.getCurrentPosition() - shooterPosition) / 28 * 10 * 60;
+            shooterPosition = shooter.getCurrentPosition();
+        }
+
+        //Lift
+        if (gamepad2.dpad_up) {
+            //Up
+            leftLift.setPosition(1 - leftLiftUp);
+            rightLift.setPosition((rightLiftUp));
+        } else if (gamepad2.dpad_down) {
+            //Down
+            leftLift.setPosition(1 - leftLiftDown);
+            rightLift.setPosition(rightLiftDown);
+        }
+
+        //Kicker
+        if (gamepad2.a && !kickerHasRun && !gamepad2.start) {
+            currentTime = runtime.milliseconds();
+            kicker.setPosition(kickerTo);
+            kickerHasRun = true;
+        }
+
+        if (runtime.milliseconds() > currentTime + 150) {
+            kicker.setPosition(kickerInit);
+            kickerMethodRun = true;
+        }
+
+        if (kickerMethodRun && !gamepad2.a) {
+            kickerMethodRun = false;
+            kickerHasRun = false;
+        }
+
+        //ClawArm
+        if (gamepad2.left_bumper) {
+            //Up
+            clawArm.setPower(0.3);
+        } else  if (gamepad2.right_bumper){
+            //Down
+            clawArm.setPower(-0.3);
+        } else {
+            clawArm.setPower(0);
+        }
+
+        //Claw Servo
+        if (gamepad2.x) {
+            clawServo.setPosition(clawOpen);
+        } else {
+            clawServo.setPosition(clawClose);
+        }
+
+        //IMU
+        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        telemetry.addData("1 imu heading", lastAngles.firstAngle);
+
+
+        telemetry.addData("Shooter RPM", (int) shooterRPM);
+
 
     }
 
