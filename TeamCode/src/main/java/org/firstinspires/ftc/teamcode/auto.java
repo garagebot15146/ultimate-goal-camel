@@ -177,10 +177,14 @@ public class auto extends LinearOpMode {
                 .build();
 
         Trajectory trajectoryA6 = drive.trajectoryBuilder(trajectoryA5.end())
+                .strafeTo(new Vector2d(75 * dc, -40 * dc))
+                .build();
+
+        Trajectory trajectoryA7 = drive.trajectoryBuilder(trajectoryA6.end())
                 .strafeTo(new Vector2d(107 * dc, 30 * dc))
                 .build();
 
-        Trajectory returnHomeA = drive.trajectoryBuilder(trajectoryA6.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
+        Trajectory returnHomeA = drive.trajectoryBuilder(trajectoryA7.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
                 .lineToLinearHeading(new Pose2d(3 * dc, 0 * dc, Math.toRadians(0)))
                 .build();
 //CASE A INIT END
@@ -239,7 +243,7 @@ public class auto extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        PATH path = PATH.A;
+        PATH path = PATH.B;
 
         switch (path) {
             case A:
@@ -287,6 +291,7 @@ public class auto extends LinearOpMode {
                 clawServo.setPosition(clawClose);
                 //Park on tape
                 drive.followTrajectory(trajectoryA6);
+                drive.followTrajectory(trajectoryA7);
                 sleep(4000);
                 //Return home
                 drive.followTrajectory(returnHomeA);
