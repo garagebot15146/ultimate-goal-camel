@@ -81,6 +81,10 @@ public class teleOp extends OpMode
     Motor rightBack;
 
     Motor shooter;
+    boolean shooterToggle = false;
+    boolean shooterOn = false;
+    boolean g2RightTriggerPressed = false;
+
     Motor backIntake;
     Motor frontIntake;
 
@@ -124,6 +128,8 @@ public class teleOp extends OpMode
     SimpleServo leftBlocker;
     double leftBlockerInit = 0.41;
     double leftBlockerTo = 0.94;
+    boolean blockerToggle = false;
+    boolean blockerDown = false;
 
     //Shooter RPM
     double shooterPosition;
@@ -267,53 +273,68 @@ public class teleOp extends OpMode
         leftBack.set(leftBackPower);
         rightBack.set(rightBackPower);
 
-        //Vibrate Basket
-
-        if (gamepad1.right_bumper) {
-            g1rightbumperpressed = true;
-            //Check if 200 ms has passed
-            if (vibrateTime + 150 < runtime.milliseconds()) {
-                //If 200ms has passed
-                vibrateTime = runtime.milliseconds();
-
-                //vibrated true means up oscillation
-                if (vibrated == true) {
-                    //Oscillate up
-                    leftLift.setPosition(1 - (leftLiftUp + 0));
-                    rightLift.setPosition(rightLiftUp + 0);
-                } else {
-                    //Oscillate Down
-                    leftLift.setPosition(1 - (leftLiftUp - 0.08));
-                    rightLift.setPosition(rightLiftUp - 0.08);
-                }
-
-                //Switch vibrated variable
-                if (vibrated == true) {
-                    vibrated = false;
-                } else {
-                    vibrated = true;
-                }
-            }
-        } else if (!gamepad1.right_bumper && g1rightbumperpressed == true) {
-            //When release right bumper, return lift to up position (trigger once)
-            leftLift.setPosition(1 - leftLiftUp);
-            rightLift.setPosition(rightLiftUp);
-            g1rightbumperpressed = false;
+        //shootFlap
+        if (gamepad1.dpad_left) {
+            //Power Shot (Lower)
+            shootFlap.setPosition(flapAnglePowerShot);
+        } else if (gamepad1.dpad_right) {
+            //Goal (Higher)
+            shootFlap.setPosition(flapAngleGoal);
         }
 
         //Blockers
-        if(gamepad1.left_bumper) {
-            leftBlocker.setPosition(leftBlockerTo);
-        } else {
-            leftBlocker.setPosition(leftBlockerInit);
+        if (gamepad1.left_bumper && blockerToggle == false) {
+            blockerToggle = true;
+            //If blocker is already down, move it up and vise versa
+            if (blockerDown == false) {
+                leftBlocker.setPosition(leftBlockerTo);
+                blockerDown = true;
+            } else if (blockerDown == true) {
+                leftBlocker.setPosition(leftBlockerInit);
+                blockerDown = false;
+            }
+        } else if (!gamepad1.left_bumper && blockerToggle == true) {
+            blockerToggle = false;
         }
+
+        //Vibrate Basket
+//        if (gamepad1.right_bumper) {
+//            g1rightbumperpressed = true;
+//            //Check if 200 ms has passed
+//            if (vibrateTime + 150 < runtime.milliseconds()) {
+//                //If 200ms has passed
+//                vibrateTime = runtime.milliseconds();
+//
+//                //vibrated true means up oscillation
+//                if (vibrated == true) {
+//                    //Oscillate up
+//                    leftLift.setPosition(1 - (leftLiftUp + 0));
+//                    rightLift.setPosition(rightLiftUp + 0);
+//                } else {
+//                    //Oscillate Down
+//                    leftLift.setPosition(1 - (leftLiftUp - 0.08));
+//                    rightLift.setPosition(rightLiftUp - 0.08);
+//                }
+//
+//                //Switch vibrated variable
+//                if (vibrated == true) {
+//                    vibrated = false;
+//                } else {
+//                    vibrated = true;
+//                }
+//            }
+//        } else if (!gamepad1.right_bumper && g1rightbumperpressed == true) {
+//            //When release right bumper, return lift to up position (trigger once)
+//            leftLift.setPosition(1 - leftLiftUp);
+//            rightLift.setPosition(rightLiftUp);
+//            g1rightbumperpressed = false;
+//        }
 
         /////////////
         //GAMEPAD 2//
         /////////////
 
         //Intake
-
         if (gamepad2.left_stick_y > 0.1) {
             //In
             frontIntake.set(1);
@@ -336,7 +357,34 @@ public class teleOp extends OpMode
 
 
         //Shooter
-        shooter.set(gamepad2.right_trigger * 1.00);
+        //Toggle
+        if (gamepad2.y && shooterToggle == false) {
+            shooterToggle = true;
+
+            if (shooterOn == false) {
+                //Toggle On
+                shooter.set(1);
+                shooterOn = true;
+            } else if (shooterOn == true) {
+                //Toggle off
+                shooter.set(0);
+                shooterOn = false;
+            }
+        } else if (!gamepad2.y && shooterToggle == true) {
+            shooterToggle = false;
+        }
+        //Right Trigger (Vanilla) Takes priority
+        if (gamepad2.right_trigger > 0.1 && g2RightTriggerPressed == false) {
+            //On
+            shooter.set(1);
+            shooterToggle = false;
+            shooterOn = false;
+            g2RightTriggerPressed = true;
+        } else if (gamepad2.right_trigger < 0.1 && g2RightTriggerPressed == true) {
+            //Off
+            g2RightTriggerPressed = false;
+            shooter.set(0);
+        }
 
         //Measure RPM
         if (shooterTime + 100 < runtime.milliseconds()) {
@@ -371,15 +419,6 @@ public class teleOp extends OpMode
         if (kickerMethodRun && !gamepad2.a) {
             kickerMethodRun = false;
             kickerHasRun = false;
-        }
-
-        //shootFlap
-        if (gamepad2.y) {
-            //Power Shot (Lower)
-            shootFlap.setPosition(flapAnglePowerShot);
-        } else if (gamepad2.b) {
-            //Goal (Higher)
-            shootFlap.setPosition(flapAngleGoal);
         }
 
         //ClawArm
