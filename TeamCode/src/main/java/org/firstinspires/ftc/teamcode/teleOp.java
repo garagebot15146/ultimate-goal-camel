@@ -82,6 +82,9 @@ public class teleOp extends OpMode
     Motor leftBack;
     Motor rightBack;
 
+    double powerOffset;
+    double turnCooldown = runtime.milliseconds();
+
     Motor shooter;
     boolean shooterToggle = false;
     boolean shooterOn = false;
@@ -243,7 +246,13 @@ public class teleOp extends OpMode
         //DRIVE
         forward = -gamepad1.left_stick_y;
         side = gamepad1.left_stick_x; //Positive means right
-        turn = gamepad1.right_stick_x; //Positive means turn right
+        if (gamepad1.right_stick_button) {
+            //Disable default turning if right stick is pressed
+            turn = localAngle * 0.01;
+            turnCooldown = runtime.milliseconds();
+        } else if (turnCooldown + 200 < runtime.milliseconds()){
+            turn = gamepad1.right_stick_x; //Positive means turn right
+        }
 
         leftFrontPower = (forward + side + turn) / 2;
         leftBackPower = (forward - side + turn) / 2;
@@ -460,4 +469,3 @@ public class teleOp extends OpMode
     }
 
 }
-//remove this
