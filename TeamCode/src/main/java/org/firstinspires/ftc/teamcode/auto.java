@@ -66,6 +66,10 @@ public class auto extends LinearOpMode {
     double leftLiftDown = 0.45;
     double rightLiftDown = 0.45;
 
+    private Servo leftBlocker;
+    double leftBlockerInit = 0.41;
+    double leftBlockerTo = 0.94;
+
 
     static final double COUNTS_PER_MOTOR_REV = 537.6;    // eg: TETRIX Motor Encoder
     static final double DRIVE_GEAR_REDUCTION = 1.0;     // This is < 1.0 if geared UP
@@ -115,8 +119,12 @@ public class auto extends LinearOpMode {
         leftLift = hardwareMap.get(Servo.class, "leftLift");
         rightLift = hardwareMap.get(Servo.class, "rightLift");
 
-        leftLift.setPosition(1 - leftLiftUp);
-        rightLift.setPosition(rightLiftUp);
+//        leftLift.setPosition(1 - leftLiftUp);
+//        rightLift.setPosition(rightLiftUp);
+
+        leftBlocker = hardwareMap.get(Servo.class, "leftBlocker");
+        leftBlocker.setPosition(leftBlockerInit);
+
 
         //Set motor run modes
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -146,7 +154,6 @@ public class auto extends LinearOpMode {
         clawArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         clawServo.setPosition(clawClose);
-//        basketUp();
 
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
@@ -486,15 +493,28 @@ public class auto extends LinearOpMode {
                         .strafeTo(new Vector2d(-30 * dc, 0 * dc))
                         .build();
                 backIntake.setPower(1);
+                shooter.setPower(1);
+                sleep(800);
+                backIntake.setPower(-1);
+                sleep(300);
+                shooter.setPower(1);
                 drive.followTrajectory(trajectoryD1);
                 Trajectory trajectoryD2 = drive.trajectoryBuilder(trajectoryD1.end())
-                        .strafeTo(new Vector2d(-36 * dc, 0 * dc))
+                        .strafeTo(new Vector2d(-43 * dc, 0 * dc))
                         .build();
                 drive.followTrajectory(trajectoryD2);
+                sleep(800);
+                backIntake.setPower(-1);
+                sleep(300);
+                shooter.setPower(1);
+                sleep(800);
+                basketUp();
                 Trajectory trajectoryD3 = drive.trajectoryBuilder(trajectoryD2.end())
-                        .strafeTo(new Vector2d(-70 * dc, 0 * dc))
+                        .strafeTo(new Vector2d(-10 * dc, 0 * dc))
                         .build();
                 drive.followTrajectory(trajectoryD3);
+                kick(1);
+                sleep(1000);
                 break;
         }
 
