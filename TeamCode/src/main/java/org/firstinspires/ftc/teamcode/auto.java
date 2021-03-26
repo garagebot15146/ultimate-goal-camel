@@ -177,7 +177,7 @@ public class auto extends LinearOpMode {
                 .build();
 
         Trajectory trajectoryA6 = drive.trajectoryBuilder(trajectoryA5.end())
-                .strafeTo(new Vector2d(75 * dc, -40 * dc))
+                .strafeTo(new Vector2d(75 * dc, -30 * dc))
                 .build();
 
         Trajectory trajectoryA7 = drive.trajectoryBuilder(trajectoryA6.end())
@@ -220,7 +220,7 @@ public class auto extends LinearOpMode {
         Trajectory trajectoryB7 = drive.trajectoryBuilder(trajectoryB6.end())
                 .lineToLinearHeading(new Pose2d(powerShotX, 8 * dc, Math.toRadians(0)))
                 .addDisplacementMarker(25 * dc, () -> {
-                    kick(1);
+                    kicker.setPosition(kickerTo);
                     shooter.setPower(0);
                 })
                 .build();
@@ -238,12 +238,65 @@ public class auto extends LinearOpMode {
                 .build();
 //CASE B INIT END
 
+//CASE C INIT START
+        Trajectory trajectoryC1 = drive.trajectoryBuilder(new Pose2d())
+                .strafeTo(new Vector2d(powerShotX, powerShotStrafe))
+                .build();
+
+        Trajectory trajectoryC2 = drive.trajectoryBuilder(trajectoryC1.end())
+                .strafeTo(new Vector2d(160 * dc, -30 * dc))
+                .build();
+
+        Trajectory trajectoryC3 = drive.trajectoryBuilder(trajectoryC2.end())
+                .strafeTo(new Vector2d(90 * dc, 1 * dc))
+                .build();
+
+        Trajectory trajectoryC4 = drive.trajectoryBuilder(trajectoryC3.end())
+                .strafeTo(new Vector2d(46 * dc, 1 * dc))
+                .addDisplacementMarker(10 * dc, () -> {
+                    backIntake.setPower(1);
+                })
+                .build();
+
+        Trajectory trajectoryC5 = drive.trajectoryBuilder(trajectoryC4.end())
+                .lineToLinearHeading(new Pose2d(31 * dc, 20 * dc, Math.toRadians(-90)))
+                .build();
+
+        Trajectory trajectoryC6 = drive.trajectoryBuilder(trajectoryC5.end())
+                .lineToLinearHeading(new Pose2d(31 * dc, 0 * dc, Math.toRadians(-90)))
+                .build();
+
+        Trajectory trajectoryC7 = drive.trajectoryBuilder(trajectoryC6.end())
+                .lineToLinearHeading(new Pose2d(50 * dc, 8 * dc, Math.toRadians(0)))
+                .build();
+
+        Trajectory trajectoryC8 = drive.trajectoryBuilder(trajectoryC7.end())
+                .lineToLinearHeading(new Pose2d(powerShotX, 8 * dc, Math.toRadians(0)))
+                .addDisplacementMarker(25 * dc, () -> {
+                    kicker.setPosition(kickerTo);
+                    shooter.setPower(0);
+                })
+                .build();
+
+        Trajectory trajectoryC9 = drive.trajectoryBuilder(trajectoryC8.end())
+                .strafeTo(new Vector2d(118 * dc, 14.5 * dc))
+                .build();
+
+        Trajectory trajectoryC10 = drive.trajectoryBuilder(trajectoryC9.end())
+                .strafeTo(new Vector2d(107 * dc, 30 * dc))
+                .build();
+
+        Trajectory returnHomeC = drive.trajectoryBuilder(trajectoryC10.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
+                .lineToLinearHeading(new Pose2d(3 * dc, 0 * dc, Math.toRadians(0)))
+                .build();
+//CASE C INIT END
+
         telemetry.addData("Status", "Initialized");
         waitForStart();
 
         if (isStopRequested()) return;
 
-        PATH path = PATH.B;
+        PATH path = PATH.C;
 
         switch (path) {
             case A:
@@ -292,7 +345,7 @@ public class auto extends LinearOpMode {
                 //Park on tape
                 drive.followTrajectory(trajectoryA6);
                 drive.followTrajectory(trajectoryA7);
-                sleep(4000);
+                sleep(2000);
                 //Return home
                 drive.followTrajectory(returnHomeA);
                 telemetry.addData("Path A", "Complete");
@@ -347,20 +400,83 @@ public class auto extends LinearOpMode {
                 drive.followTrajectory(trajectoryB7);
                 //Move to zone again
                 drive.followTrajectory(trajectoryB8);
-                //Drop off wobble goal 2
+                //Drop off wobble goal 2, retract kicker
                 clawServo.setPosition(clawOpen);
+                kicker.setPosition(kickerInit);
                 sleep(500);
                 armAngle(120, 0.4);
                 clawServo.setPosition(clawClose);
                 //Park on tape
                 drive.followTrajectory(trajectoryB9);
-                sleep(4000);
+                sleep(2000);
                 //Return home
                 drive.followTrajectory(returnHomeB);
                 telemetry.addData("Path B", "Complete");
                 telemetry.update();
                 break;
             case C:
+                //Turn on shooter. Move to Power Shot
+                shooter.setPower(1);
+                drive.followTrajectory(trajectoryC1);
+                sleep(1000);
+                //Take shot 1
+                kick(1);
+                //Turn to left powershot
+                drive.turn(Math.toRadians(4));
+                //Take shot 2
+                kick(1);
+                //Turn to right powershot
+                drive.turn(Math.toRadians(-10));
+                //Take shot 3
+                kick(1);
+                shooter.setPower(0);
+                //Reset heading to 0
+                drive.turn(Math.toRadians(6));
+                //Basket down. Drive to zone
+                basketDown();
+                drive.followTrajectory(trajectoryC2);
+                //Drop off wobble goal
+                armAngle(-90, 0.3);
+                clawServo.setPosition(clawOpen);
+                sleep(500);
+                armAngle(120, 0.4);
+                clawServo.setPosition(clawClose);
+                sleep(300);
+                //Move to ring Y
+                drive.followTrajectory(trajectoryC3);
+                //Prepare to intake one ring
+                drive.followTrajectory(trajectoryC4);
+                sleep(2000);
+//                shooter.setPower(1);
+//                shootFlap.setPosition(flapAngleGoal);
+//                //Prepare to pickup second wobble goal
+//                drive.followTrajectory(trajectoryC4);
+//                backIntake.setPower(0);
+//                basketUp();
+//                armAngle(-90, 0.3);
+//                clawServo.setPosition(clawOpen);
+//                sleep(200);
+//                //Collect second wobble goal
+//                drive.followTrajectory(trajectoryC5);
+//                clawServo.setPosition(clawClose);
+//                sleep(500);
+//                //Drive to align with goal
+//                drive.followTrajectory(trajectoryC6);
+//                //Shoot ring
+//                drive.followTrajectory(trajectoryC7);
+//                //Move to zone again
+//                drive.followTrajectory(trajectoryC8);
+//                //Drop off wobble goal 2, retract kicker
+//                clawServo.setPosition(clawOpen);
+//                kicker.setPosition(kickerInit);
+//                sleep(500);
+//                armAngle(120, 0.4);
+//                clawServo.setPosition(clawClose);
+//                //Park on tape
+//                drive.followTrajectory(trajectoryC9);
+//                sleep(2000);
+//                //Return home
+//                drive.followTrajectory(returnHomeC);
                 telemetry.addData("Path C", "Complete");
                 telemetry.update();
                 break;
