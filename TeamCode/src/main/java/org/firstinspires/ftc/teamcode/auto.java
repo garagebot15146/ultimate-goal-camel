@@ -119,8 +119,8 @@ public class auto extends LinearOpMode {
         leftLift = hardwareMap.get(Servo.class, "leftLift");
         rightLift = hardwareMap.get(Servo.class, "rightLift");
 
-//        leftLift.setPosition(1 - leftLiftUp);
-//        rightLift.setPosition(rightLiftUp);
+        leftLift.setPosition(1 - leftLiftUp);
+        rightLift.setPosition(rightLiftUp);
 
         leftBlocker = hardwareMap.get(Servo.class, "leftBlocker");
         leftBlocker.setPosition(leftBlockerInit);
@@ -256,47 +256,60 @@ public class auto extends LinearOpMode {
                 .build();
 
         Trajectory trajectoryC3 = drive.trajectoryBuilder(trajectoryC2.end())
+                .strafeTo(new Vector2d(130 * dc, 1 * dc))
+                .build();
+
+//        Trajectory trajectoryC4 = drive.trajectoryBuilder(trajectoryC3.end())
+//                .strafeTo(new Vector2d(75 * dc, 1 * dc))
+//                .build();
+
+        Trajectory trajectoryD1 = drive.trajectoryBuilder(trajectoryC3.end())
+                .strafeTo(new Vector2d( 55 * dc, 1 * dc))
+                .build();
+
+        Trajectory trajectoryD2 = drive.trajectoryBuilder(trajectoryD1.end())
                 .strafeTo(new Vector2d(90 * dc, 1 * dc))
                 .build();
 
-        Trajectory trajectoryC4 = drive.trajectoryBuilder(trajectoryC3.end())
-                .strafeTo(new Vector2d(46 * dc, 1 * dc))
-                .addDisplacementMarker(10 * dc, () -> {
-                    backIntake.setPower(1);
-                })
+        Trajectory trajectoryD3 = drive.trajectoryBuilder(trajectoryD2.end())
+                .strafeTo(new Vector2d(35 * dc, 1 * dc))
                 .build();
 
-        Trajectory trajectoryC5 = drive.trajectoryBuilder(trajectoryC4.end())
-                .lineToLinearHeading(new Pose2d(31 * dc, 20 * dc, Math.toRadians(-90)))
+        Trajectory trajectoryD4 = drive.trajectoryBuilder(trajectoryD3.end())
+                .strafeTo(new Vector2d(-5 * dc, 1 * dc))
                 .build();
 
-        Trajectory trajectoryC6 = drive.trajectoryBuilder(trajectoryC5.end())
-                .lineToLinearHeading(new Pose2d(31 * dc, 0 * dc, Math.toRadians(-90)))
-                .build();
-
-        Trajectory trajectoryC7 = drive.trajectoryBuilder(trajectoryC6.end())
-                .lineToLinearHeading(new Pose2d(50 * dc, 8 * dc, Math.toRadians(0)))
-                .build();
-
-        Trajectory trajectoryC8 = drive.trajectoryBuilder(trajectoryC7.end())
-                .lineToLinearHeading(new Pose2d(powerShotX, 8 * dc, Math.toRadians(0)))
-                .addDisplacementMarker(25 * dc, () -> {
-                    kicker.setPosition(kickerTo);
-                    shooter.setPower(0);
-                })
-                .build();
-
-        Trajectory trajectoryC9 = drive.trajectoryBuilder(trajectoryC8.end())
-                .strafeTo(new Vector2d(118 * dc, 14.5 * dc))
-                .build();
-
-        Trajectory trajectoryC10 = drive.trajectoryBuilder(trajectoryC9.end())
-                .strafeTo(new Vector2d(107 * dc, 30 * dc))
-                .build();
-
-        Trajectory returnHomeC = drive.trajectoryBuilder(trajectoryC10.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
-                .lineToLinearHeading(new Pose2d(3 * dc, 0 * dc, Math.toRadians(0)))
-                .build();
+//        Trajectory trajectoryC5 = drive.trajectoryBuilder(trajectoryC4.end())
+//                .lineToLinearHeading(new Pose2d(31 * dc, 20 * dc, Math.toRadians(-90)))
+//                .build();
+//
+//        Trajectory trajectoryC6 = drive.trajectoryBuilder(trajectoryC5.end())
+//                .lineToLinearHeading(new Pose2d(31 * dc, 0 * dc, Math.toRadians(-90)))
+//                .build();
+//
+//        Trajectory trajectoryC7 = drive.trajectoryBuilder(trajectoryC6.end())
+//                .lineToLinearHeading(new Pose2d(50 * dc, 8 * dc, Math.toRadians(0)))
+//                .build();
+//
+//        Trajectory trajectoryC8 = drive.trajectoryBuilder(trajectoryC7.end())
+//                .lineToLinearHeading(new Pose2d(powerShotX, 8 * dc, Math.toRadians(0)))
+//                .addDisplacementMarker(25 * dc, () -> {
+//                    kicker.setPosition(kickerTo);
+//                    shooter.setPower(0);
+//                })
+//                .build();
+//
+//        Trajectory trajectoryC9 = drive.trajectoryBuilder(trajectoryC8.end())
+//                .strafeTo(new Vector2d(118 * dc, 14.5 * dc))
+//                .build();
+//
+//        Trajectory trajectoryC10 = drive.trajectoryBuilder(trajectoryC9.end())
+//                .strafeTo(new Vector2d(107 * dc, 30 * dc))
+//                .build();
+//
+//        Trajectory returnHomeC = drive.trajectoryBuilder(trajectoryC10.end().plus(new Pose2d(0, 0, Math.toRadians(-92))), false)
+//                .lineToLinearHeading(new Pose2d(3 * dc, 0 * dc, Math.toRadians(0)))
+//                .build();
 //CASE C INIT END
 
         telemetry.addData("Status", "Initialized");
@@ -304,7 +317,7 @@ public class auto extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        PATH path = PATH.D;
+        PATH path = PATH.C;
 
         switch (path) {
             case A:
@@ -439,9 +452,10 @@ public class auto extends LinearOpMode {
                 kick(1);
                 shooter.setPower(0);
                 //Reset heading to 0
-                drive.turn(Math.toRadians(6));
+                drive.turn(Math.toRadians(5));
                 //Basket down. Drive to zone
                 basketDown();
+                shootFlap.setPosition(flapAngleGoal);
                 drive.followTrajectory(trajectoryC2);
                 //Drop off wobble goal
                 armAngle(-90, 0.3);
@@ -452,9 +466,29 @@ public class auto extends LinearOpMode {
                 sleep(300);
                 //Move to ring Y
                 drive.followTrajectory(trajectoryC3);
-                //Prepare to intake one ring
-                drive.followTrajectory(trajectoryC4);
-                sleep(2000);
+//                //Prepare to intake one ring
+//                drive.followTrajectory(trajectoryC4);
+                backIntake.setPower(1);
+                shooter.setPower(1);
+                drive.followTrajectory(trajectoryD1);
+                sleep(800);
+                backIntake.setPower(-1);
+                sleep(400);
+                backIntake.setPower(1);
+                sleep(1300);
+                basketUp();
+                drive.followTrajectory(trajectoryD2);
+                kick(1);
+                kick(1);
+                kick(1);
+                basketDown();
+                drive.followTrajectory(trajectoryD3);
+                sleep(800);
+                backIntake.setPower(-1);
+                sleep(400);
+                backIntake.setPower(1);
+                sleep(900);
+//                sleep(2000);
 //                shooter.setPower(1);
 //                shootFlap.setPosition(flapAngleGoal);
 //                //Prepare to pickup second wobble goal
@@ -488,34 +522,48 @@ public class auto extends LinearOpMode {
                 telemetry.addData("Path C", "Complete");
                 telemetry.update();
                 break;
-            case D:
-                Trajectory trajectoryD1 = drive.trajectoryBuilder(new Pose2d())
-                        .strafeTo(new Vector2d(-30 * dc, 0 * dc))
-                        .build();
-                backIntake.setPower(1);
-                shooter.setPower(1);
-                sleep(800);
-                backIntake.setPower(-1);
-                sleep(300);
-                shooter.setPower(1);
-                drive.followTrajectory(trajectoryD1);
-                Trajectory trajectoryD2 = drive.trajectoryBuilder(trajectoryD1.end())
-                        .strafeTo(new Vector2d(-43 * dc, 0 * dc))
-                        .build();
-                drive.followTrajectory(trajectoryD2);
-                sleep(800);
-                backIntake.setPower(-1);
-                sleep(300);
-                shooter.setPower(1);
-                sleep(800);
-                basketUp();
-                Trajectory trajectoryD3 = drive.trajectoryBuilder(trajectoryD2.end())
-                        .strafeTo(new Vector2d(-10 * dc, 0 * dc))
-                        .build();
-                drive.followTrajectory(trajectoryD3);
-                kick(1);
-                sleep(1000);
-                break;
+//            case D:
+//                basketDown();
+//                shootFlap.setPosition(flapAngleGoal);
+//                Trajectory trajectoryD1 = drive.trajectoryBuilder(new Pose2d())
+//                        .strafeTo(new Vector2d(-28 * dc, 0 * dc))
+//                        .build();
+//                backIntake.setPower(1);
+//                shooter.setPower(1);
+//                drive.followTrajectory(trajectoryD1);
+//                sleep(800);
+//                backIntake.setPower(-1);
+//                sleep(300);
+//                backIntake.setPower(1);
+//                sleep(500);
+//                Trajectory trajectoryD2 = drive.trajectoryBuilder(trajectoryD1.end())
+//                        .strafeTo(new Vector2d(-33 * dc, 0 * dc))
+//                        .build();
+//                drive.followTrajectory(trajectoryD2);
+//                sleep(800);
+//                backIntake.setPower(-1);
+//                sleep(300);
+//                backIntake.setPower(1);
+//                sleep(500);
+//                Trajectory trajectoryD3 = drive.trajectoryBuilder(trajectoryD2.end())
+//                        .strafeTo(new Vector2d(-38 * dc, 0 * dc))
+//                        .build();
+//                drive.followTrajectory(trajectoryD3);
+//                sleep(800);
+//                backIntake.setPower(-1);
+//                sleep(300);
+//                backIntake.setPower(1);
+//                sleep(500);
+//                basketUp();
+//                Trajectory trajectoryD4 = drive.trajectoryBuilder(trajectoryD3.end())
+//                        .strafeTo(new Vector2d(-5 * dc, 0 * dc))
+//                        .build();
+//                drive.followTrajectory(trajectoryD4);
+//                kick(1);
+//                kick(1);
+//                kick(1);
+//                sleep(1000);
+//                break;
         }
 
     }
