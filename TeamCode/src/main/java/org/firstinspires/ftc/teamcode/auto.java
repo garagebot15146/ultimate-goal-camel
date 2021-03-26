@@ -146,7 +146,7 @@ public class auto extends LinearOpMode {
         clawArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         clawServo.setPosition(clawClose);
-        basketUp();
+//        basketUp();
 
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
@@ -483,15 +483,18 @@ public class auto extends LinearOpMode {
                 break;
             case D:
                 Trajectory trajectoryD1 = drive.trajectoryBuilder(new Pose2d())
-                        .strafeTo(new Vector2d(20 * dc, 0 * dc))
+                        .strafeTo(new Vector2d(-30 * dc, 0 * dc))
                         .build();
-                drive.followTrajectory(trajectoryD1);
-                sleep(500);
                 backIntake.setPower(1);
+                drive.followTrajectory(trajectoryD1);
                 Trajectory trajectoryD2 = drive.trajectoryBuilder(trajectoryD1.end())
-                        .strafeTo(new Vector2d(35 * dc, 0 * dc))
+                        .strafeTo(new Vector2d(-36 * dc, 0 * dc))
                         .build();
                 drive.followTrajectory(trajectoryD2);
+                Trajectory trajectoryD3 = drive.trajectoryBuilder(trajectoryD2.end())
+                        .strafeTo(new Vector2d(-70 * dc, 0 * dc))
+                        .build();
+                drive.followTrajectory(trajectoryD3);
                 break;
         }
 

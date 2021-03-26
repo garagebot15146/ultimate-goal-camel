@@ -84,6 +84,7 @@ public class teleOp extends OpMode
 
     double powerOffset;
     double turnCooldown = runtime.milliseconds();
+    double anglePower;
 
     Motor shooter;
     boolean shooterToggle = false;
@@ -127,7 +128,7 @@ public class teleOp extends OpMode
 
     //shootFlap
     SimpleServo shootFlap;
-    double flapAngleGoal = 0.12; //Higher = Steeper
+    double flapAngleGoal = 0.125; //Higher = Steeper
     double flapAnglePowerShot = 0.1;
 
     SimpleServo leftBlocker;
@@ -248,11 +249,23 @@ public class teleOp extends OpMode
         side = gamepad1.left_stick_x; //Positive means right
         if (gamepad1.right_stick_button) {
             //Disable default turning if right stick is pressed
-            turn = localAngle * 0.01;
+            turn = 0;
             turnCooldown = runtime.milliseconds();
-        } else if (turnCooldown + 200 < runtime.milliseconds()){
-            turn = gamepad1.right_stick_x; //Positive means turn right
+
+            //Equation is different depending on side of error
+            if (localAngle > 0) {
+                anglePower = 0.0001 * (localAngle - 16) * (localAngle - 16) * (localAngle - 16) + 0.4;
+            } else if (localAngle < 0) {
+                anglePower = 0.0001 * (localAngle + 16) * (localAngle + 16) * (localAngle + 16) - 0.4;
+            }
+
+        } else {
+            anglePower = 0;
+            if (turnCooldown + 200 < runtime.milliseconds()) {
+                turn = gamepad1.right_stick_x; //Positive means turn right
+            }
         }
+
 
         leftFrontPower = (forward + side + turn) / 2;
         leftBackPower = (forward - side + turn) / 2;
@@ -279,6 +292,11 @@ public class teleOp extends OpMode
         } else {
             //This is normal.  Don't put anything here.
         }
+        //Account for Gyro
+        leftFrontPower = leftFrontPower + anglePower;
+        leftBackPower = leftBackPower + anglePower;
+        rightFrontPower = rightFrontPower - anglePower;
+        rightBackPower = rightBackPower - anglePower;
 
         // Send power to wheel motors
         leftFront.set(leftFrontPower);
