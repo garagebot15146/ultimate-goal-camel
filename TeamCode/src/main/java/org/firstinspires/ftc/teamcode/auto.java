@@ -273,28 +273,32 @@ public class auto extends LinearOpMode {
                 .build();
 
         Trajectory trajectoryC3 = drive.trajectoryBuilder(trajectoryC2.end())
-                .strafeTo(new Vector2d(130 * dc, 1 * dc))
+                .strafeTo(new Vector2d(130 * dc, 0 * dc))
                 .build();
 
         Trajectory trajectoryC4 = drive.trajectoryBuilder(trajectoryC3.end())
-                .strafeTo(new Vector2d( 50 * dc, 1 * dc))
+                .strafeTo(new Vector2d( 63 * dc, 0 * dc))
                 .build();
 
         Trajectory trajectoryC5 = drive.trajectoryBuilder(trajectoryC4.end())
-                .strafeTo(new Vector2d(65 * dc, 1 * dc))
+                .strafeTo(new Vector2d(53 * dc, 0 * dc))
                 .build();
 
         Trajectory trajectoryC6 = drive.trajectoryBuilder(trajectoryC5.end())
-                .strafeTo(new Vector2d(25 * dc, 1 * dc))
+                .strafeTo(new Vector2d(35 * dc, 0 * dc))
                 .build();
 
         Trajectory trajectoryC7 = drive.trajectoryBuilder(trajectoryC6.end())
-                .lineToLinearHeading(new Pose2d(32 * dc, 15 * dc, Math.toRadians(-90)))
+                .strafeTo(new Vector2d(25 * dc, 0 * dc))
                 .build();
 
-        Trajectory trajectoryC8 = drive.trajectoryBuilder(trajectoryC7.end())
-                .lineToLinearHeading(new Pose2d(32 * dc, 0 * dc, Math.toRadians(-90)))
-                .build();
+//        Trajectory trajectoryC7 = drive.trajectoryBuilder(trajectoryC6.end())
+//                .lineToLinearHeading(new Pose2d(32 * dc, 15 * dc, Math.toRadians(-90)))
+//                .build();
+//
+//        Trajectory trajectoryC8 = drive.trajectoryBuilder(trajectoryC7.end())
+//                .lineToLinearHeading(new Pose2d(32 * dc, 0 * dc, Math.toRadians(-90)))
+//                .build();
 //
 //        Trajectory trajectoryC8 = drive.trajectoryBuilder(trajectoryC7.end())
 //                .lineToLinearHeading(new Pose2d(50 * dc, 8 * dc, Math.toRadians(0)))
@@ -463,7 +467,7 @@ public class auto extends LinearOpMode {
                 //Take shot 2
                 kick(1);
                 //Turn to right powershot
-                drive.turn(Math.toRadians(-10));
+                drive.turn(Math.toRadians(-9));
                 //Take shot 3
                 kick(1);
                 shooter.setPower(0);
@@ -474,7 +478,7 @@ public class auto extends LinearOpMode {
                 shootFlap.setPosition(flapAngleGoal);
                 drive.followTrajectory(trajectoryC2);
                 //Drop off wobble goal
-                armAngle(-90, 0.3);
+                armAngle(-90, 0.5);
                 clawServo.setPosition(clawOpen);
                 sleep(500);
                 armAngle(120, 0.4);
@@ -483,14 +487,14 @@ public class auto extends LinearOpMode {
                 //Move to ring Y
                 drive.followTrajectory(trajectoryC3);
                 backIntake.setPower(1);
-                shooter.setPower(1);
                 drive.followTrajectory(trajectoryC4);
-                shooter.setPower(-1);
-                drive.followTrajectory(trajectoryC5);
-                sleep(800);
-                shooter.setPower(1);
-                drive.followTrajectory(trajectoryC6);
-                sleep(2000);
+                sleep(1000);
+                encoderDrive(0.1, -9, -9, -9, -9, 4);
+                sleep(500);
+                encoderDrive(0.1, 20, 20, 20, 20, 4);
+                backIntake.setPower(0);
+//                drive.followTrajectory(trajectoryC6);
+//                sleep(2000);
 //                drive.followTrajectory(trajectoryC4);
 //                sleep(800);
 //                backIntake.setPower(-1);
