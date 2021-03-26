@@ -29,7 +29,8 @@ public class auto extends LinearOpMode {
     enum PATH {
         A,
         B,
-        C
+        C,
+        D
     }
 
     //Declare motors/servos variables
@@ -296,7 +297,7 @@ public class auto extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        PATH path = PATH.C;
+        PATH path = PATH.D;
 
         switch (path) {
             case A:
@@ -479,6 +480,18 @@ public class auto extends LinearOpMode {
 //                drive.followTrajectory(returnHomeC);
                 telemetry.addData("Path C", "Complete");
                 telemetry.update();
+                break;
+            case D:
+                Trajectory trajectoryD1 = drive.trajectoryBuilder(new Pose2d())
+                        .strafeTo(new Vector2d(20 * dc, 0 * dc))
+                        .build();
+                drive.followTrajectory(trajectoryD1);
+                sleep(500);
+                backIntake.setPower(1);
+                Trajectory trajectoryD2 = drive.trajectoryBuilder(trajectoryD1.end())
+                        .strafeTo(new Vector2d(35 * dc, 0 * dc))
+                        .build();
+                drive.followTrajectory(trajectoryD2);
                 break;
         }
 
