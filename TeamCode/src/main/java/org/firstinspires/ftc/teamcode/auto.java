@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -158,6 +159,30 @@ public class auto extends LinearOpMode {
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
+        int cameraMonitorViewId = this
+                .hardwareMap
+                .appContext
+                .getResources().getIdentifier(
+                        "cameraMonitorViewId",
+                        "id",
+                        hardwareMap.appContext.getPackageName()
+                );
+
+        camera = OpenCvCameraFactory
+                .getInstance()
+                .createWebcam(hardwareMap.get(WebcamName.class, WEBCAM_NAME), cameraMonitorViewId);
+
+
+        camera.setPipeline(pipeline = new UGContourRingPipeline(telemetry, DEBUG));
+
+        UGContourRingPipeline.Config.setCAMERA_WIDTH(CAMERA_WIDTH);
+
+        UGContourRingPipeline.Config.setHORIZON(HORIZON);
+
+        camera.openCameraDeviceAsync(() -> camera.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPSIDE_DOWN));
+
+        FtcDashboard.getInstance().startCameraStream(camera, 30);
+
 //PATH CONSTANTS
         double dc = 0.5;
         double powerShotX = 87 * dc;
@@ -313,11 +338,14 @@ public class auto extends LinearOpMode {
 //CASE C INIT END
 
         telemetry.addData("Status", "Initialized");
+        String height = "Stack Height" + " " + pipeline.getHeight();
+        telemetry.addData("Which Stack Init", height);
+        telemetry.update();
         waitForStart();
 
         if (isStopRequested()) return;
 
-        PATH path = PATH.C;
+        PATH path = PATH.D;
 
         switch (path) {
             case A:
@@ -522,7 +550,10 @@ public class auto extends LinearOpMode {
                 telemetry.addData("Path C", "Complete");
                 telemetry.update();
                 break;
-//            case D:
+            case D:
+                telemetry.addData("Which Stack Op", height);
+                telemetry.update();
+                FtcDashboard.getInstance().stopCameraStream();
 //                basketDown();
 //                shootFlap.setPosition(flapAngleGoal);
 //                Trajectory trajectoryD1 = drive.trajectoryBuilder(new Pose2d())
@@ -563,7 +594,7 @@ public class auto extends LinearOpMode {
 //                kick(1);
 //                kick(1);
 //                sleep(1000);
-//                break;
+                break;
         }
 
     }
