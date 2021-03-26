@@ -390,6 +390,9 @@ public class teleOp extends OpMode
         if(gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) {
             leftLift.setPosition(1 - leftLiftDown);
             rightLift.setPosition(rightLiftDown);
+            //Tie left blocker arm
+            leftBlocker.setPosition(leftBlockerTo);
+            blockerDown = true;
         }
 
 
@@ -435,10 +438,16 @@ public class teleOp extends OpMode
             //Up
             leftLift.setPosition(1 - leftLiftUp);
             rightLift.setPosition((rightLiftUp));
+            //Ties the left blocker arm
+            leftBlocker.setPosition(leftBlockerInit);
+            blockerDown = false;
         } else if (gamepad2.dpad_down) {
             //Down
             leftLift.setPosition(1 - leftLiftDown);
             rightLift.setPosition(rightLiftDown);
+            //Ties the left blocker arm
+            leftBlocker.setPosition(leftBlockerTo);
+            blockerDown = true;
         }
 
         //Kicker
