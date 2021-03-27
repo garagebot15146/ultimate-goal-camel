@@ -75,6 +75,10 @@ public class teleOp extends OpMode
     Orientation lastAngles = new Orientation();
     double angleOffset = 0;
     double localAngle;
+    double powerShotAngleOffset = 0;
+    double powerShotAngleOffset2 = 0;
+    double localPowerShotAngle;
+    boolean readyForPowershot = false;
 
     //Set Motor objects
     Motor leftFront;
@@ -129,7 +133,7 @@ public class teleOp extends OpMode
     //shootFlap
     SimpleServo shootFlap;
     double flapAngleGoal = 0.125; //Higher = Steeper
-    double flapAnglePowerShot = 0.1;
+    double flapAnglePowerShot = 0.112;
 
     SimpleServo leftBlocker;
     double leftBlockerInit = 0.41;
@@ -247,16 +251,26 @@ public class teleOp extends OpMode
         //DRIVE
         forward = -gamepad1.left_stick_y;
         side = gamepad1.left_stick_x; //Positive means right
-        if (gamepad1.right_stick_button) {
+        if (gamepad1.right_stick_button || gamepad1.dpad_left || gamepad1.dpad_up || gamepad1.dpad_down) {
             //Disable default turning if right stick is pressed
             turn = 0;
             turnCooldown = runtime.milliseconds();
 
-            //Equation is different depending on side of error
-            if (localAngle > 0) {
-                anglePower = 0.0001 * (localAngle - 16) * (localAngle - 16) * (localAngle - 16) + 0.4;
-            } else if (localAngle < 0) {
-                anglePower = 0.0001 * (localAngle + 16) * (localAngle + 16) * (localAngle + 16) - 0.4;
+            //Check whether aiming for goal or powershot
+            if (readyForPowershot == false) {
+                //Equation is different depending on side of error
+                if (localAngle > 0) {
+                    anglePower = 0.0001 * (localAngle - 16) * (localAngle - 16) * (localAngle - 16) + 0.4;
+                } else if (localAngle < 0) {
+                    anglePower = 0.0001 * (localAngle + 16) * (localAngle + 16) * (localAngle + 16) - 0.4;
+                }
+            } else if (readyForPowershot == true) {
+                //Equation is different depending on side of error
+                if (localPowerShotAngle > 0) {
+                    anglePower = 0.0001 * (localPowerShotAngle - 16) * (localPowerShotAngle - 16) * (localPowerShotAngle - 16) + 0.4;
+                } else if (localPowerShotAngle < 0) {
+                    anglePower = 0.0001 * (localPowerShotAngle + 16) * (localPowerShotAngle + 16) * (localPowerShotAngle + 16) - 0.4;
+                }
             }
 
         } else {
@@ -304,13 +318,33 @@ public class teleOp extends OpMode
         leftBack.set(leftBackPower);
         rightBack.set(rightBackPower);
 
-        //shootFlap
-        if (gamepad1.dpad_left) {
-            //Power Shot (Lower)
+        //Power Shots
+        if (gamepad1.dpad_down) {
+            //Right Power Shot
+            powerShotAngleOffset2 = powerShotAngleOffset - 2;
             shootFlap.setPosition(flapAnglePowerShot);
+            readyForPowershot = true;
+        } else if (gamepad1.dpad_left) {
+            //Center Power Shot
+            powerShotAngleOffset2 = powerShotAngleOffset + 3;
+            shootFlap.setPosition(flapAnglePowerShot);
+            readyForPowershot = true;
+        } else if (gamepad1.dpad_up) {
+            //Left Power Shot
+            powerShotAngleOffset2 = powerShotAngleOffset + 8;
+            shootFlap.setPosition(flapAnglePowerShot);
+            readyForPowershot = true;
         } else if (gamepad1.dpad_right) {
             //Goal (Higher)
             shootFlap.setPosition(flapAngleGoal);
+            readyForPowershot = false;
+        }
+
+        //Y to start powershot sequence
+        if (gamepad1.y) {
+            powerShotAngleOffset = lastAngles.firstAngle;
+            shootFlap.setPosition(flapAnglePowerShot);
+            readyForPowershot = true;
         }
 
         //Blockers
@@ -333,6 +367,7 @@ public class teleOp extends OpMode
             angleOffset = lastAngles.firstAngle;
         }
         localAngle = lastAngles.firstAngle - angleOffset;
+        localPowerShotAngle = lastAngles.firstAngle - powerShotAngleOffset2;
 
         //Vibrate Basket
 //        if (gamepad1.right_bumper) {
@@ -391,8 +426,6 @@ public class teleOp extends OpMode
             leftLift.setPosition(1 - leftLiftDown);
             rightLift.setPosition(rightLiftDown);
             //Tie left blocker arm
-            leftBlocker.setPosition(leftBlockerTo);
-            blockerDown = true;
         }
 
 
@@ -446,8 +479,6 @@ public class teleOp extends OpMode
             leftLift.setPosition(1 - leftLiftDown);
             rightLift.setPosition(rightLiftDown);
             //Ties the left blocker arm
-            leftBlocker.setPosition(leftBlockerTo);
-            blockerDown = true;
         }
 
         //Kicker
@@ -455,6 +486,9 @@ public class teleOp extends OpMode
             currentTime = runtime.milliseconds();
             kicker.setPosition(kickerTo);
             kickerHasRun = true;
+            //Bring down ring blocker
+            leftBlocker.setPosition(leftBlockerTo);
+            blockerDown = true;
         }
 
         if (runtime.milliseconds() > currentTime + 150 && kickerHasRun == true) {
