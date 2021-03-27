@@ -29,36 +29,46 @@ public class auto extends LinearOpMode {
     //Declare motors/servos variables
     private ElapsedTime runtime = new ElapsedTime();
     //Initialize Motors/Servos
+    //Wheels
     private DcMotor leftFront = null;
     private DcMotor rightFront = null;
     private DcMotor leftBack = null;
     private DcMotor rightBack = null;
 
+    //Intake
     private DcMotor frontIntake = null;
     private DcMotor backIntake = null;
 
+    //Claw Arm
     private DcMotor clawArm = null;
     private Servo clawServo = null;
     double clawClose = 0.90;
     double clawOpen = 0.6;
 
+    //Shooter
     private DcMotor shooter = null;
+
+    //Kicker
     private Servo kicker = null;
     double kickerInit = 0.3200;
     double kickerTo = 0.5848;
-    private Servo shootFlap;
-    double flapAngleGoal = 0.125; //Higher = Steeper
-    double flapAnglePowerShot = 0.107;
 
+    //Flap
+    private Servo shootFlap;
+    double flapAngleGoal = 0.136; //Higher = Steeper
+    double flapAnglePowerShot = 0.119;
+
+    //Lift
     private Servo leftLift = null;
     private Servo rightLift = null;
 
     double leftLiftUp = 0.9176; //1 Top
     double rightLiftUp = 0.9413; //1 Top
 
-    double leftLiftDown = 0.45;
-    double rightLiftDown = 0.45;
+    double leftLiftDown = 0.542;
+    double rightLiftDown = 0.542;
 
+    //Blocker
     private Servo leftBlocker;
     double leftBlockerInit = 0.41;
     double leftBlockerTo = 0.94;
@@ -177,8 +187,11 @@ public class auto extends LinearOpMode {
 
 //PATH CONSTANTS
         double dc = 0.5;
-        double powerShotX = 87 * dc;
-        double powerShotStrafe = 40 * dc;
+        double powerShotX = 89 * dc;
+        double powerShotStrafe = 41 * dc;
+        double firstAngle = -3.5;
+        double secondAngle = -6;
+        double thirdAngle = 9.5;
 
 //CASE A INIT START
         Trajectory trajectoryA1 = drive.trajectoryBuilder(new Pose2d())
@@ -190,11 +203,11 @@ public class auto extends LinearOpMode {
                 .build();
 
         Trajectory trajectoryA3 = drive.trajectoryBuilder(trajectoryA2.end())
-                .lineToLinearHeading(new Pose2d(27 * dc, 15 * dc, Math.toRadians(-90)))
+                .lineToLinearHeading(new Pose2d(28.5 * dc, 15 * dc, Math.toRadians(-90)))
                 .build();
 
         Trajectory trajectoryA4 = drive.trajectoryBuilder(trajectoryA3.end())
-                .lineToLinearHeading(new Pose2d(27 * dc, -6.5 * dc, Math.toRadians(-90)))
+                .lineToLinearHeading(new Pose2d(28.5 * dc, -6.5 * dc, Math.toRadians(-90)))
                 .build();
 
         Trajectory trajectoryA5 = drive.trajectoryBuilder(trajectoryA4.end())
@@ -269,15 +282,15 @@ public class auto extends LinearOpMode {
                 .build();
 
         Trajectory trajectoryC4 = drive.trajectoryBuilder(trajectoryC3.end())
-                .strafeTo(new Vector2d( 74 * dc, 0 * dc))
+                .strafeTo(new Vector2d( 73 * dc, 0 * dc))
                 .build();
 
         Trajectory trajectoryC45 = drive.trajectoryBuilder(trajectoryC4.end())
-                .strafeTo(new Vector2d( 70 * dc, 0 * dc))
+                .strafeTo(new Vector2d( 69 * dc, 0 * dc))
                 .build();
 
         Trajectory trajectoryC48 = drive.trajectoryBuilder(trajectoryC45.end())
-                .strafeTo(new Vector2d( 64 * dc, 0 * dc))
+                .strafeTo(new Vector2d( 63 * dc, 0 * dc))
                 .build();
 
         Trajectory trajectoryC5 = drive.trajectoryBuilder(trajectoryC48.end())
@@ -305,8 +318,8 @@ public class auto extends LinearOpMode {
         if (isStopRequested()) return;
 
         telemetry.update();
-        String height = "FOUR";
-//        String height = pipeline.getHeight().name();
+//        String height = "FOUR";
+        String height = pipeline.getHeight().name();
         telemetry.addData("Ring Stack", height);
         telemetry.update();
         FtcDashboard.getInstance().stopCameraStream();
@@ -320,16 +333,16 @@ public class auto extends LinearOpMode {
                 //Take shot 1
                 kick(1);
                 //Turn to left powershot
-                drive.turn(Math.toRadians(4));
+                drive.turn(Math.toRadians(firstAngle));
                 //Take shot 2
                 kick(1);
                 //Turn to right powershot
-                drive.turn(Math.toRadians(-10));
+                drive.turn(Math.toRadians(secondAngle));
                 //Take shot 3
                 kick(1);
                 shooter.setPower(0);
                 //Reset heading to 0
-                drive.turn(Math.toRadians(6));
+                drive.turn(Math.toRadians(thirdAngle));
                 //Drive to zone
                 drive.followTrajectory(trajectoryA2);
                 //Drop off wobble goal
@@ -370,16 +383,16 @@ public class auto extends LinearOpMode {
                 //Take shot 1
                 kick(1);
                 //Turn to left powershot
-                drive.turn(Math.toRadians(4));
+                drive.turn(Math.toRadians(firstAngle));
                 //Take shot 2
                 kick(1);
                 //Turn to right powershot
-                drive.turn(Math.toRadians(-10));
+                drive.turn(Math.toRadians(secondAngle));
                 //Take shot 3
                 kick(1);
                 shooter.setPower(0);
                 //Reset heading to 0
-                drive.turn(Math.toRadians(6));
+                drive.turn(Math.toRadians(thirdAngle));
                 //Basket down. Drive to zone
                 basketDown();
                 drive.followTrajectory(trajectoryB2);
@@ -431,16 +444,16 @@ public class auto extends LinearOpMode {
                 //Take shot 1
                 kick(1);
                 //Turn to left powershot
-                drive.turn(Math.toRadians(4));
+                drive.turn(Math.toRadians(firstAngle));
                 //Take shot 2
                 kick(1);
                 //Turn to right powershot
-                drive.turn(Math.toRadians(-9));
+                drive.turn(Math.toRadians(secondAngle));
                 //Take shot 3
                 kick(1);
                 shooter.setPower(0);
                 //Reset heading to 0
-                drive.turn(Math.toRadians(5));
+                drive.turn(Math.toRadians(thirdAngle));
                 //Basket down. Drive to zone
                 basketDown();
                 shootFlap.setPosition(flapAngleGoal);
@@ -475,7 +488,7 @@ public class auto extends LinearOpMode {
                 clawServo.setPosition(clawClose);
                 sleep(150);
                 drive.followTrajectory(trajectoryC8);
-                drive.turn(Math.toRadians(170));
+                drive.turn(Math.toRadians(-170));
                 //Drop off wobble goal again and book it
                 clawServo.setPosition(clawOpen);
                 encoderDrive(1, -20, -20, -20, -20, 4);

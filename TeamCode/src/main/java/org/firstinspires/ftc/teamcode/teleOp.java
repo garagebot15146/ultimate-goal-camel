@@ -68,7 +68,7 @@ public class teleOp extends OpMode
     private ElapsedTime runtime = new ElapsedTime();
     double currentTime;
     double shooterTime = runtime.milliseconds();
-    double vibrateTime = runtime.milliseconds();
+    double autoKickTime;
 
     //Initialize IMU
     BNO055IMU imu;
@@ -79,6 +79,7 @@ public class teleOp extends OpMode
     double powerShotAngleOffset2 = 0;
     double localPowerShotAngle;
     boolean readyForPowershot = false;
+    boolean autoKickHasRun = false;
 
     //Set Motor objects
     Motor leftFront;
@@ -109,8 +110,8 @@ public class teleOp extends OpMode
     double leftLiftUp = 0.9176; //1 Top
     double rightLiftUp = 0.9413; //1 Top
 
-    double leftLiftDown = 0.45;
-    double rightLiftDown = 0.45;
+    double leftLiftDown = 0.522;
+    double rightLiftDown = 0.522;
 
     boolean g1rightbumperpressed = false;
     boolean vibrated = false;
@@ -132,8 +133,8 @@ public class teleOp extends OpMode
 
     //shootFlap
     SimpleServo shootFlap;
-    double flapAngleGoal = 0.125; //Higher = Steeper
-    double flapAnglePowerShot = 0.112;
+    double flapAngleGoal = 0.131; //Higher = Steeper
+    double flapAnglePowerShot = 0.110;
 
     SimpleServo leftBlocker;
     double leftBlockerInit = 0.41;
@@ -347,6 +348,20 @@ public class teleOp extends OpMode
             readyForPowershot = true;
         }
 
+        //Auto kicker
+        if ((gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_up) && autoKickHasRun == false) {
+            autoKickHasRun = true;
+            autoKickTime = runtime.milliseconds();
+        } else if (!(gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_up) && autoKickHasRun == true) {
+            autoKickHasRun = false;
+            kicker.setPosition(kickerInit);
+        }
+
+        if (autoKickTime + 500 < runtime.milliseconds() && (gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_up)) {
+            kicker.setPosition(kickerTo);
+        }
+
+
         //Blockers
         if (gamepad1.left_bumper && blockerToggle == false) {
             blockerToggle = true;
@@ -368,39 +383,6 @@ public class teleOp extends OpMode
         }
         localAngle = lastAngles.firstAngle - angleOffset;
         localPowerShotAngle = lastAngles.firstAngle - powerShotAngleOffset2;
-
-        //Vibrate Basket
-//        if (gamepad1.right_bumper) {
-//            g1rightbumperpressed = true;
-//            //Check if 200 ms has passed
-//            if (vibrateTime + 150 < runtime.milliseconds()) {
-//                //If 200ms has passed
-//                vibrateTime = runtime.milliseconds();
-//
-//                //vibrated true means up oscillation
-//                if (vibrated == true) {
-//                    //Oscillate up
-//                    leftLift.setPosition(1 - (leftLiftUp + 0));
-//                    rightLift.setPosition(rightLiftUp + 0);
-//                } else {
-//                    //Oscillate Down
-//                    leftLift.setPosition(1 - (leftLiftUp - 0.08));
-//                    rightLift.setPosition(rightLiftUp - 0.08);
-//                }
-//
-//                //Switch vibrated variable
-//                if (vibrated == true) {
-//                    vibrated = false;
-//                } else {
-//                    vibrated = true;
-//                }
-//            }
-//        } else if (!gamepad1.right_bumper && g1rightbumperpressed == true) {
-//            //When release right bumper, return lift to up position (trigger once)
-//            leftLift.setPosition(1 - leftLiftUp);
-//            rightLift.setPosition(rightLiftUp);
-//            g1rightbumperpressed = false;
-//        }
 
         /////////////
         //GAMEPAD 2//
@@ -518,9 +500,7 @@ public class teleOp extends OpMode
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         telemetry.addData("1 imu heading", localAngle);
 
-
         telemetry.addData("Shooter RPM", (int) shooterRPM);
-
 
     }
 
