@@ -65,8 +65,8 @@ public class auto extends LinearOpMode {
     double leftLiftUp = 0.9176; //1 Top
     double rightLiftUp = 0.9413; //1 Top
 
-    double leftLiftDown = 0.542;
-    double rightLiftDown = 0.542;
+    double leftLiftDown = 0.532;
+    double rightLiftDown = 0.532;
 
     //Blocker
     private Servo leftBlocker;
@@ -188,7 +188,7 @@ public class auto extends LinearOpMode {
 //PATH CONSTANTS
         double dc = 0.5;
         double powerShotX = 89 * dc;
-        double powerShotStrafe = 41 * dc;
+        double powerShotStrafe = 43 * dc;
         double firstAngle = -3.5;
         double secondAngle = -6;
         double thirdAngle = 9.5;
