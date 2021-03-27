@@ -277,7 +277,7 @@ public class auto extends LinearOpMode {
                 .build();
 
         Trajectory trajectoryC48 = drive.trajectoryBuilder(trajectoryC45.end())
-                .strafeTo(new Vector2d( 66 * dc, 0 * dc))
+                .strafeTo(new Vector2d( 64 * dc, 0 * dc))
                 .build();
 
         Trajectory trajectoryC5 = drive.trajectoryBuilder(trajectoryC48.end())
@@ -289,15 +289,11 @@ public class auto extends LinearOpMode {
                 .build();
 
         Trajectory trajectoryC7 = drive.trajectoryBuilder(trajectoryC6.end())
-                .lineToLinearHeading(new Pose2d(40 * dc, -30 * dc, Math.toRadians(-180)))
+                .lineToLinearHeading(new Pose2d(39 * dc, -30 * dc, Math.toRadians(-180)))
                 .build();
 
         Trajectory trajectoryC8 = drive.trajectoryBuilder(trajectoryC7.end())
-                .lineToLinearHeading(new Pose2d(155 * dc, -30 * dc, Math.toRadians(0)))
-                .build();
-
-        Trajectory trajectoryC9 = drive.trajectoryBuilder(trajectoryC8.end())
-                .lineToLinearHeading(new Pose2d(112 * dc, -30 * dc, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(150 * dc, -30 * dc, Math.toRadians(-180)))
                 .build();
 //CASE C INIT END
 
@@ -431,7 +427,7 @@ public class auto extends LinearOpMode {
                 //Turn on shooter. Move to Power Shot
                 shooter.setPower(1);
                 drive.followTrajectory(trajectoryC1);
-                sleep(1000);
+                sleep(500);
                 //Take shot 1
                 kick(1);
                 //Turn to left powershot
@@ -452,7 +448,7 @@ public class auto extends LinearOpMode {
                 //Drop off wobble goal
                 armAngle(-90, 0.5);
                 clawServo.setPosition(clawOpen);
-                sleep(500);
+                sleep(450);
                 armAngle(120, 0.4);
                 clawServo.setPosition(clawClose);
                 sleep(300);
@@ -461,31 +457,28 @@ public class auto extends LinearOpMode {
                 shooter.setPower(1);
                 backIntake.setPower(1);
                 drive.followTrajectory(trajectoryC4);
-                sleep(900);
+                sleep(540);
                 drive.followTrajectory(trajectoryC45);
-                sleep(400);
+                sleep(540);
                 drive.followTrajectory(trajectoryC48);
-                sleep(400);
+                sleep(540);
                 drive.followTrajectory(trajectoryC5);
                 basketUp();
                 sleep(800);
-                kick(2);
+                kick(4);
+                sleep(500);
                 drive.followTrajectory(trajectoryC6);
                 backIntake.setPower(0);
                 armAngle(-100, 0.5);
                 clawServo.setPosition(clawOpen);
                 drive.followTrajectory(trajectoryC7);
                 clawServo.setPosition(clawClose);
-                sleep(500);
-                armAngle(120, 0.4);
+                sleep(150);
                 drive.followTrajectory(trajectoryC8);
-                //Drop off wobble goal again
-                armAngle(-90, 0.5);
+                drive.turn(Math.toRadians(170));
+                //Drop off wobble goal again and book it
                 clawServo.setPosition(clawOpen);
-                sleep(500);
-                armAngle(120, 0.4);
-                clawServo.setPosition(clawClose);
-                drive.followTrajectory(trajectoryC9);
+                encoderDrive(1, -20, -20, -20, -20, 4);
                 telemetry.addData("Path C", "Complete");
                 telemetry.update();
                 break;
