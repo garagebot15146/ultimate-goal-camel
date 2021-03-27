@@ -269,10 +269,14 @@ public class auto extends LinearOpMode {
                 .build();
 
         Trajectory trajectoryC4 = drive.trajectoryBuilder(trajectoryC3.end())
+                .strafeTo(new Vector2d( 74 * dc, 0 * dc))
+                .build();
+
+        Trajectory trajectoryC45 = drive.trajectoryBuilder(trajectoryC4.end())
                 .strafeTo(new Vector2d( 70 * dc, 0 * dc))
                 .build();
 
-        Trajectory trajectoryC5 = drive.trajectoryBuilder(trajectoryC4.end())
+        Trajectory trajectoryC5 = drive.trajectoryBuilder(trajectoryC45.end())
                 .lineToLinearHeading(new Pose2d(93 * dc, 0 * dc))
                 .build();
 
@@ -453,6 +457,8 @@ public class auto extends LinearOpMode {
                 shooter.setPower(1);
                 backIntake.setPower(1);
                 drive.followTrajectory(trajectoryC4);
+                sleep(1000);
+                drive.followTrajectory(trajectoryC45);
                 sleep(800);
                 drive.followTrajectory(trajectoryC5);
                 basketUp();
