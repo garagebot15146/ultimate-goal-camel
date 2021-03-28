@@ -110,8 +110,8 @@ public class teleOp extends OpMode
     double leftLiftUp = 0.9176; //1 Top
     double rightLiftUp = 0.9413; //1 Top
 
-    double leftLiftDown = 0.522;
-    double rightLiftDown = 0.522;
+    double leftLiftDown = 0.482;
+    double rightLiftDown = 0.482;
 
     boolean g1rightbumperpressed = false;
     boolean vibrated = false;
@@ -403,8 +403,8 @@ public class teleOp extends OpMode
             backIntake.set(0);
         }
 
-        //If intake is active, bring lift down
-        if(gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) {
+        //If intake is active, bring lift down, unless Y is pressed
+        if((gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) && !gamepad2.b ) {
             leftLift.setPosition(1 - leftLiftDown);
             rightLift.setPosition(rightLiftDown);
             //Tie left blocker arm
