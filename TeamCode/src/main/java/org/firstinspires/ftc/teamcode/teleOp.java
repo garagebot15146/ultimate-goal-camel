@@ -107,8 +107,8 @@ public class teleOp extends OpMode
     SimpleServo leftLift;
     SimpleServo rightLift;
 
-    double leftLiftUp = 0.9176; //1 Top
-    double rightLiftUp = 0.9413; //1 Top
+    double leftLiftUp = 0.9076; //1 Top
+    double rightLiftUp = 0.9213; //1 Top
 
     double leftLiftDown = 0.482;
     double rightLiftDown = 0.482;
@@ -133,7 +133,7 @@ public class teleOp extends OpMode
 
     //shootFlap
     SimpleServo shootFlap;
-    double flapAngleGoal = 0.131; //Higher = Steeper
+    double flapAngleGoal = 0.132; //Higher = Steeper
     double flapAnglePowerShot = 0.110;
 
     SimpleServo leftBlocker;
