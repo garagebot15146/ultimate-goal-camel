@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -44,6 +45,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.util.Encoder;
 
 
 /**
@@ -100,6 +102,11 @@ public class teleOp extends OpMode
     Motor frontIntake;
 
     private DcMotor clawArm = null;
+
+    private Encoder leftEncoder;
+    private Encoder rightEncoder;
+    private Encoder backEncoder;
+
 
     //Set Servo objects
 
@@ -158,8 +165,12 @@ public class teleOp extends OpMode
         shooter = new Motor(hardwareMap, "shooter", 28, 6000);
         backIntake = new Motor(hardwareMap, "backIntake", 5, 6);
         frontIntake = new Motor(hardwareMap, "frontIntake", 5, 6);
-
         clawArm = hardwareMap.get(DcMotor.class, "clawArm");
+
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "backIntake"));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "frontIntake"));
+        backEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "clawArm"));
+
 
         leftLift = new SimpleServo(hardwareMap, "leftLift");
         rightLift = new SimpleServo(hardwareMap, "rightLift");
@@ -501,6 +512,11 @@ public class teleOp extends OpMode
         telemetry.addData("1 imu heading", localAngle);
 
         telemetry.addData("Shooter RPM", (int) shooterRPM);
+
+        telemetry.addData("leftEncoder Position", leftEncoder.getCurrentPosition());
+        telemetry.addData("rightEncoder Position", rightEncoder.getCurrentPosition());
+        telemetry.addData("backEncoder Position", backEncoder.getCurrentPosition());
+
 
     }
 
