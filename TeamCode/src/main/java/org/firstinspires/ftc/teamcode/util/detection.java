@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -20,7 +21,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 //@Disabled
 public class detection extends LinearOpMode {
 
-    OpenCvCamera phoneCam;
+    OpenCvCamera camera;
 
     // CONSTANTS
 
@@ -36,16 +37,26 @@ public class detection extends LinearOpMode {
     public void runOpMode()
     {
         // Camera Init
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
-        phoneCam.openCameraDevice();
+        int cameraMonitorViewId = this
+                .hardwareMap
+                .appContext
+                .getResources().getIdentifier(
+                        "cameraMonitorViewId",
+                        "id",
+                        hardwareMap.appContext.getPackageName()
+                );
+
+        camera = OpenCvCameraFactory
+                .getInstance()
+                .createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), cameraMonitorViewId);
+        camera.openCameraDevice();
 
         // Loading pipeline
         RingPipeline visionPipeline = new RingPipeline();
-        phoneCam.setPipeline(visionPipeline);
+        camera.setPipeline(visionPipeline);
 
         // Start streaming the pipeline
-        phoneCam.startStreaming(320,240,OpenCvCameraRotation.UPRIGHT);
+        camera.startStreaming(320,240,OpenCvCameraRotation.UPRIGHT);
 
         waitForStart();
 
