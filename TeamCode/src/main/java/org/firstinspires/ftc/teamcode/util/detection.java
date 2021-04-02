@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -49,14 +50,13 @@ public class detection extends LinearOpMode {
         camera = OpenCvCameraFactory
                 .getInstance()
                 .createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), cameraMonitorViewId);
-        camera.openCameraDevice();
+        camera.openCameraDeviceAsync(() -> camera.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT));
+
+        FtcDashboard.getInstance().startCameraStream(camera, 30);
 
         // Loading pipeline
         RingPipeline visionPipeline = new RingPipeline();
         camera.setPipeline(visionPipeline);
-
-        // Start streaming the pipeline
-        camera.startStreaming(320,240,OpenCvCameraRotation.UPRIGHT);
 
         waitForStart();
 
