@@ -50,13 +50,17 @@ public class detection extends LinearOpMode {
         camera = OpenCvCameraFactory
                 .getInstance()
                 .createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), cameraMonitorViewId);
-        camera.openCameraDeviceAsync(() -> camera.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT));
-
-        FtcDashboard.getInstance().startCameraStream(camera, 30);
 
         // Loading pipeline
         RingPipeline visionPipeline = new RingPipeline();
         camera.setPipeline(visionPipeline);
+
+        // Start Streaming
+        camera.openCameraDeviceAsync(() -> camera.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT));
+
+        // Stream Camera
+        FtcDashboard.getInstance().startCameraStream(camera, 30);
+
 
         waitForStart();
 
@@ -67,6 +71,9 @@ public class detection extends LinearOpMode {
             telemetry.addData("Ring 4:",visionPipeline.ring4); // Will return 0 if there is 4 rings, otherwise 1
             telemetry.update();
         }
+
+        FtcDashboard.getInstance().stopCameraStream();
+
     }
 
     // Pipeline class
