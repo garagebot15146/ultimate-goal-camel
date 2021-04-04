@@ -96,7 +96,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     private DcMotorEx leftFront, leftBack, rightBack, rightFront;
     private List<DcMotorEx> motors;
-    private BNO055IMU imu;
+//    private BNO055IMU imu;
 
     private VoltageSensor batteryVoltageSensor;
 
@@ -134,14 +134,14 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
 
         // TODO: adjust the names of the following hardware devices to match your configuration
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-        imu.initialize(parameters);
+//        imu = hardwareMap.get(BNO055IMU.class, "imu");
+//        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+//        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+//        imu.initialize(parameters);
 
         // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
         // upward (normal to the floor) using a command like the following:
-         BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
+//        BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
 
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
@@ -401,9 +401,13 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     @Override
+//    public double getRawExternalHeading() {
+//        return imu.getAngularOrientation().firstAngle;
+//    }
     public double getRawExternalHeading() {
-        return imu.getAngularOrientation().firstAngle;
+        return 0;
     }
+
 
     @Override
     public Double getExternalHeadingVelocity() {
@@ -425,6 +429,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         // Rotate about the z axis is the default assuming your REV Hub/Control Hub is laying
         // flat on a surface
 
-        return (double) imu.getAngularVelocity().xRotationRate;
+//        return (double) imu.getAngularVelocity().xRotationRate;
+        return 0.0;
     }
 }

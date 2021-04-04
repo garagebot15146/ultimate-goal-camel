@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.CRServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -45,6 +46,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.util.Encoder;
 
 
@@ -105,7 +108,7 @@ public class teleOp extends OpMode
 
     private Encoder leftEncoder;
     private Encoder rightEncoder;
-    private Encoder backEncoder;
+    private Encoder frontEncoder;
 
 
     //Set Servo objects
@@ -153,6 +156,9 @@ public class teleOp extends OpMode
     double shooterPosition;
     double shooterRPM;
 
+    static SampleMecanumDrive drive;
+
+
     //Initialize
     @Override
     public void init() {
@@ -166,11 +172,6 @@ public class teleOp extends OpMode
         backIntake = new Motor(hardwareMap, "backIntake", 5, 6);
         frontIntake = new Motor(hardwareMap, "frontIntake", 5, 6);
         clawArm = hardwareMap.get(DcMotor.class, "clawArm");
-
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "backIntake"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "frontIntake"));
-        backEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "clawArm"));
-
 
         leftLift = new SimpleServo(hardwareMap, "leftLift");
         rightLift = new SimpleServo(hardwareMap, "rightLift");
@@ -206,6 +207,7 @@ public class teleOp extends OpMode
         backIntake.setInverted(true);
         frontIntake.setInverted(true);
 
+
         //Initialize Servo Positions
         kicker.setPosition(kickerInit);
         shootFlap.setPosition(flapAngleGoal);
@@ -222,6 +224,14 @@ public class teleOp extends OpMode
         parameters.loggingEnabled      = false;
 
         imu.initialize(parameters);
+
+        //Localizer
+        drive = new SampleMecanumDrive(hardwareMap);
+
+        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        //Set initial position
+        drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
 
         //Initialized
         telemetry.addData("Status", "Initialized");
@@ -255,6 +265,16 @@ public class teleOp extends OpMode
         double forward = 0;
         double side = 0;
         double turn = 0;
+
+        //Update Localization
+        drive.update();
+
+        // Retrieve your pose
+        Pose2d myPose = drive.getPoseEstimate();
+
+        telemetry.addData("x", myPose.getX());
+        telemetry.addData("y", myPose.getY());
+        telemetry.addData("heading", myPose.getHeading());
 
         /////////////
         //GAMEPAD 1//
@@ -512,12 +532,6 @@ public class teleOp extends OpMode
         telemetry.addData("1 imu heading", localAngle);
 
         telemetry.addData("Shooter RPM", (int) shooterRPM);
-
-        telemetry.addData("leftEncoder Position", leftEncoder.getCurrentPosition());
-        telemetry.addData("rightEncoder Position", rightEncoder.getCurrentPosition());
-        telemetry.addData("backEncoder Position", backEncoder.getCurrentPosition());
-
-
     }
 
     //Stop code
