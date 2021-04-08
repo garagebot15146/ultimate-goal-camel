@@ -96,6 +96,9 @@ public class auto extends LinearOpMode {
     private UGContourRingPipeline pipeline;
     private OpenCvCamera camera;
 
+    SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+
+
     @Override
     public void runOpMode() {
 
@@ -157,9 +160,6 @@ public class auto extends LinearOpMode {
         clawArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         clawServo.setPosition(clawClose);
-
-
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         int cameraMonitorViewId = this
                 .hardwareMap
@@ -571,7 +571,7 @@ public class auto extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            newLeftFrontTarget = leftFront.getCurrentPosition() + (int) (leftFrontInches * COUNTS_PER_INCH);
+            newLeftFrontTarget = drive.leftFront.getCurrentPosition() + (int) (leftFrontInches * COUNTS_PER_INCH);
             newRightFrontTarget = rightFront.getCurrentPosition() + (int) (rightFrontInches * COUNTS_PER_INCH);
             newLeftBackTarget = leftBack.getCurrentPosition() + (int) (leftBackInches * COUNTS_PER_INCH);
             newRightBackTarget = rightBack.getCurrentPosition() + (int) (rightBackInches * COUNTS_PER_INCH);
