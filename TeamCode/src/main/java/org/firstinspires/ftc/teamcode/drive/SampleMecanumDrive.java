@@ -31,6 +31,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
@@ -94,8 +95,13 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     private LinkedList<Pose2d> poseHistory;
 
-    public DcMotorEx leftFront, leftBack, rightBack, rightFront;
+    //Initialize Motors
+    public DcMotorEx leftFront, leftBack, rightBack, rightFront, shooter, backIntake, frontIntake, turretMotor;
     private List<DcMotorEx> motors;
+
+    //Initialize Servos
+    public Servo lift, ringBlocker, frontSuspendServo, backSuspendServo, kicker, leftFlap, rightFlap;
+
 //    private BNO055IMU imu;
 
     private VoltageSensor batteryVoltageSensor;
@@ -143,12 +149,42 @@ public class SampleMecanumDrive extends MecanumDrive {
         // upward (normal to the floor) using a command like the following:
 //        BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
 
+        //Hardware Maping
+
+        //Wheels
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
 
         motors = Arrays.asList(leftFront, leftBack, rightBack, rightFront);
+
+        //Shooter
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+
+        //Intakes
+        frontIntake = hardwareMap.get(DcMotorEx.class, "frontIntake");
+        backIntake = hardwareMap.get(DcMotorEx.class, "backIntake");
+
+        //Turret
+        turretMotor = hardwareMap.get(DcMotorEx.class, "turretMotor");
+
+        //Lift
+        lift = hardwareMap.get(Servo.class, "lift");
+
+        //Ring Blocker
+        ringBlocker = hardwareMap.get(Servo.class, "ringBlocker");
+
+        //Suspension Servos
+        frontSuspendServo = hardwareMap.get(Servo.class, "frontSuspendServo");
+        backSuspendServo = hardwareMap.get(Servo.class, "backSuspendServo");
+
+        //Kicker
+        kicker = hardwareMap.get(Servo.class, "kicker");
+
+        //Shooter Flap Servos
+        leftFlap = hardwareMap.get(Servo.class, "leftFlap");
+        rightFlap = hardwareMap.get(Servo.class, "rightFlap");
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
