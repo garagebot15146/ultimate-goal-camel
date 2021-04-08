@@ -38,6 +38,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -86,67 +87,41 @@ public class teleOp extends OpMode
     boolean readyForPowershot = false;
     boolean autoKickHasRun = false;
 
-    //Set Motor objects
-    Motor leftFront;
-    Motor rightFront;
-    Motor leftBack;
-    Motor rightBack;
+//    //Set Motor objects
+//    Motor leftFront;
+//    Motor rightFront;
+//    Motor leftBack;
+//    Motor rightBack;
 
-    double powerOffset;
     double turnCooldown = runtime.milliseconds();
     double anglePower;
 
-    Motor shooter;
+//    Motor shooter;
     boolean shooterToggle = false;
     boolean shooterOn = false;
     boolean g2RightTriggerPressed = false;
 
-    Motor backIntake;
-    Motor frontIntake;
-
-    private DcMotor clawArm = null;
-
-    private Encoder leftEncoder;
-    private Encoder rightEncoder;
-    private Encoder frontEncoder;
-
+//    Motor backIntake;
+//    Motor frontIntake;
 
     //Set Servo objects
 
     //Lift
-    SimpleServo leftLift;
-    SimpleServo rightLift;
 
-    double leftLiftUp = 0.9076; //1 Top
-    double rightLiftUp = 0.9213; //1 Top
-
-    double leftLiftDown = 0.482;
-    double rightLiftDown = 0.482;
 
     boolean g1rightbumperpressed = false;
     boolean vibrated = false;
     boolean switchVibrate = false;
 
-    //Claw
-    SimpleServo clawServo;
-    double clawClose = 0.90;
-    double clawOpen = 0.6;
-
     //Kicker
-    SimpleServo kicker;
+//    SimpleServo kicker;
 
     double kickerInit = 0.3200;
     double kickerTo = 0.5848;
 
     boolean kickerHasRun = false;
-    boolean kickerMethodRun = false;
 
-    //shootFlap
-    SimpleServo shootFlap;
-    double flapAngleGoal = 0.132; //Higher = Steeper
-    double flapAnglePowerShot = 0.110;
-
-    SimpleServo leftBlocker;
+//    SimpleServo leftBlocker;
     double leftBlockerInit = 0.41;
     double leftBlockerTo = 0.94;
     boolean blockerToggle = false;
@@ -156,63 +131,63 @@ public class teleOp extends OpMode
     double shooterPosition;
     double shooterRPM;
 
-    static SampleMecanumDrive drive;
-
+    SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
     //Initialize
     @Override
     public void init() {
-        //Define motors/servos hardware maps
-        leftFront = new Motor(hardwareMap, "leftFront", Motor.GoBILDA.RPM_435);
-        rightFront = new Motor(hardwareMap, "rightFront", Motor.GoBILDA.RPM_435);
-        leftBack = new Motor(hardwareMap, "leftBack", Motor.GoBILDA.RPM_435);
-        rightBack = new Motor(hardwareMap, "rightBack", Motor.GoBILDA.RPM_435);
-
-        shooter = new Motor(hardwareMap, "shooter", 28, 6000);
-        backIntake = new Motor(hardwareMap, "backIntake", 5, 6);
-        frontIntake = new Motor(hardwareMap, "frontIntake", 5, 6);
-        clawArm = hardwareMap.get(DcMotor.class, "clawArm");
-
-        leftLift = new SimpleServo(hardwareMap, "leftLift");
-        rightLift = new SimpleServo(hardwareMap, "rightLift");
-
-        kicker = new SimpleServo(hardwareMap, "kicker") ;
-        shootFlap = new SimpleServo(hardwareMap, "shootFlap") ;
-
-        clawServo = new SimpleServo(hardwareMap, "clawServo");
-
-        leftBlocker = new SimpleServo(hardwareMap, "leftBlocker");
+//        //Define motors/servos hardware maps
+//        leftFront = new Motor(hardwareMap, "leftFront", Motor.GoBILDA.RPM_435);
+//        rightFront = new Motor(hardwareMap, "rightFront", Motor.GoBILDA.RPM_435);
+//        leftBack = new Motor(hardwareMap, "leftBack", Motor.GoBILDA.RPM_435);
+//        rightBack = new Motor(hardwareMap, "rightBack", Motor.GoBILDA.RPM_435);
+//
+//        shooter = new Motor(hardwareMap, "shooter", 28, 6000);
+//        backIntake = new Motor(hardwareMap, "backIntake", 5, 6);
+//        frontIntake = new Motor(hardwareMap, "frontIntake", 5, 6);
+//        clawArm = hardwareMap.get(DcMotor.class, "clawArm");
+//
+//        leftLift = new SimpleServo(hardwareMap, "leftLift");
+//        rightLift = new SimpleServo(hardwareMap, "rightLift");
+//
+//        kicker = new SimpleServo(hardwareMap, "kicker") ;
+//        shootFlap = new SimpleServo(hardwareMap, "shootFlap") ;
+//
+//        clawServo = new SimpleServo(hardwareMap, "clawServo");
+//
+//        leftBlocker = new SimpleServo(hardwareMap, "leftBlocker");
 
         //Set Run modes
-        leftFront.setRunMode(Motor.RunMode.RawPower);
-        rightFront.setRunMode(Motor.RunMode.RawPower);
-        leftBack.setRunMode(Motor.RunMode.RawPower);
-        rightBack.setRunMode(Motor.RunMode.RawPower);
+        //Wheels
+        drive.leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        drive.rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        drive.leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        drive.rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        clawArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        clawArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        clawArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //Shooter
+        drive.shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        shooter.setRunMode(Motor.RunMode.RawPower);
-        backIntake.setRunMode(Motor.RunMode.RawPower);
-        frontIntake.setRunMode(Motor.RunMode.RawPower);
+        //Intakes
+        drive.backIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        drive.frontIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //Set Directions
-        leftFront.setInverted(true);
-        rightFront.setInverted(false);
-        leftBack.setInverted(true);
-        rightBack.setInverted(false);
+        //Wheels
+        drive.leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        drive.rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        drive.leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        drive.rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        shooter.setInverted(true);
-        backIntake.setInverted(true);
-        frontIntake.setInverted(true);
+        //Shooter
+        drive.shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        //Intakes
+        drive.frontIntake.setDirection(DcMotorSimple.Direction.FORWARD);
+        drive.backIntake.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
         //Initialize Servo Positions
-        kicker.setPosition(kickerInit);
-        shootFlap.setPosition(flapAngleGoal);
-
-        leftBlocker.setPosition(leftBlockerInit);
+//        drive.kicker.setPosition(drive.kickerInit);
 
         //Hardware Map IMU
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -225,13 +200,6 @@ public class teleOp extends OpMode
 
         imu.initialize(parameters);
 
-        //Localizer
-        drive = new SampleMecanumDrive(hardwareMap);
-
-        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        //Set initial position
-        drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
 
         //Initialized
         telemetry.addData("Status", "Initialized");
@@ -266,15 +234,15 @@ public class teleOp extends OpMode
         double side = 0;
         double turn = 0;
 
-        //Update Localization
-        drive.update();
-
-        // Retrieve your pose
-        Pose2d myPose = drive.getPoseEstimate();
-
-        telemetry.addData("x", myPose.getX());
-        telemetry.addData("y", myPose.getY());
-        telemetry.addData("heading", myPose.getHeading());
+//        //Update Localization
+//        drive.update();
+//
+//        // Retrieve your pose
+//        Pose2d myPose = drive.getPoseEstimate();
+//
+//        telemetry.addData("x", myPose.getX());
+//        telemetry.addData("y", myPose.getY());
+//        telemetry.addData("heading", myPose.getHeading());
 
         /////////////
         //GAMEPAD 1//
@@ -283,35 +251,34 @@ public class teleOp extends OpMode
         //DRIVE
         forward = -gamepad1.left_stick_y;
         side = gamepad1.left_stick_x; //Positive means right
-        if (gamepad1.right_stick_button || gamepad1.dpad_left || gamepad1.dpad_up || gamepad1.dpad_down) {
-            //Disable default turning if right stick is pressed
-            turn = 0;
-            turnCooldown = runtime.milliseconds();
-
-            //Check whether aiming for goal or powershot
-            if (readyForPowershot == false) {
-                //Equation is different depending on side of error
-                if (localAngle > 0) {
-                    anglePower = 0.0001 * (localAngle - 16) * (localAngle - 16) * (localAngle - 16) + 0.4;
-                } else if (localAngle < 0) {
-                    anglePower = 0.0001 * (localAngle + 16) * (localAngle + 16) * (localAngle + 16) - 0.4;
-                }
-            } else if (readyForPowershot == true) {
-                //Equation is different depending on side of error
-                if (localPowerShotAngle > 0) {
-                    anglePower = 0.0001 * (localPowerShotAngle - 16) * (localPowerShotAngle - 16) * (localPowerShotAngle - 16) + 0.4;
-                } else if (localPowerShotAngle < 0) {
-                    anglePower = 0.0001 * (localPowerShotAngle + 16) * (localPowerShotAngle + 16) * (localPowerShotAngle + 16) - 0.4;
-                }
-            }
-
-        } else {
-            anglePower = 0;
-            if (turnCooldown + 200 < runtime.milliseconds()) {
+//        if (gamepad1.right_stick_button || gamepad1.dpad_left || gamepad1.dpad_up || gamepad1.dpad_down) {
+//            //Disable default turning if right stick is pressed
+//            turn = 0;
+//            turnCooldown = runtime.milliseconds();
+//
+//            //Check whether aiming for goal or powershot
+//            if (readyForPowershot == false) {
+//                //Equation is different depending on side of error
+//                if (localAngle > 0) {
+//                    anglePower = 0.0001 * (localAngle - 16) * (localAngle - 16) * (localAngle - 16) + 0.4;
+//                } else if (localAngle < 0) {
+//                    anglePower = 0.0001 * (localAngle + 16) * (localAngle + 16) * (localAngle + 16) - 0.4;
+//                }
+//            } else if (readyForPowershot == true) {
+//                //Equation is different depending on side of error
+//                if (localPowerShotAngle > 0) {
+//                    anglePower = 0.0001 * (localPowerShotAngle - 16) * (localPowerShotAngle - 16) * (localPowerShotAngle - 16) + 0.4;
+//                } else if (localPowerShotAngle < 0) {
+//                    anglePower = 0.0001 * (localPowerShotAngle + 16) * (localPowerShotAngle + 16) * (localPowerShotAngle + 16) - 0.4;
+//                }
+//            }
+//
+//        } else {
+//            anglePower = 0;
+//            if (turnCooldown + 200 < runtime.milliseconds()) {
                 turn = gamepad1.right_stick_x; //Positive means turn right
-            }
-        }
-
+//            }
+//        }
 
         leftFrontPower = (forward + side + turn) / 2;
         leftBackPower = (forward - side + turn) / 2;
@@ -345,52 +312,52 @@ public class teleOp extends OpMode
         rightBackPower = rightBackPower - anglePower;
 
         // Send power to wheel motors
-        leftFront.set(leftFrontPower);
-        rightFront.set(rightFrontPower);
-        leftBack.set(leftBackPower);
-        rightBack.set(rightBackPower);
+        drive.leftFront.setPower(leftFrontPower);
+        drive.rightFront.setPower(rightFrontPower);
+        drive.leftBack.setPower(leftBackPower);
+        drive.rightBack.setPower(rightBackPower);
 
-        //Power Shots
-        if (gamepad1.dpad_down) {
-            //Right Power Shot
-            powerShotAngleOffset2 = powerShotAngleOffset - 2;
-            shootFlap.setPosition(flapAnglePowerShot);
-            readyForPowershot = true;
-        } else if (gamepad1.dpad_left) {
-            //Center Power Shot
-            powerShotAngleOffset2 = powerShotAngleOffset + 3;
-            shootFlap.setPosition(flapAnglePowerShot);
-            readyForPowershot = true;
-        } else if (gamepad1.dpad_up) {
-            //Left Power Shot
-            powerShotAngleOffset2 = powerShotAngleOffset + 8;
-            shootFlap.setPosition(flapAnglePowerShot);
-            readyForPowershot = true;
-        } else if (gamepad1.dpad_right) {
-            //Goal (Higher)
-            shootFlap.setPosition(flapAngleGoal);
-            readyForPowershot = false;
-        }
+//        //Power Shots
+//        if (gamepad1.dpad_down) {
+//            //Right Power Shot
+//            powerShotAngleOffset2 = powerShotAngleOffset - 2;
+////            shootFlap.setPosition(flapAnglePowerShot);
+//            readyForPowershot = true;
+//        } else if (gamepad1.dpad_left) {
+//            //Center Power Shot
+//            powerShotAngleOffset2 = powerShotAngleOffset + 3;
+////            shootFlap.setPosition(flapAnglePowerShot);
+//            readyForPowershot = true;
+//        } else if (gamepad1.dpad_up) {
+//            //Left Power Shot
+//            powerShotAngleOffset2 = powerShotAngleOffset + 8;
+////            shootFlap.setPosition(flapAnglePowerShot);
+//            readyForPowershot = true;
+//        } else if (gamepad1.dpad_right) {
+//            //Goal (Higher)
+////            shootFlap.setPosition(flapAngleGoal);
+//            readyForPowershot = false;
+//        }
 
-        //Y to start powershot sequence
-        if (gamepad1.y) {
-            powerShotAngleOffset = lastAngles.firstAngle;
-            shootFlap.setPosition(flapAnglePowerShot);
-            readyForPowershot = true;
-        }
+//        //Y to start powershot sequence
+//        if (gamepad1.y) {
+//            powerShotAngleOffset = lastAngles.firstAngle;
+////            shootFlap.setPosition(flapAnglePowerShot);
+//            readyForPowershot = true;
+//        }
 
-        //Auto kicker
-        if ((gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_up) && autoKickHasRun == false) {
-            autoKickHasRun = true;
-            autoKickTime = runtime.milliseconds();
-        } else if (!(gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_up) && autoKickHasRun == true) {
-            autoKickHasRun = false;
-            kicker.setPosition(kickerInit);
-        }
-
-        if (autoKickTime + 500 < runtime.milliseconds() && (gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_up)) {
-            kicker.setPosition(kickerTo);
-        }
+//        //Auto kicker
+//        if ((gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_up) && autoKickHasRun == false) {
+//            autoKickHasRun = true;
+//            autoKickTime = runtime.milliseconds();
+//        } else if (!(gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_up) && autoKickHasRun == true) {
+//            autoKickHasRun = false;
+//            drive.kicker.setPosition(kickerInit);
+//        }
+//
+//        if (autoKickTime + 500 < runtime.milliseconds() && (gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_up)) {
+//            drive.kicker.setPosition(kickerTo);
+//        }
 
 
         //Blockers
@@ -398,10 +365,10 @@ public class teleOp extends OpMode
             blockerToggle = true;
             //If blocker is already down, move it up and vise versa
             if (blockerDown == false) {
-                leftBlocker.setPosition(leftBlockerTo);
+                drive.ringBlocker.setPosition(drive.ringBlockDown);
                 blockerDown = true;
             } else if (blockerDown == true) {
-                leftBlocker.setPosition(leftBlockerInit);
+                drive.ringBlocker.setPosition(drive.ringBlockUp);
                 blockerDown = false;
             }
         } else if (!gamepad1.left_bumper && blockerToggle == true) {
@@ -422,23 +389,22 @@ public class teleOp extends OpMode
         //Intake
         if (gamepad2.left_stick_y > 0.1) {
             //In
-            frontIntake.set(1);
-            backIntake.set(1);
+            drive.frontIntake.setPower(1);
+            drive.backIntake.setPower(1);
         } else if (gamepad2.left_stick_y < -0.1 ) {
             //Out
-            frontIntake.set(-1);
-            backIntake.set(-1);
+            drive.frontIntake.setPower(-1);
+            drive.backIntake.setPower(-1);
         } else {
             //Stop
-            frontIntake.set(0);
-            backIntake.set(0);
+            drive.frontIntake.setPower(0);
+            drive.backIntake.setPower(0);
         }
 
         //If intake is active, bring lift down, unless Y is pressed
         if((gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) && !gamepad2.b ) {
-            leftLift.setPosition(1 - leftLiftDown);
-            rightLift.setPosition(rightLiftDown);
-            //Tie left blocker arm
+//            leftLift.setPosition(1 - leftLiftDown);
+//            rightLift.setPosition(rightLiftDown);
         }
 
 
@@ -449,11 +415,11 @@ public class teleOp extends OpMode
 
             if (shooterOn == false) {
                 //Toggle On
-                shooter.set(1);
+                drive.shooter.setPower(1);
                 shooterOn = true;
             } else if (shooterOn == true) {
                 //Toggle off
-                shooter.set(0);
+                drive.shooter.setPower(0);
                 shooterOn = false;
             }
         } else if (!gamepad2.y && shooterToggle == true) {
@@ -462,69 +428,51 @@ public class teleOp extends OpMode
         //Right Trigger (Vanilla) Takes priority
         if (gamepad2.right_trigger > 0.1 && g2RightTriggerPressed == false) {
             //On
-            shooter.set(1);
+            drive.shooter.setPower(1);
             shooterToggle = false;
             shooterOn = false;
             g2RightTriggerPressed = true;
         } else if (gamepad2.right_trigger < 0.1 && g2RightTriggerPressed == true) {
             //Off
             g2RightTriggerPressed = false;
-            shooter.set(0);
+            drive.shooter.setPower(0);
         }
 
         //Measure RPM
         if (shooterTime + 100 < runtime.milliseconds()) {
             shooterTime = runtime.milliseconds();
-            shooterRPM = (shooter.getCurrentPosition() - shooterPosition) / 28 * 10 * 60;
-            shooterPosition = shooter.getCurrentPosition();
+            shooterPosition = drive.shooter.getCurrentPosition();
+            shooterRPM = (drive.shooter.getCurrentPosition() - shooterPosition) / 28 * 10 * 60;
         }
 
         //Lift
-        if (gamepad2.dpad_up) {
-            //Up
-            leftLift.setPosition(1 - leftLiftUp);
-            rightLift.setPosition((rightLiftUp));
-            //Ties the left blocker arm
-            leftBlocker.setPosition(leftBlockerInit);
-            blockerDown = false;
-        } else if (gamepad2.dpad_down) {
-            //Down
-            leftLift.setPosition(1 - leftLiftDown);
-            rightLift.setPosition(rightLiftDown);
-            //Ties the left blocker arm
-        }
+//        if (gamepad2.dpad_up) {
+//            //Up
+//            leftLift.setPosition(1 - leftLiftUp);
+//            rightLift.setPosition((rightLiftUp));
+//            //Ties the left blocker arm
+//            leftBlocker.setPosition(leftBlockerInit);
+//            blockerDown = false;
+//        } else if (gamepad2.dpad_down) {
+//            //Down
+//            leftLift.setPosition(1 - leftLiftDown);
+//            rightLift.setPosition(rightLiftDown);
+//            //Ties the left blocker arm
+//        }
 
         //Kicker
         if (gamepad2.a && !kickerHasRun && !gamepad2.start && runtime.milliseconds() > currentTime + 300) {
             currentTime = runtime.milliseconds();
-            kicker.setPosition(kickerTo);
+            drive.kicker.setPosition(kickerTo);
             kickerHasRun = true;
             //Bring down ring blocker
-            leftBlocker.setPosition(leftBlockerTo);
+            drive.ringBlocker.setPosition(drive.ringBlockDown);
             blockerDown = true;
         }
 
         if (runtime.milliseconds() > currentTime + 150 && kickerHasRun == true) {
-            kicker.setPosition(kickerInit);
+            drive.kicker.setPosition(kickerInit);
             kickerHasRun = false;
-        }
-
-        //ClawArm
-        if (gamepad2.left_bumper) {
-            //Up
-            clawArm.setPower(0.3);
-        } else  if (gamepad2.right_bumper){
-            //Down
-            clawArm.setPower(-0.3);
-        } else {
-            clawArm.setPower(0);
-        }
-
-        //Claw Servo
-        if (gamepad2.x) {
-            clawServo.setPosition(clawOpen);
-        } else {
-            clawServo.setPosition(clawClose);
         }
 
         //IMU

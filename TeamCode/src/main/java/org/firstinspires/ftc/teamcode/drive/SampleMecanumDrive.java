@@ -149,7 +149,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         // upward (normal to the floor) using a command like the following:
 //        BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
 
-        //Hardware Maping
+        //Hardware Mapping
 
         //Wheels
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
@@ -212,8 +212,22 @@ public class SampleMecanumDrive extends MecanumDrive {
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
 
         setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
-
     }
+
+    //Declare global variables
+    //Lift
+    public double liftUp = 0, liftDown = 0;
+
+    //Kicker
+    public double kickerInit = 0, kickerTo = 0;
+
+    //Suspension
+    public double frontSuspendUp = 0, frontSuspendDown = 0;
+    public double backSuspendUp = 0, backSuspendDown = 0;
+
+    //ringBlocker
+    public double ringBlockUp = 0.41, ringBlockDown = 0.94;
+
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
         return new TrajectoryBuilder(startPose, velConstraint, accelConstraint);
