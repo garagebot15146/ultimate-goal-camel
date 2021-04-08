@@ -157,35 +157,6 @@ public class teleOp extends OpMode
 //
 //        leftBlocker = new SimpleServo(hardwareMap, "leftBlocker");
 
-        //Set Run modes
-        //Wheels
-        drive.leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        drive.rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        drive.leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        drive.rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        //Shooter
-        drive.shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        //Intakes
-        drive.backIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        drive.frontIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        //Set Directions
-        //Wheels
-        drive.leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        drive.rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        drive.leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
-        drive.rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        //Shooter
-        drive.shooter.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        //Intakes
-        drive.frontIntake.setDirection(DcMotorSimple.Direction.FORWARD);
-        drive.backIntake.setDirection(DcMotorSimple.Direction.FORWARD);
-
-
         //Initialize Servo Positions
 //        drive.kicker.setPosition(drive.kickerInit);
 
