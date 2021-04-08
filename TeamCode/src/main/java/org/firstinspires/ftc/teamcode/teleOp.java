@@ -131,7 +131,7 @@ public class teleOp extends OpMode
     double shooterPosition;
     double shooterRPM;
 
-    SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+    static SampleMecanumDrive drive;
 
     //Initialize
     @Override
@@ -171,6 +171,7 @@ public class teleOp extends OpMode
 
         imu.initialize(parameters);
 
+        drive = new SampleMecanumDrive(hardwareMap);
 
         //Initialized
         telemetry.addData("Status", "Initialized");
