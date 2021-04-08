@@ -227,7 +227,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public double liftUp = 0, liftDown = 0;
 
     //Kicker
-    public double kickerInit = 0, kickerTo = 0;
+    public double kickerInit = 0.7033, kickerTo = 0.6018;
 
     //Suspension
     public double frontSuspendUp = 0, frontSuspendDown = 0;
@@ -235,6 +235,13 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     //ringBlocker
     public double ringBlockUp = 0.41, ringBlockDown = 0.94;
+
+    //Flap
+    private double netFlapAngleGoal = 0.55, netFlapAnglePowerShot = 0.52; //Higher = Steeper
+    /////////Edit the above to change net angle
+    public double leftFlapGoal = netFlapAngleGoal, leftFlapPowerShot = netFlapAnglePowerShot;
+    public double rightFlapGoal = 1 - netFlapAngleGoal - 0.0186, rightFlapPowerShot = 1 - netFlapAnglePowerShot - 0.0186;
+    /////////Above only used for syncing
 
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {

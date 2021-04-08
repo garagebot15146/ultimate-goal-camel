@@ -39,6 +39,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
  * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
@@ -61,16 +63,16 @@ public class servoTester extends OpMode
     private ElapsedTime runtime = new ElapsedTime();
     double currentTime;
 
-    //Declare servo object
-    SimpleServo leftBlocker;
+    double servo1Init = 0.7033;
+    double servo2Init = 0.5;
 
-    double servo1Init = 0.5;
+    static SampleMecanumDrive drive;
 
     //Initialize
     @Override
     public void init() {
-        //Define servo hardware maps
-        leftBlocker = new SimpleServo(hardwareMap, "leftBlocker") ;
+
+        drive = new SampleMecanumDrive(hardwareMap);
 
         //Initialized
         telemetry.addData("Status", "Initialized");
@@ -112,17 +114,43 @@ public class servoTester extends OpMode
             }
         }
 
+        if(gamepad2.a) {
+            //Fast
+            if(gamepad2.dpad_up) {
+                servo2Init = servo2Init + 0.001;
+            } else if (gamepad2.dpad_down) {
+                servo2Init = servo2Init - 0.001;
+            }
+        } else {
+            //Slow
+            if(gamepad2.dpad_up) {
+                servo2Init = servo2Init + 0.0001;
+            } else if (gamepad1.dpad_down) {
+                servo2Init = servo2Init - 0.0001;
+            }
+        }
+
+
+
         //Correct for out of bounds numbers
         if (servo1Init < 0) {
             servo1Init = 0;
         } else if (servo1Init > 1) {
             servo1Init = 1;
         }
+        if (servo2Init < 0) {
+            servo2Init = 0;
+        } else if (servo2Init > 1) {
+            servo2Init = 1;
+        }
 
         telemetry.addData("Servo 1 Position", servo1Init);
+        telemetry.addData("Servo 2 Position", servo2Init);
 
         //CHANGE THIS if using a different servo
-        leftBlocker.setPosition(servo1Init);
+        drive.kicker.setPosition(servo1Init);
+
+        //start: 0.7639
 
     }
 

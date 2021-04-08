@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.CRServo;
@@ -87,43 +88,22 @@ public class teleOp extends OpMode
     boolean readyForPowershot = false;
     boolean autoKickHasRun = false;
 
-//    //Set Motor objects
-//    Motor leftFront;
-//    Motor rightFront;
-//    Motor leftBack;
-//    Motor rightBack;
-
     double turnCooldown = runtime.milliseconds();
     double anglePower;
 
-//    Motor shooter;
+    //Variables for running methods
+    //Shooter
     boolean shooterToggle = false;
     boolean shooterOn = false;
     boolean g2RightTriggerPressed = false;
-
-//    Motor backIntake;
-//    Motor frontIntake;
-
-    //Set Servo objects
-
-    //Lift
-
 
     boolean g1rightbumperpressed = false;
     boolean vibrated = false;
     boolean switchVibrate = false;
 
     //Kicker
-//    SimpleServo kicker;
-
-    double kickerInit = 0.3200;
-    double kickerTo = 0.5848;
-
     boolean kickerHasRun = false;
 
-//    SimpleServo leftBlocker;
-    double leftBlockerInit = 0.41;
-    double leftBlockerTo = 0.94;
     boolean blockerToggle = false;
     boolean blockerDown = false;
 
@@ -133,32 +113,15 @@ public class teleOp extends OpMode
 
     static SampleMecanumDrive drive;
 
+    //teleOp RoadRunner
+    StandardTrackingWheelLocalizer myLocalizer;
+
+    //Display on Dashboard
+    private FtcDashboard dashboard;
+
     //Initialize
     @Override
     public void init() {
-//        //Define motors/servos hardware maps
-//        leftFront = new Motor(hardwareMap, "leftFront", Motor.GoBILDA.RPM_435);
-//        rightFront = new Motor(hardwareMap, "rightFront", Motor.GoBILDA.RPM_435);
-//        leftBack = new Motor(hardwareMap, "leftBack", Motor.GoBILDA.RPM_435);
-//        rightBack = new Motor(hardwareMap, "rightBack", Motor.GoBILDA.RPM_435);
-//
-//        shooter = new Motor(hardwareMap, "shooter", 28, 6000);
-//        backIntake = new Motor(hardwareMap, "backIntake", 5, 6);
-//        frontIntake = new Motor(hardwareMap, "frontIntake", 5, 6);
-//        clawArm = hardwareMap.get(DcMotor.class, "clawArm");
-//
-//        leftLift = new SimpleServo(hardwareMap, "leftLift");
-//        rightLift = new SimpleServo(hardwareMap, "rightLift");
-//
-//        kicker = new SimpleServo(hardwareMap, "kicker") ;
-//        shootFlap = new SimpleServo(hardwareMap, "shootFlap") ;
-//
-//        clawServo = new SimpleServo(hardwareMap, "clawServo");
-//
-//        leftBlocker = new SimpleServo(hardwareMap, "leftBlocker");
-
-        //Initialize Servo Positions
-//        drive.kicker.setPosition(drive.kickerInit);
 
         //Hardware Map IMU
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -172,6 +135,12 @@ public class teleOp extends OpMode
         imu.initialize(parameters);
 
         drive = new SampleMecanumDrive(hardwareMap);
+
+        //teleOp Road Runner
+        myLocalizer = new StandardTrackingWheelLocalizer(hardwareMap);
+
+        //Set starting position
+        myLocalizer.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
 
         //Initialized
         telemetry.addData("Status", "Initialized");
@@ -194,6 +163,18 @@ public class teleOp extends OpMode
     //Play loop
     @Override
     public void loop() {
+        //Update position
+        drive.update();
+
+        //Retrieve Position
+        Pose2d myPose = drive.getPoseEstimate();
+        telemetry.addData("x", myPose.getX());
+        telemetry.addData("y", myPose.getY());
+        telemetry.addData("heading", myPose.getHeading());
+
+        dashboard = FtcDashboard.getInstance();
+        dashboard.setTelemetryTransmissionInterval(25);
+
         //Set variables for motor powers
         //Wheels
         double leftFrontPower = 0;
@@ -205,16 +186,6 @@ public class teleOp extends OpMode
         double forward = 0;
         double side = 0;
         double turn = 0;
-
-//        //Update Localization
-//        drive.update();
-//
-//        // Retrieve your pose
-//        Pose2d myPose = drive.getPoseEstimate();
-//
-//        telemetry.addData("x", myPose.getX());
-//        telemetry.addData("y", myPose.getY());
-//        telemetry.addData("heading", myPose.getHeading());
 
         /////////////
         //GAMEPAD 1//
@@ -347,12 +318,22 @@ public class teleOp extends OpMode
             blockerToggle = false;
         }
 
-        //Re-Orient Heading (Counterclockwise positive)
-        if (gamepad1.right_bumper) {
-            angleOffset = lastAngles.firstAngle;
+//        //Re-Orient Heading (Counterclockwise positive)
+//        if (gamepad1.right_bumper) {
+//            angleOffset = lastAngles.firstAngle;
+//        }
+//        localAngle = lastAngles.firstAngle - angleOffset;
+//        localPowerShotAngle = lastAngles.firstAngle - powerShotAngleOffset2;
+
+
+        //Testing Flap
+        if (gamepad1.dpad_up) {
+            drive.leftFlap.setPosition(drive.leftFlapGoal);
+            drive.rightFlap.setPosition(drive.rightFlapGoal);
+        } else if (gamepad1.dpad_down) {
+            drive.leftFlap.setPosition(drive.leftFlapPowerShot);
+            drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         }
-        localAngle = lastAngles.firstAngle - angleOffset;
-        localPowerShotAngle = lastAngles.firstAngle - powerShotAngleOffset2;
 
         /////////////
         //GAMEPAD 2//
@@ -417,33 +398,17 @@ public class teleOp extends OpMode
             shooterRPM = (drive.shooter.getCurrentPosition() - shooterPosition) / 28 * 10 * 60;
         }
 
-        //Lift
-//        if (gamepad2.dpad_up) {
-//            //Up
-//            leftLift.setPosition(1 - leftLiftUp);
-//            rightLift.setPosition((rightLiftUp));
-//            //Ties the left blocker arm
-//            leftBlocker.setPosition(leftBlockerInit);
-//            blockerDown = false;
-//        } else if (gamepad2.dpad_down) {
-//            //Down
-//            leftLift.setPosition(1 - leftLiftDown);
-//            rightLift.setPosition(rightLiftDown);
-//            //Ties the left blocker arm
-//        }
-
         //Kicker
         if (gamepad2.a && !kickerHasRun && !gamepad2.start && runtime.milliseconds() > currentTime + 300) {
             currentTime = runtime.milliseconds();
-            drive.kicker.setPosition(kickerTo);
+            drive.kicker.setPosition(drive.kickerTo);
             kickerHasRun = true;
             //Bring down ring blocker
             drive.ringBlocker.setPosition(drive.ringBlockDown);
             blockerDown = true;
         }
-
         if (runtime.milliseconds() > currentTime + 150 && kickerHasRun == true) {
-            drive.kicker.setPosition(kickerInit);
+            drive.kicker.setPosition(drive.kickerInit);
             kickerHasRun = false;
         }
 
