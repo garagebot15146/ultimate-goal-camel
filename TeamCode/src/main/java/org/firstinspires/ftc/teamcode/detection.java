@@ -26,11 +26,11 @@ public class detection extends LinearOpMode {
 
     // CONSTANTS
 
-    final int X_LEFT = 120;
-    final int X_RIGHT = 150;
-    final int Y_UP = 150;
-    final int Y_MIDDLE = 165;
-    final int Y_DOWN = 172;
+    final int X_LEFT = 350;
+    final int X_RIGHT = 750;
+    final int Y_UP = 650;
+    final int Y_MIDDLE = 350;
+    final int Y_DOWN = 100;
 
 
 
@@ -104,7 +104,7 @@ public class detection extends LinearOpMode {
         public Mat processFrame(Mat input) {
 
             // Img processing
-            Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_BGR2YCrCb);
+            Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
             Core.extractChannel(YCrCb, Cb, 2);
             Imgproc.threshold(Cb, tholdMat, 150, 255, Imgproc.THRESH_BINARY_INV);
 
@@ -130,7 +130,7 @@ public class detection extends LinearOpMode {
                     BigSquare1,
                     BigSquare2,
                     GRAY,
-                    1
+                    20
             );
 
             // Small Square
@@ -139,25 +139,25 @@ public class detection extends LinearOpMode {
                     SmallSquare1,
                     SmallSquare2,
                     GRAY,
-                    1
+                    20
             );
 
             // Big Square Point
             Imgproc.circle(
                     input,
                     new Point(BigSquarePointX, BigSquarePointY),
-                    2,
+                    50,
                     GRAY,
-                    1
+                    10
             );
 
             // Small Square Point
             Imgproc.circle(
                     input,
                     new Point(SmallSquarePointX, SmallSquarePointY),
-                    2,
+                    50,
                     GRAY,
-                    1
+                    10
             );
 
             // Change colors if the pipeline detected something
@@ -168,14 +168,14 @@ public class detection extends LinearOpMode {
                         BigSquare1,
                         BigSquare2,
                         GREEN,
-                        1
+                        10
                 );
                 Imgproc.circle(
                         input,
                         new Point(BigSquarePointX, BigSquarePointY),
-                        2,
+                        50,
                         GREEN,
-                        1
+                        10
                 );
             }
             if (ring1 == 0) {
@@ -184,14 +184,14 @@ public class detection extends LinearOpMode {
                         SmallSquare1,
                         SmallSquare2,
                         GREEN,
-                        1
+                        10
                 );
                 Imgproc.circle(
                         input,
                         new Point(SmallSquarePointX, SmallSquarePointY),
-                        2,
+                        50,
                         GREEN,
-                        1
+                        10
                 );
             }
 
