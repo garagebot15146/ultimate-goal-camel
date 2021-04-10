@@ -32,6 +32,7 @@ public class detection extends LinearOpMode {
     final int Y_MIDDLE = 350;
     final int Y_DOWN = 100;
 
+    public String stack = "";
 
 
     @Override
@@ -106,7 +107,7 @@ public class detection extends LinearOpMode {
             // Img processing
             Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
             Core.extractChannel(YCrCb, Cb, 2);
-            Imgproc.threshold(Cb, tholdMat, 150, 255, Imgproc.THRESH_BINARY_INV);
+            Imgproc.threshold(Cb, tholdMat, 144, 255, Imgproc.THRESH_BINARY_INV);
 
             // Drawing Points
             int BigSquarePointX = (int) ((BigSquare1.x + BigSquare2.x) / 2);
@@ -162,7 +163,7 @@ public class detection extends LinearOpMode {
 
             // Change colors if the pipeline detected something
 
-            if (ring1 == 0 && ring4 == 0) {
+            if (ring4 == 0) {
                 Imgproc.rectangle(
                         input,
                         BigSquare1,
@@ -177,8 +178,8 @@ public class detection extends LinearOpMode {
                         GREEN,
                         10
                 );
-            }
-            if (ring1 == 0) {
+                stack = "4 Stack";
+            } else if (ring1 == 0 && ring4 == 255) {
                 Imgproc.rectangle(
                         input,
                         SmallSquare1,
@@ -193,6 +194,9 @@ public class detection extends LinearOpMode {
                         GREEN,
                         10
                 );
+                stack = "1 Stack";
+            } else {
+                stack = "0 Stack";
             }
 
             return input;
