@@ -224,14 +224,14 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     //Declare global variables
     //Lift
-    public double liftUp = 0, liftDown = 0;
+    public double liftUp = 0.5325, liftDown = 0.8000; //Lower value = higher lift
 
     //Kicker
-    public double kickerInit = 0.7033, kickerTo = 0.6018;
+    public double kickerInit = 0.8829, kickerTo = 0.7810;
 
     //Suspension
-    public double frontSuspendUp = 0, frontSuspendDown = 0;
-    public double backSuspendUp = 0, backSuspendDown = 0;
+    public double frontSuspendUp = 0.2500, frontSuspendDown = 0.6293;
+    public double backSuspendUp = 0.6293, backSuspendDown = 0.2500;
 
     //ringBlocker
     public double ringBlockUp = 0.41, ringBlockDown = 0.94;

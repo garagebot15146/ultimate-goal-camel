@@ -119,6 +119,15 @@ public class teleOp extends OpMode
     //Display on Dashboard
     private FtcDashboard dashboard;
 
+    //Turret
+    double startTurretTicks; //Notes the starting encoder tick value of the turret motor
+    double turretTicks; //Keeps track of motor's ticks ONLY during this session
+    double turretAngleTargetDegrees; //Tells the turret what local angle to turn towards
+    double turretAngleErrorDegrees; //Tells how far off the turret's local angle is from its local target
+    double turretGlobalAngleTargetDegrees; //Sets the global angle target regardless of robot orientation
+    boolean turretManual = false;
+    boolean turretManualMethodToggle = false;
+
     //Initialize
     @Override
     public void init() {
@@ -141,6 +150,9 @@ public class teleOp extends OpMode
 
         //Set starting position
         myLocalizer.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
+
+        //Set starting turret ticks
+        startTurretTicks = drive.turretMotor.getCurrentPosition();
 
         //Initialized
         telemetry.addData("Status", "Initialized");
@@ -170,7 +182,6 @@ public class teleOp extends OpMode
         Pose2d myPose = drive.getPoseEstimate();
         telemetry.addData("x", myPose.getX());
         telemetry.addData("y", myPose.getY());
-        telemetry.addData("heading", myPose.getHeading());
 
         dashboard = FtcDashboard.getInstance();
         dashboard.setTelemetryTransmissionInterval(25);
@@ -342,11 +353,11 @@ public class teleOp extends OpMode
         //Intake
         if (gamepad2.left_stick_y > 0.1) {
             //In
-            drive.frontIntake.setPower(1);
+            drive.frontIntake.setPower(-1);
             drive.backIntake.setPower(1);
         } else if (gamepad2.left_stick_y < -0.1 ) {
             //Out
-            drive.frontIntake.setPower(-1);
+            drive.frontIntake.setPower(1);
             drive.backIntake.setPower(-1);
         } else {
             //Stop
@@ -356,8 +367,14 @@ public class teleOp extends OpMode
 
         //If intake is active, bring lift down, unless Y is pressed
         if((gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) && !gamepad2.b ) {
-//            leftLift.setPosition(1 - leftLiftDown);
-//            rightLift.setPosition(rightLiftDown);
+            drive.lift.setPosition(drive.liftDown);
+        }
+
+        //Lift
+        if (gamepad2.dpad_up) {
+            drive.lift.setPosition(drive.liftUp);
+        } else if (gamepad2.dpad_down) {
+            drive.lift.setPosition(drive.liftDown);
         }
 
 
@@ -397,6 +414,8 @@ public class teleOp extends OpMode
             shooterPosition = drive.shooter.getCurrentPosition();
             shooterRPM = (drive.shooter.getCurrentPosition() - shooterPosition) / 28 * 10 * 60;
         }
+        telemetry.addData("Shooter RPM", (int) shooterRPM);
+
 
         //Kicker
         if (gamepad2.a && !kickerHasRun && !gamepad2.start && runtime.milliseconds() > currentTime + 300) {
@@ -412,11 +431,60 @@ public class teleOp extends OpMode
             kickerHasRun = false;
         }
 
+        //Toggle manual turret controls
+        if (turretManualMethodToggle == false && gamepad2.right_stick_button) {
+            turretManualMethodToggle = true;
+            //Switch turret control mode
+            if (turretManual == false) {
+                turretManual = true;
+            } else if (turretManual == true) {
+                turretManual = false;
+            }
+        } else if (turretManualMethodToggle == true && !gamepad2.right_stick_button) {
+            turretManualMethodToggle = false;
+        }
+
         //IMU
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        telemetry.addData("1 imu heading", localAngle);
 
-        telemetry.addData("Shooter RPM", (int) shooterRPM);
+        //////////
+        //TURRET//
+        //////////
+
+        //1 Tick = 0.32360 degrees.
+        //1 Degree = 3.08793 ticks.
+
+        //keep track of the ticks on the turret motor for this session.
+        turretTicks = drive.turretMotor.getCurrentPosition() - startTurretTicks;
+
+        //Calculate Local angle target
+        //Check if manual
+        if (!turretManual) {
+            //Not manual
+            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-36 - myPose.getY()) ) );
+            if (turretGlobalAngleTargetDegrees < -50) {
+                turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
+            }
+            turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - lastAngles.firstAngle;
+        } else if (turretManual) {
+            turretAngleTargetDegrees = turretAngleTargetDegrees - gamepad2.right_stick_x * 0.5;
+        }
+
+        //Limit the range of motion for the turret
+        if (turretAngleTargetDegrees > 12) {
+            turretAngleTargetDegrees = 12;
+        } else if (turretAngleTargetDegrees < -50) {
+            turretAngleTargetDegrees = -50;
+        }
+
+        //Calculate angle error
+        turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees;
+
+        //Apply power for correction
+        drive.turretMotor.setPower(turretAngleErrorDegrees * 0.05);
+
+        telemetry.addData("turret error", turretAngleErrorDegrees);
+        telemetry.addData("turret ticks", turretTicks);
     }
 
     //Stop code
