@@ -26,11 +26,11 @@ public class detection extends LinearOpMode {
 
     // CONSTANTS
 
-    final int X_LEFT = 350;
-    final int X_RIGHT = 750;
-    final int Y_UP = 650;
-    final int Y_MIDDLE = 350;
-    final int Y_DOWN = 100;
+    final int X_LEFT = 525;
+    final int X_RIGHT = 755;
+    final int Y_UP = 320;
+    final int Y_MIDDLE = 420;
+    final int Y_DOWN = 485;
 
     public String stack = "";
 
@@ -68,8 +68,10 @@ public class detection extends LinearOpMode {
         while (opModeIsActive())
         {
             // Get data from the pipeline and output it to the telemetry. This are the variables you are going to work with.
-            telemetry.addData("Ring 1:",visionPipeline.ring1); // Will return 0 if there is 1 ring, otherwise 1
-            telemetry.addData("Ring 4:",visionPipeline.ring4); // Will return 0 if there is 4 rings, otherwise 1
+            telemetry.addData("Stack:", stack);
+            telemetry.addData("Ring4:", visionPipeline.ring4);
+            telemetry.addData("Ring1:", visionPipeline.ring1);
+
             telemetry.update();
         }
 
@@ -107,7 +109,7 @@ public class detection extends LinearOpMode {
             // Img processing
             Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
             Core.extractChannel(YCrCb, Cb, 2);
-            Imgproc.threshold(Cb, tholdMat, 144, 255, Imgproc.THRESH_BINARY_INV);
+            Imgproc.threshold(Cb, tholdMat, 135, 255, Imgproc.THRESH_BINARY_INV);
 
             // Drawing Points
             int BigSquarePointX = (int) ((BigSquare1.x + BigSquare2.x) / 2);
@@ -131,7 +133,7 @@ public class detection extends LinearOpMode {
                     BigSquare1,
                     BigSquare2,
                     GRAY,
-                    20
+                    3
             );
 
             // Small Square
@@ -140,25 +142,25 @@ public class detection extends LinearOpMode {
                     SmallSquare1,
                     SmallSquare2,
                     GRAY,
-                    20
+                    3
             );
 
             // Big Square Point
             Imgproc.circle(
                     input,
                     new Point(BigSquarePointX, BigSquarePointY),
-                    50,
+                    5,
                     GRAY,
-                    10
+                    3
             );
 
             // Small Square Point
             Imgproc.circle(
                     input,
                     new Point(SmallSquarePointX, SmallSquarePointY),
-                    50,
+                    5,
                     GRAY,
-                    10
+                    3
             );
 
             // Change colors if the pipeline detected something
@@ -169,14 +171,14 @@ public class detection extends LinearOpMode {
                         BigSquare1,
                         BigSquare2,
                         GREEN,
-                        10
+                        3
                 );
                 Imgproc.circle(
                         input,
                         new Point(BigSquarePointX, BigSquarePointY),
-                        50,
+                        5,
                         GREEN,
-                        10
+                        3
                 );
                 stack = "4 Stack";
             } else if (ring1 == 0 && ring4 == 255) {
@@ -185,14 +187,14 @@ public class detection extends LinearOpMode {
                         SmallSquare1,
                         SmallSquare2,
                         GREEN,
-                        10
+                        5
                 );
                 Imgproc.circle(
                         input,
                         new Point(SmallSquarePointX, SmallSquarePointY),
-                        50,
+                        5,
                         GREEN,
-                        10
+                        3
                 );
                 stack = "1 Stack";
             } else {
