@@ -81,12 +81,6 @@ public class teleOp extends OpMode
     BNO055IMU imu;
     Orientation lastAngles = new Orientation();
     double angleOffset = 0;
-    double localAngle;
-    double powerShotAngleOffset = 0;
-    double powerShotAngleOffset2 = 0;
-    double localPowerShotAngle;
-    boolean readyForPowershot = false;
-    boolean autoKickHasRun = false;
 
     double turnCooldown = runtime.milliseconds();
     double anglePower;
@@ -96,10 +90,6 @@ public class teleOp extends OpMode
     boolean shooterToggle = false;
     boolean shooterOn = false;
     boolean g2RightTriggerPressed = false;
-
-    boolean g1rightbumperpressed = false;
-    boolean vibrated = false;
-    boolean switchVibrate = false;
 
     //Kicker
     boolean kickerHasRun = false;
@@ -113,9 +103,6 @@ public class teleOp extends OpMode
 
     static SampleMecanumDrive drive;
 
-    //teleOp RoadRunner
-    StandardTrackingWheelLocalizer myLocalizer;
-
     //Display on Dashboard
     private FtcDashboard dashboard;
 
@@ -125,7 +112,7 @@ public class teleOp extends OpMode
     double turretAngleTargetDegrees; //Tells the turret what local angle to turn towards
     double turretAngleErrorDegrees; //Tells how far off the turret's local angle is from its local target
     double turretGlobalAngleTargetDegrees; //Sets the global angle target regardless of robot orientation
-    boolean turretManual = false;
+    boolean turretManual = true;
     boolean turretManualMethodToggle = false;
 
     //Initialize
@@ -145,11 +132,8 @@ public class teleOp extends OpMode
 
         drive = new SampleMecanumDrive(hardwareMap);
 
-        //teleOp Road Runner
-        myLocalizer = new StandardTrackingWheelLocalizer(hardwareMap);
-
         //Set starting position
-        myLocalizer.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
+        drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
 
         //Set starting turret ticks
         startTurretTicks = drive.turretMotor.getCurrentPosition();
@@ -205,34 +189,8 @@ public class teleOp extends OpMode
         //DRIVE
         forward = -gamepad1.left_stick_y;
         side = gamepad1.left_stick_x; //Positive means right
-//        if (gamepad1.right_stick_button || gamepad1.dpad_left || gamepad1.dpad_up || gamepad1.dpad_down) {
-//            //Disable default turning if right stick is pressed
-//            turn = 0;
-//            turnCooldown = runtime.milliseconds();
-//
-//            //Check whether aiming for goal or powershot
-//            if (readyForPowershot == false) {
-//                //Equation is different depending on side of error
-//                if (localAngle > 0) {
-//                    anglePower = 0.0001 * (localAngle - 16) * (localAngle - 16) * (localAngle - 16) + 0.4;
-//                } else if (localAngle < 0) {
-//                    anglePower = 0.0001 * (localAngle + 16) * (localAngle + 16) * (localAngle + 16) - 0.4;
-//                }
-//            } else if (readyForPowershot == true) {
-//                //Equation is different depending on side of error
-//                if (localPowerShotAngle > 0) {
-//                    anglePower = 0.0001 * (localPowerShotAngle - 16) * (localPowerShotAngle - 16) * (localPowerShotAngle - 16) + 0.4;
-//                } else if (localPowerShotAngle < 0) {
-//                    anglePower = 0.0001 * (localPowerShotAngle + 16) * (localPowerShotAngle + 16) * (localPowerShotAngle + 16) - 0.4;
-//                }
-//            }
-//
-//        } else {
-//            anglePower = 0;
-//            if (turnCooldown + 200 < runtime.milliseconds()) {
-                turn = gamepad1.right_stick_x; //Positive means turn right
-//            }
-//        }
+        turn = gamepad1.right_stick_x; //Positive means turn right
+
 
         leftFrontPower = (forward + side + turn) / 2;
         leftBackPower = (forward - side + turn) / 2;
@@ -271,48 +229,6 @@ public class teleOp extends OpMode
         drive.leftBack.setPower(leftBackPower);
         drive.rightBack.setPower(rightBackPower);
 
-//        //Power Shots
-//        if (gamepad1.dpad_down) {
-//            //Right Power Shot
-//            powerShotAngleOffset2 = powerShotAngleOffset - 2;
-////            shootFlap.setPosition(flapAnglePowerShot);
-//            readyForPowershot = true;
-//        } else if (gamepad1.dpad_left) {
-//            //Center Power Shot
-//            powerShotAngleOffset2 = powerShotAngleOffset + 3;
-////            shootFlap.setPosition(flapAnglePowerShot);
-//            readyForPowershot = true;
-//        } else if (gamepad1.dpad_up) {
-//            //Left Power Shot
-//            powerShotAngleOffset2 = powerShotAngleOffset + 8;
-////            shootFlap.setPosition(flapAnglePowerShot);
-//            readyForPowershot = true;
-//        } else if (gamepad1.dpad_right) {
-//            //Goal (Higher)
-////            shootFlap.setPosition(flapAngleGoal);
-//            readyForPowershot = false;
-//        }
-
-//        //Y to start powershot sequence
-//        if (gamepad1.y) {
-//            powerShotAngleOffset = lastAngles.firstAngle;
-////            shootFlap.setPosition(flapAnglePowerShot);
-//            readyForPowershot = true;
-//        }
-
-//        //Auto kicker
-//        if ((gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_up) && autoKickHasRun == false) {
-//            autoKickHasRun = true;
-//            autoKickTime = runtime.milliseconds();
-//        } else if (!(gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_up) && autoKickHasRun == true) {
-//            autoKickHasRun = false;
-//            drive.kicker.setPosition(kickerInit);
-//        }
-//
-//        if (autoKickTime + 500 < runtime.milliseconds() && (gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_up)) {
-//            drive.kicker.setPosition(kickerTo);
-//        }
-
 
         //Blockers
         if (gamepad1.left_bumper && blockerToggle == false) {
@@ -329,13 +245,11 @@ public class teleOp extends OpMode
             blockerToggle = false;
         }
 
-//        //Re-Orient Heading (Counterclockwise positive)
-//        if (gamepad1.right_bumper) {
-//            angleOffset = lastAngles.firstAngle;
-//        }
-//        localAngle = lastAngles.firstAngle - angleOffset;
-//        localPowerShotAngle = lastAngles.firstAngle - powerShotAngleOffset2;
-
+        //Reset Position
+        if (gamepad1.right_bumper) {
+            drive.setPoseEstimate(new Pose2d(32.75, -15.25, Math.toRadians(0)));
+            angleOffset = lastAngles.firstAngle;
+        }
 
         //Testing Flap
         if (gamepad1.dpad_up) {
@@ -462,19 +376,19 @@ public class teleOp extends OpMode
         if (!turretManual) {
             //Not manual
             turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-36 - myPose.getY()) ) );
-            if (turretGlobalAngleTargetDegrees < -50) {
+            if (turretGlobalAngleTargetDegrees < -100) {
                 turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
             }
-            turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - lastAngles.firstAngle;
+            turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - (lastAngles.firstAngle - angleOffset);
         } else if (turretManual) {
             turretAngleTargetDegrees = turretAngleTargetDegrees - gamepad2.right_stick_x * 0.5;
         }
 
         //Limit the range of motion for the turret
-        if (turretAngleTargetDegrees > 12) {
-            turretAngleTargetDegrees = 12;
-        } else if (turretAngleTargetDegrees < -50) {
-            turretAngleTargetDegrees = -50;
+        if (turretAngleTargetDegrees > 8.5) {
+            turretAngleTargetDegrees = 8.5;
+        } else if (turretAngleTargetDegrees < -38) {
+            turretAngleTargetDegrees = -38;
         }
 
         //Calculate angle error
@@ -483,8 +397,7 @@ public class teleOp extends OpMode
         //Apply power for correction
         drive.turretMotor.setPower(turretAngleErrorDegrees * 0.05);
 
-        telemetry.addData("turret error", turretAngleErrorDegrees);
-        telemetry.addData("turret ticks", turretTicks);
+        telemetry.addData("turret angle", turretTicks * -0.32360);
     }
 
     //Stop code

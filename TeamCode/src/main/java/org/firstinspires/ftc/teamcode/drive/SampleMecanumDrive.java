@@ -169,6 +169,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         //Turret
         turretMotor = hardwareMap.get(DcMotorEx.class, "turretMotor");
+        turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Lift
         lift = hardwareMap.get(Servo.class, "lift");
