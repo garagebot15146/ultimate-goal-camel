@@ -158,6 +158,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
 
+
         motors = Arrays.asList(leftFront, leftBack, rightBack, rightFront);
 
         //Shooter
@@ -225,7 +226,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     //Declare global variables
     //Lift
-    public double liftUp = 0.5325, liftDown = 0.8000; //Lower value = higher lift
+    public double liftUp = 0.52, liftDown = 0.8000; //Lower value = higher lift
 
     //Kicker
     public double kickerInit = 0.8829, kickerTo = 0.7810;
@@ -243,6 +244,9 @@ public class SampleMecanumDrive extends MecanumDrive {
     public double leftFlapGoal = netFlapAngleGoal, leftFlapPowerShot = netFlapAnglePowerShot;
     public double rightFlapGoal = 1 - netFlapAngleGoal - 0.0186, rightFlapPowerShot = 1 - netFlapAnglePowerShot - 0.0186;
     /////////Above only used for syncing
+
+    //Turret
+    public double turretAngleOffset = 4.3; //Degrees, positive is left from straight
 
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {

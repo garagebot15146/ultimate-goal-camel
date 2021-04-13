@@ -106,6 +106,9 @@ public class teleOp extends OpMode
     //Display on Dashboard
     private FtcDashboard dashboard;
 
+    //testing flap
+    double flapOffset = 0;
+
     //Turret
     double startTurretTicks; //Notes the starting encoder tick value of the turret motor
     double turretTicks; //Keeps track of motor's ticks ONLY during this session
@@ -253,12 +256,15 @@ public class teleOp extends OpMode
 
         //Testing Flap
         if (gamepad1.dpad_up) {
-            drive.leftFlap.setPosition(drive.leftFlapGoal);
-            drive.rightFlap.setPosition(drive.rightFlapGoal);
+            flapOffset = flapOffset + 0.001;
         } else if (gamepad1.dpad_down) {
-            drive.leftFlap.setPosition(drive.leftFlapPowerShot);
-            drive.rightFlap.setPosition(drive.rightFlapPowerShot);
+            flapOffset = flapOffset - 0.001;
         }
+
+        drive.leftFlap.setPosition(drive.leftFlapGoal + flapOffset);
+        drive.rightFlap.setPosition(drive.rightFlapGoal - flapOffset);
+
+        telemetry.addData("net flapangle", drive.leftFlapGoal + flapOffset);
 
         /////////////
         //GAMEPAD 2//
@@ -268,11 +274,11 @@ public class teleOp extends OpMode
         if (gamepad2.left_stick_y > 0.1) {
             //In
             drive.frontIntake.setPower(-1);
-            drive.backIntake.setPower(1);
+//            drive.backIntake.setPower(1);
         } else if (gamepad2.left_stick_y < -0.1 ) {
             //Out
             drive.frontIntake.setPower(1);
-            drive.backIntake.setPower(-1);
+//            drive.backIntake.setPower(-1);
         } else {
             //Stop
             drive.frontIntake.setPower(0);
@@ -379,7 +385,7 @@ public class teleOp extends OpMode
             if (turretGlobalAngleTargetDegrees < -100) {
                 turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
             }
-            turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - (lastAngles.firstAngle - angleOffset);
+            turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - (lastAngles.firstAngle - angleOffset) + drive.turretAngleOffset;
         } else if (turretManual) {
             turretAngleTargetDegrees = turretAngleTargetDegrees - gamepad2.right_stick_x * 0.5;
         }
@@ -395,9 +401,9 @@ public class teleOp extends OpMode
         turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees;
 
         //Apply power for correction
-        drive.turretMotor.setPower(turretAngleErrorDegrees * 0.05);
+        drive.turretMotor.setPower(turretAngleErrorDegrees * 0.07);
 
-        telemetry.addData("turret angle", turretTicks * -0.32360);
+        telemetry.addData("turret target", turretAngleTargetDegrees);
     }
 
     //Stop code
