@@ -274,11 +274,11 @@ public class teleOp extends OpMode
         if (gamepad2.left_stick_y > 0.1) {
             //In
             drive.frontIntake.setPower(-1);
-//            drive.backIntake.setPower(1);
+            drive.backIntake.setPower(1);
         } else if (gamepad2.left_stick_y < -0.1 ) {
             //Out
             drive.frontIntake.setPower(1);
-//            drive.backIntake.setPower(-1);
+            drive.backIntake.setPower(-1);
         } else {
             //Stop
             drive.frontIntake.setPower(0);

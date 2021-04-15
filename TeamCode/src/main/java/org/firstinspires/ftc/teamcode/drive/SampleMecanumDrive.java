@@ -229,7 +229,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public double liftUp = 0.52, liftDown = 0.8000; //Lower value = higher lift
 
     //Kicker
-    public double kickerInit = 0.8829, kickerTo = 0.7810;
+    public double kickerInit = 0.8829, kickerTo = 0.7710;
 
     //Suspension
     public double frontSuspendUp = 0.2500, frontSuspendDown = 0.6293;
