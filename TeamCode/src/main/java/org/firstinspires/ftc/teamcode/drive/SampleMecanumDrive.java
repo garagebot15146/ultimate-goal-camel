@@ -101,7 +101,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     private List<DcMotorEx> motors;
 
     //Initialize Servos
-    public Servo lift, ringBlocker, frontSuspendServo, backSuspendServo, kicker, leftFlap, rightFlap;
+    public Servo lift, ringBlocker, frontSuspendServo, backSuspendServo, kicker, leftFlap, rightFlap, wobbleGoalArm, wobblePincher;
 
 //    private BNO055IMU imu;
 
@@ -189,6 +189,10 @@ public class SampleMecanumDrive extends MecanumDrive {
         leftFlap = hardwareMap.get(Servo.class, "leftFlap");
         rightFlap = hardwareMap.get(Servo.class, "rightFlap");
 
+        //Wobble goal
+        wobbleGoalArm = hardwareMap.get(Servo.class, "wobbleGoalArm");
+        wobblePincher = hardwareMap.get(Servo.class, "wobblePincher");
+
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
             motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
@@ -226,7 +230,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     //Declare global variables
     //Lift
-    public double liftUp = 0.52, liftDown = 0.8000; //Lower value = higher lift
+    public double liftUp = 0.51, liftDown = 0.783; //Lower value = higher lift
 
     //Kicker
     public double kickerInit = 0.8829, kickerTo = 0.7710;
@@ -239,7 +243,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public double ringBlockUp = 0.41, ringBlockDown = 0.94;
 
     //Flap
-    private double netFlapAngleGoal = 0.55, netFlapAnglePowerShot = 0.52; //Higher = Steeper
+    private double netFlapAngleGoal = 0.54, netFlapAnglePowerShot = 0.52; //Higher = Steeper
     /////////Edit the above to change net angle
     public double leftFlapGoal = netFlapAngleGoal, leftFlapPowerShot = netFlapAnglePowerShot;
     public double rightFlapGoal = 1 - netFlapAngleGoal - 0.0186, rightFlapPowerShot = 1 - netFlapAnglePowerShot - 0.0186;
@@ -247,6 +251,10 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     //Turret
     public double turretAngleOffset = 4.3; //Degrees, positive is left from straight
+
+    //Wobble Arm
+    public double wobbleUp = 0.122, wobbleDown = 0.4402;
+    public double wobblePinchClose = 0.7736, wobblePinchOpen = 0.4064;
 
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
