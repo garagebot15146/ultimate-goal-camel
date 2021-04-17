@@ -112,6 +112,10 @@ public class teleOp extends OpMode
     //testing flap
     double flapOffset = 0;
 
+    //Wobble Goal
+    int wobbleStage = 0; //0 -> Initialize. 1 -> Down and Open, 2 -> Close, 3 -> Up, 4 -> Open
+    boolean wobbleHasRun = false;
+
     //Turret
     double startTurretTicks; //Notes the starting encoder tick value of the turret motor
     double turretTicks; //Keeps track of motor's ticks ONLY during this session
@@ -120,6 +124,7 @@ public class teleOp extends OpMode
     double turretGlobalAngleTargetDegrees; //Sets the global angle target regardless of robot orientation
     boolean turretManual = true;
     boolean turretManualMethodToggle = false;
+    int turretTarget = 0; //0 = Goal, 1, 2, 3 are powershots left to right
 
     //Initialize
     @Override
@@ -145,6 +150,9 @@ public class teleOp extends OpMode
         drive.wobbleGoalArm.setPosition(drive.wobbleUp);
         drive.wobblePincher.setPosition(drive.wobblePinchClose);
 
+        //Kicker
+        drive.kicker.setPosition(drive.kickerInit);
+
         //Initialized
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -160,7 +168,7 @@ public class teleOp extends OpMode
     public void start() {
 
         runtime.reset();
-        currentTime = runtime.milliseconds();
+        currentTime = 0;
     }
 
     //Play loop
@@ -168,7 +176,7 @@ public class teleOp extends OpMode
     public void loop() {
         //Set starting position (run once)
         if (startPositionSet == false) {
-            drive.setPoseEstimate(new Pose2d(0, -36, Math.toRadians(0)));
+            drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
             startPositionSet = true;
         }
 
@@ -230,11 +238,6 @@ public class teleOp extends OpMode
         } else {
             //This is normal.  Don't put anything here.
         }
-        //Account for Gyro
-        leftFrontPower = leftFrontPower + anglePower;
-        leftBackPower = leftBackPower + anglePower;
-        rightFrontPower = rightFrontPower - anglePower;
-        rightBackPower = rightBackPower - anglePower;
 
         // Send power to wheel motors
         drive.leftFront.setPower(leftFrontPower);
@@ -260,21 +263,32 @@ public class teleOp extends OpMode
 
         //Reset Position
         if (gamepad1.right_bumper) {
-            drive.setPoseEstimate(new Pose2d(32.75, -15.25, Math.toRadians(0)));
+            drive.setPoseEstimate(new Pose2d(0, -39, Math.toRadians(0)));
             angleOffset = lastAngles.firstAngle;
         }
 
-        //Testing Flap
-        if (gamepad1.dpad_up) {
-            flapOffset = flapOffset + 0.0001;
+        //Target Select
+        if (gamepad1.dpad_right) {
+            //Goal
+            turretTarget = 0;
+            drive.leftFlap.setPosition(drive.leftFlapGoal);
+            drive.rightFlap.setPosition(drive.rightFlapGoal);
+        } else if (gamepad1.dpad_up) {
+            //Left
+            turretTarget = 1;
+            drive.leftFlap.setPosition(drive.leftFlapPowerShot);
+            drive.rightFlap.setPosition(drive.rightFlapPowerShot);
+        } else if (gamepad1.dpad_left) {
+            //Middle
+            turretTarget = 2;
+            drive.leftFlap.setPosition(drive.leftFlapPowerShot);
+            drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         } else if (gamepad1.dpad_down) {
-            flapOffset = flapOffset - 0.0001;
+            //Right
+            turretTarget = 3;
+            drive.leftFlap.setPosition(drive.leftFlapPowerShot);
+            drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         }
-
-        drive.leftFlap.setPosition(drive.leftFlapGoal + flapOffset);
-        drive.rightFlap.setPosition(drive.rightFlapGoal - flapOffset);
-
-        telemetry.addData("flap Offset", flapOffset);
 
         /////////////
         //GAMEPAD 2//
@@ -344,7 +358,7 @@ public class teleOp extends OpMode
             shooterPosition = drive.shooter.getCurrentPosition();
             shooterRPM = (drive.shooter.getCurrentPosition() - shooterPosition) / 28 * 10 * 60;
         }
-        telemetry.addData("Shooter RPM", (int) shooterRPM);
+//        telemetry.addData("Shooter RPM", (int) shooterRPM);
 
 
         //Kicker
@@ -363,17 +377,39 @@ public class teleOp extends OpMode
 
         //Wobble Goal
         //Arm
-        if (gamepad2.right_bumper) {
+        if (gamepad2.right_bumper && wobbleHasRun == false) {
+            //Cycle through stages by pressing button
+            wobbleStage = wobbleStage + 1;
+            if (wobbleStage == 5){
+                wobbleStage = 1;
+            }
+            wobbleHasRun = true;
+        } else if (!gamepad2.right_bumper && wobbleHasRun == true) {
+            wobbleHasRun = false;
+        }
+        //Run each stage
+        if (wobbleStage == 0) {
+            //Init: Arm up, pinch close
             drive.wobbleGoalArm.setPosition(drive.wobbleUp);
-        } else if (gamepad2.left_bumper) {
-            drive.wobbleGoalArm.setPosition(drive.wobbleDown);
-        }
-        //Pincher
-        if (gamepad2.x) {
-            drive.wobblePincher.setPosition(drive.wobblePinchOpen);
-        } else {
             drive.wobblePincher.setPosition(drive.wobblePinchClose);
+        } else if (wobbleStage == 1) {
+            //Arm Down, pinch open
+            drive.wobbleGoalArm.setPosition(drive.wobbleDown);
+            drive.wobblePincher.setPosition(drive.wobblePinchOpen);
+        } else if (wobbleStage == 2) {
+            //Arm down, pinch close
+            drive.wobbleGoalArm.setPosition(drive.wobbleDown);
+            drive.wobblePincher.setPosition(drive.wobblePinchClose);
+        } else if (wobbleStage == 3) {
+            //Arm Up, pinch close
+            drive.wobbleGoalArm.setPosition(drive.wobbleUp);
+            drive.wobblePincher.setPosition(drive.wobblePinchClose);
+        } else if (wobbleStage == 4) {
+            //Arm up, pinch open
+            drive.wobbleGoalArm.setPosition(drive.wobbleUp);
+            drive.wobblePincher.setPosition(drive.wobblePinchOpen);
         }
+
 
         //Toggle manual turret controls
         if (turretManualMethodToggle == false && gamepad2.right_stick_button) {
@@ -406,11 +442,26 @@ public class teleOp extends OpMode
         //Check if manual
         if (!turretManual) {
             //Not manual
-            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-36 - myPose.getY()) ) );
+
+            //Pick target:
+            if (turretTarget == 0) {
+                //Goal
+                turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-36 - myPose.getY()) ) );
+            } else if (turretTarget == 1) {
+                //Powershot left
+                turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-4.5 - myPose.getY()) ) );
+            } else if (turretTarget == 2) {
+                //Powershot middle
+                turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-12 - myPose.getY()) ) );
+            } else if (turretTarget == 3) {
+                //Powershot right
+                turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-19.5 - myPose.getY()) ) );
+            }
+
             if (turretGlobalAngleTargetDegrees < -100) {
                 turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
             }
-            turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - (lastAngles.firstAngle - angleOffset) + drive.turretAngleOffset;
+            turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - (lastAngles.firstAngle - angleOffset) + drive.turretAngleOffset + (0.05 * (myPose.getY() + 36));
         } else if (turretManual) {
             turretAngleTargetDegrees = turretAngleTargetDegrees - gamepad2.right_stick_x * 0.5;
         }
@@ -427,10 +478,13 @@ public class teleOp extends OpMode
 
         //Apply power for correction
         if (turretAngleErrorDegrees > 0) {
-            drive.turretMotor.setPower( Math.pow(0.2 * turretAngleErrorDegrees - 0.464, 3) + 0.1);
+            drive.turretMotor.setPower( Math.pow(0.3 * turretAngleErrorDegrees - 0.3685, 3) + 0.05);
         } else if (turretAngleErrorDegrees < 0){
-            drive.turretMotor.setPower( Math.pow(0.2 * turretAngleErrorDegrees + 0.464, 3) - 0.1);
+            drive.turretMotor.setPower( Math.pow(0.3 * turretAngleErrorDegrees + 0.3685, 3) - 0.05);
         }
+
+        telemetry.addData("Target degrees", turretAngleTargetDegrees);
+        telemetry.addData("Error:", turretAngleErrorDegrees);
     }
 
     //Stop code
