@@ -82,9 +82,6 @@ public class teleOp extends OpMode
     Orientation lastAngles = new Orientation();
     double angleOffset = 0;
 
-    double turnCooldown = runtime.milliseconds();
-    double anglePower;
-
     //Variables for running methods
     //Shooter
     boolean shooterToggle = false;
@@ -109,15 +106,11 @@ public class teleOp extends OpMode
     //Display on Dashboard
     private FtcDashboard dashboard;
 
-    //testing flap
-    double flapOffset = 0;
-
     //Wobble Goal
     int wobbleStage = 0; //0 -> Initialize. 1 -> Down and Open, 2 -> Close, 3 -> Up, 4 -> Open
     boolean wobbleHasRun = false;
 
     //Turret
-    double startTurretTicks; //Notes the starting encoder tick value of the turret motor
     double turretTicks; //Keeps track of motor's ticks ONLY during this session
     double turretAngleTargetDegrees; //Tells the turret what local angle to turn towards
     double turretAngleErrorDegrees; //Tells how far off the turret's local angle is from its local target
@@ -142,9 +135,6 @@ public class teleOp extends OpMode
         imu.initialize(parameters);
 
         drive = new SampleMecanumDrive(hardwareMap);
-
-        //Set starting turret ticks
-        startTurretTicks = drive.turretMotor.getCurrentPosition();
 
         //Wobble Goal
         drive.wobbleGoalArm.setPosition(drive.wobbleUp);
@@ -187,6 +177,8 @@ public class teleOp extends OpMode
         Pose2d myPose = drive.getPoseEstimate();
         telemetry.addData("x", myPose.getX());
         telemetry.addData("y", myPose.getY());
+        telemetry.addData("imu heading", lastAngles.firstAngle);
+        telemetry.addData("odo heading", Math.toDegrees(myPose.getHeading()));
 
         dashboard = FtcDashboard.getInstance();
         dashboard.setTelemetryTransmissionInterval(25);
@@ -436,7 +428,7 @@ public class teleOp extends OpMode
         //1 Degree = 3.08793 ticks.
 
         //keep track of the ticks on the turret motor for this session.
-        turretTicks = drive.turretMotor.getCurrentPosition() - startTurretTicks;
+        turretTicks = drive.turretMotor.getCurrentPosition();
 
         //Calculate Local angle target
         //Check if manual
@@ -478,13 +470,22 @@ public class teleOp extends OpMode
 
         //Apply power for correction
         if (turretAngleErrorDegrees > 0) {
-            drive.turretMotor.setPower( Math.pow(0.3 * turretAngleErrorDegrees - 0.3685, 3) + 0.05);
+            if (turretAngleErrorDegrees > 8) {
+                //Don't go too fast if turret is far from target
+                drive.turretMotor.setPower(0.2);
+            } else {
+                drive.turretMotor.setPower(Math.pow(0.1 * turretAngleErrorDegrees - 0.5848, 3) + 0.2);
+            }
         } else if (turretAngleErrorDegrees < 0){
-            drive.turretMotor.setPower( Math.pow(0.3 * turretAngleErrorDegrees + 0.3685, 3) - 0.05);
+            if (turretAngleErrorDegrees < -8) {
+                //Don't go too fast if turret is far from target
+                drive.turretMotor.setPower(-0.2);
+            } else {
+                drive.turretMotor.setPower( Math.pow(0.1 * turretAngleErrorDegrees + 0.5848, 3) - 0.2);
+            }
         }
 
-        telemetry.addData("Target degrees", turretAngleTargetDegrees);
-        telemetry.addData("Error:", turretAngleErrorDegrees);
+        telemetry.addData("turretAngle", turretAngleErrorDegrees);
     }
 
     //Stop code

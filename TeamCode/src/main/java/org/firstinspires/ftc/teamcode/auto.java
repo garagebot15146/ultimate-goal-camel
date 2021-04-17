@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.vision.UGContourRingPipeline;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -16,6 +17,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -26,62 +31,18 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 //@Disabled
 public class auto extends LinearOpMode {
 
-//    //Declare motors/servos variables
-//    private ElapsedTime runtime = new ElapsedTime();
-//    //Initialize Motors/Servos
-//    //Wheels
-//    private DcMotor leftFront = null;
-//    private DcMotor rightFront = null;
-//    private DcMotor leftBack = null;
-//    private DcMotor rightBack = null;
-//
-//    //Intake
-//    private DcMotor frontIntake = null;
-//    private DcMotor backIntake = null;
-//
-//    //Claw Arm
-//    private DcMotor clawArm = null;
-//    private Servo clawServo = null;
-//    double clawClose = 0.90;
-//    double clawOpen = 0.6;
-//
-//    //Shooter
-//    private DcMotor shooter = null;
-//
-//    //Kicker
-//    private Servo kicker = null;
-//    double kickerInit = 0.3200;
-//    double kickerTo = 0.5848;
-//
-//    //Flap
-//    private Servo shootFlap;
-//    double flapAngleGoal = 0.132; //Higher = Steeper
-//    double flapAnglePowerShot = 0.1183;
-//
-//    //Lift
-//    private Servo leftLift = null;
-//    private Servo rightLift = null;
-//
-//    double leftLiftUp = 0.9176; //1 Top
-//    double rightLiftUp = 0.9413; //1 Top
-//
-//    double leftLiftDown = 0.532;
-//    double rightLiftDown = 0.532;
-//
-//    //Blocker
-//    private Servo leftBlocker;
-//    double leftBlockerInit = 0.41;
-//    double leftBlockerTo = 0.94;
-//
-//
-//    static final double COUNTS_PER_MOTOR_REV = 537.6;    // eg: TETRIX Motor Encoder
-//    static final double DRIVE_GEAR_REDUCTION = 1.0;     // This is < 1.0 if geared UP
-//    static final double WHEEL_DIAMETER_INCHES = 3.77953;     // For figuring circumference
-//    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-//            (WHEEL_DIAMETER_INCHES * 3.1415);
-//    static final double DRIVE_SPEED = 0.6;
-//    static final double TURN_SPEED = 0.5;
-//
+    //Runtime
+    private ElapsedTime runtime = new ElapsedTime();
+    double turretTime = 0;
+
+    static final double COUNTS_PER_MOTOR_REV = 537.6;    // eg: TETRIX Motor Encoder
+    static final double DRIVE_GEAR_REDUCTION = 1.0;     // This is < 1.0 if geared UP
+    static final double WHEEL_DIAMETER_INCHES = 3.77953;     // For figuring circumference
+    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+            (WHEEL_DIAMETER_INCHES * 3.1415);
+    static final double DRIVE_SPEED = 0.6;
+    static final double TURN_SPEED = 0.5;
+
 //    //Vision
 //    private static final int CAMERA_WIDTH = 1280; // width  of wanted camera resolution
 //    private static final int CAMERA_HEIGHT = 720; // height of wanted camera resolution
@@ -95,72 +56,56 @@ public class auto extends LinearOpMode {
 //
 //    private UGContourRingPipeline pipeline;
 //    private OpenCvCamera camera;
-//
-//    SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-//
-//
+
+    static SampleMecanumDrive drive;
+
+    //Initialize IMU
+    BNO055IMU imu;
+    Orientation lastAngles = new Orientation();
+    double angleOffset = 0;
+
+    //Turret
+    double startTurretTicks; //Notes the starting encoder tick value of the turret motor
+    double turretTicks; //Keeps track of motor's ticks ONLY during this session
+    double turretAngleTargetDegrees; //Tells the turret what local angle to turn towards
+    double turretAngleErrorDegrees; //Tells how far off the turret's local angle is from its local target
+    double turretGlobalAngleTargetDegrees; //Sets the global angle target regardless of robot orientation
+
+
     @Override
     public void runOpMode() {
+        //Hardware map
+        drive = new SampleMecanumDrive(hardwareMap);
+
+//        //Hardware Map IMU
+//        imu = hardwareMap.get(BNO055IMU .class, "imu");
+//        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 //
-//        //Hardware Maps
-//        //Wheels
-//        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
-//        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
-//        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-//        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+//        parameters.mode                = BNO055IMU.SensorMode.IMU;
+//        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+//        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+//        parameters.loggingEnabled      = false;
 //
-//        frontIntake = hardwareMap.get(DcMotor.class, "frontIntake");
-//        backIntake = hardwareMap.get(DcMotor.class, "backIntake");
-//
-//        clawArm = hardwareMap.get(DcMotor.class, "clawArm");
-//        clawServo = hardwareMap.get(Servo.class, "clawServo");
-//
-//        //Servos
-//        shooter = hardwareMap.get(DcMotor.class, "shooter");
-//        kicker = hardwareMap.get(Servo.class, "kicker");
-//        kicker.setPosition(kickerInit);
-//        shootFlap = hardwareMap.get(Servo.class, "shootFlap");
-//        shootFlap.setPosition(flapAnglePowerShot);
-//
-//        leftLift = hardwareMap.get(Servo.class, "leftLift");
-//        rightLift = hardwareMap.get(Servo.class, "rightLift");
-//
-//        leftLift.setPosition(1 - leftLiftUp);
-//        rightLift.setPosition(rightLiftUp);
-//
-//        leftBlocker = hardwareMap.get(Servo.class, "leftBlocker");
-//        leftBlocker.setPosition(leftBlockerInit);
-//
-//
-//        //Set motor run modes
-//        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//
-//        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//
-//        //Set Directions
-//        leftFront.setDirection(DcMotor.Direction.REVERSE);
-//        leftBack.setDirection(DcMotor.Direction.REVERSE);
-//        rightFront.setDirection(DcMotor.Direction.FORWARD);
-//        rightBack.setDirection(DcMotor.Direction.FORWARD);
-//
-//        frontIntake.setDirection(DcMotor.Direction.FORWARD);
-//        backIntake.setDirection(DcMotor.Direction.FORWARD);
-//
-//        shooter.setDirection(DcMotor.Direction.REVERSE);
-//
-//        //Claw Arm
-//        clawArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        clawArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        clawArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//
-//        clawServo.setPosition(clawClose);
-//
+//        imu.initialize(parameters);
+
+        //Kicker
+        drive.kicker.setPosition(drive.kickerInit);
+
+        //Claw
+        drive.wobbleGoalArm.setPosition(drive.wobbleUp);
+        drive.wobblePincher.setPosition(drive.wobblePinchClose);
+
+        //Reset turret's ticks
+        drive.turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        drive.turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        //Suspension
+//        drive.frontSuspendServo.setPosition(drive.frontSuspendUp);
+
+        //Lift
+        drive.lift.setPosition(drive.liftUp);
+
+
 //        int cameraMonitorViewId = this
 //                .hardwareMap
 //                .appContext
@@ -184,7 +129,7 @@ public class auto extends LinearOpMode {
 //        camera.openCameraDeviceAsync(() -> camera.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPRIGHT));
 //
 //        FtcDashboard.getInstance().startCameraStream(camera, 30);
-//
+
 ////PATH CONSTANTS
 //        double dc = 0.5;
 //        double powerShotX = 89 * dc;
@@ -314,14 +259,20 @@ public class auto extends LinearOpMode {
 //                .build();
 ////CASE C INIT END
 //
-//        telemetry.addData("Status", "Wait for 3 seconds");
-//        telemetry.update();
-//        waitForStart();
-//
-//
-//        if (isStopRequested()) return;
-//
-//        telemetry.update();
+        telemetry.addData("Status", "Wait for 3 seconds");
+        telemetry.update();
+        waitForStart();
+        if (isStopRequested()) return;
+        telemetry.update();
+
+        //Suspension Down
+        drive.frontSuspendServo.setPosition(drive.frontSuspendDown);
+
+        drive.shooter.setPower(1);
+        sleep(3000);
+        shootGoal(3);
+        sleep(100);
+
 ////        String height = "FOUR";
 //        String height = pipeline.getHeight().name();
 //        telemetry.addData("Ring Stack", height);
@@ -504,129 +455,227 @@ public class auto extends LinearOpMode {
 //        }
 //
     }
-//
-//
-//    public void armAngle(double degrees, double power) {
-//        int newTarget = clawArm.getCurrentPosition() + (int) (degrees * 1.4933);
-//        clawArm.setTargetPosition(newTarget);
-//        // Turn On RUN_TO_POSITION
-//        clawArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        // reset the timeout time and start motion.
-//        runtime.reset();
-//        clawArm.setPower(power);
-//
-//        double currentTime = runtime.milliseconds();
-//        int clawPosition = clawArm.getCurrentPosition();
-//        boolean clawStuck = false;
-//
-//        while (clawArm.isBusy() && !clawStuck) {
-//            //Check if motor stuck
-//            if (runtime.milliseconds() > currentTime + 100) {
-//                currentTime = runtime.milliseconds();
-//
-//                if (((clawPosition + 4 > clawArm.getCurrentPosition()) && degrees > 0) ||
-//                        (clawPosition - 4 < clawArm.getCurrentPosition()) && degrees < 0) {
-//                    clawArm.setPower(0);
-//                    clawStuck = true;
-//                } else {
-//                    clawPosition = clawArm.getCurrentPosition();
-//                }
-//
-//            }
-//        }
-//
-//        //Stop
-//        clawArm.setPower(0);
-//        clawArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//    }
-//
-//    public void kick(int kickCount) {
-//        for (int i = 0; i < kickCount; i++) {
-//            kicker.setPosition(kickerTo);
-//            sleep(150);
-//            kicker.setPosition(kickerInit);
-//            sleep(200);
-//        }
-//    }
-//
-//    public void basketUp() {
-//        leftLift.setPosition(1 - leftLiftUp);
-//        rightLift.setPosition(rightLiftUp);
-//    }
-//
-//    public void basketDown() {
-//        leftLift.setPosition(1 - leftLiftDown);
-//        rightLift.setPosition(rightLiftDown);
-//    }
-//
-//    public void encoderDrive(double speed,
-//                             double leftFrontInches, double rightFrontInches, double leftBackInches, double rightBackInches,
-//                             double timeoutS) {
-//        int newLeftFrontTarget;
-//        int newRightFrontTarget;
-//        int newLeftBackTarget;
-//        int newRightBackTarget;
-//
-//        // Ensure that the opmode is still active
-//        if (opModeIsActive()) {
-//
-//            // Determine new target position, and pass to motor controller
-//            newLeftFrontTarget = drive.leftFront.getCurrentPosition() + (int) (leftFrontInches * COUNTS_PER_INCH);
-//            newRightFrontTarget = rightFront.getCurrentPosition() + (int) (rightFrontInches * COUNTS_PER_INCH);
-//            newLeftBackTarget = leftBack.getCurrentPosition() + (int) (leftBackInches * COUNTS_PER_INCH);
-//            newRightBackTarget = rightBack.getCurrentPosition() + (int) (rightBackInches * COUNTS_PER_INCH);
-//
-//            leftFront.setTargetPosition(newLeftFrontTarget);
-//            rightFront.setTargetPosition(newRightFrontTarget);
-//            leftBack.setTargetPosition(newLeftBackTarget);
-//            rightBack.setTargetPosition(newRightBackTarget);
-//
-//            // Turn On RUN_TO_POSITION
-//            leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//
-//            // reset the timeout time and start motion.
-//            runtime.reset();
-//            leftFront.setPower(Math.abs(speed));
-//            rightFront.setPower(Math.abs(speed));
-//            leftBack.setPower(Math.abs(speed));
-//            rightBack.setPower(Math.abs(speed));
-//
-//            // keep looping while we are still active, and there is time left, and both motors are running.
-//            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
-//            // its target position, the motion will stop.  This is "safer" in the event that the robot will
-//            // always end the motion as soon as possible.
-//            // However, if you require that BOTH motors have finished their moves before the robot continues
-//            // onto the next step, use (isBusy() || isBusy()) in the loop test.
-//            while (opModeIsActive() &&
-//                    (runtime.seconds() < timeoutS) &&
-//                    (leftFront.isBusy() && rightFront.isBusy() && leftBack.isBusy() && rightBack.isBusy())) {
-//
-////                // Display it for the driver.
-////                telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
-////                telemetry.addData("Path2",  "Running at %7d :%7d",
-////                                            robot.leftDrive.getCurrentPosition(),
-////                                            robot.rightDrive.getCurrentPosition());
-////                telemetry.update();
-//            }
-//
-//            // Stop all motion;
-//            leftFront.setPower(0);
-//            rightFront.setPower(0);
-//            leftBack.setPower(0);
-//            rightBack.setPower(0);
-//
-//            // Turn off RUN_TO_POSITION
-//            leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//            rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//            leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//            rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//
-//            //  sleep(250);   // optional pause after each move
-//        }
-//    }
 
+    public void shootGoal(int shotCount) {
+        //Set flap angle
+        drive.leftFlap.setPosition(drive.leftFlapGoal);
+        drive.rightFlap.setPosition(drive.rightFlapGoal);
+
+        //Updating Position
+        drive.update();
+        Pose2d myPose = drive.getPoseEstimate();
+
+        //Fix odometry's heading range
+        double odoHeading;
+        if (Math.toDegrees(myPose.getHeading()) > 180) {
+            odoHeading = Math.toDegrees(myPose.getHeading()) - 360;
+        } else {
+            odoHeading = Math.toDegrees(myPose.getHeading());
+        }
+
+        //Set target
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-36 - myPose.getY()) ) );
+        turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.05 * (myPose.getY() + 36));
+
+        //Limit the range of motion for the turret
+        if (turretAngleTargetDegrees > 8.5) {
+            turretAngleTargetDegrees = 8.5;
+        } else if (turretAngleTargetDegrees < -38) {
+            turretAngleTargetDegrees = -38;
+        }
+
+        //Set timer
+        turretTime = runtime.milliseconds();
+
+        while (turretTime + 500 > runtime.milliseconds() && !isStopRequested()) {
+            //Update the turret's ticks
+            turretTicks = drive.turretMotor.getCurrentPosition();
+
+            //Calculate angle error
+            turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees;
+
+            //Apply power for correction
+            if (turretAngleErrorDegrees > 0) {
+                if (turretAngleErrorDegrees > 8) {
+                    //Don't go too fast if turret is far from target
+                    drive.turretMotor.setPower(0.2);
+                } else {
+                    drive.turretMotor.setPower(Math.pow(0.1 * turretAngleErrorDegrees - 0.5848, 3) + 0.2);
+                }
+            } else if (turretAngleErrorDegrees < 0){
+                if (turretAngleErrorDegrees < -8) {
+                    //Don't go too fast if turret is far from target
+                    drive.turretMotor.setPower(-0.2);
+                } else {
+                    drive.turretMotor.setPower( Math.pow(0.1 * turretAngleErrorDegrees + 0.5848, 3) - 0.2);
+                }
+            }
+        }
+
+        //Kick
+        for (int i = 0; i < shotCount; i++) {
+            sleep(150);
+            drive.kicker.setPosition(drive.kickerTo);
+            sleep(150);
+            drive.kicker.setPosition(drive.kickerInit);
+        }
+    }
+
+    public void shootPowerShots() {
+        //Set flap angle
+        drive.leftFlap.setPosition(drive.leftFlapPowerShot);
+        drive.rightFlap.setPosition(drive.rightFlapPowerShot);
+
+        //TESTING GET RID OF THIS AFTERWARD
+        drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
+
+        drive.update();
+        Pose2d myPose = drive.getPoseEstimate();
+
+        //Fix odometry's heading range
+        double odoHeading;
+        if (Math.toDegrees(myPose.getHeading()) > 180) {
+            odoHeading = Math.toDegrees(myPose.getHeading()) - 360;
+        } else {
+            odoHeading = Math.toDegrees(myPose.getHeading());
+        }
+
+        //Set target (Left)
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-5 - myPose.getY()) ) );
+        turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.1 * (myPose.getY() + 36));
+
+        //Limit the range of motion for the turret
+        if (turretAngleTargetDegrees > 8.5) {
+            turretAngleTargetDegrees = 8.5;
+        } else if (turretAngleTargetDegrees < -38) {
+            turretAngleTargetDegrees = -38;
+        }
+
+        //Set timer
+        turretTime = runtime.milliseconds();
+
+        while (turretTime + 500 > runtime.milliseconds() && !isStopRequested()) {
+            //Update the turret's ticks
+            turretTicks = drive.turretMotor.getCurrentPosition();
+
+            //Calculate angle error
+            turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees;
+
+            //Apply power for correction
+            if (turretAngleErrorDegrees > 0) {
+                if (turretAngleErrorDegrees > 8) {
+                    //Don't go too fast if turret is far from target
+                    drive.turretMotor.setPower(0.2);
+                } else {
+                    drive.turretMotor.setPower(Math.pow(0.1 * turretAngleErrorDegrees - 0.5848, 3) + 0.2);
+                }
+            } else if (turretAngleErrorDegrees < 0){
+                if (turretAngleErrorDegrees < -8) {
+                    //Don't go too fast if turret is far from target
+                    drive.turretMotor.setPower(-0.2);
+                } else {
+                    drive.turretMotor.setPower( Math.pow(0.1 * turretAngleErrorDegrees + 0.5848, 3) - 0.2);
+                }
+            }
+        }
+
+        //Kick
+        drive.kicker.setPosition(drive.kickerTo);
+        sleep(150);
+        drive.kicker.setPosition(drive.kickerInit);
+
+        //////////////////
+
+        //Set target (Middle)
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-12 - myPose.getY()) ) );
+        turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.1 * (myPose.getY() + 36));
+
+        //Limit the range of motion for the turret
+        if (turretAngleTargetDegrees > 8.5) {
+            turretAngleTargetDegrees = 8.5;
+        } else if (turretAngleTargetDegrees < -38) {
+            turretAngleTargetDegrees = -38;
+        }
+
+        //Refresh time
+        turretTime = runtime.milliseconds();
+
+        //turretTime + 200 for control video
+        while (turretTime + 350 > runtime.milliseconds() && !isStopRequested()) {
+            //Update the turret's ticks
+            turretTicks = drive.turretMotor.getCurrentPosition();
+
+            //Calculate angle error
+            turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees;
+
+            //Apply power for correction
+            if (turretAngleErrorDegrees > 0) {
+                if (turretAngleErrorDegrees > 8) {
+                    //Don't go too fast if turret is far from target
+                    drive.turretMotor.setPower(0.2);
+                } else {
+                    drive.turretMotor.setPower(Math.pow(0.1 * turretAngleErrorDegrees - 0.5848, 3) + 0.2);
+                }
+            } else if (turretAngleErrorDegrees < 0){
+                if (turretAngleErrorDegrees < -8) {
+                    //Don't go too fast if turret is far from target
+                    drive.turretMotor.setPower(-0.2);
+                } else {
+                    drive.turretMotor.setPower( Math.pow(0.1 * turretAngleErrorDegrees + 0.5848, 3) - 0.2);
+                }
+            }
+        }
+
+        //Kick
+        drive.kicker.setPosition(drive.kickerTo);
+        sleep(150);
+        drive.kicker.setPosition(drive.kickerInit);
+
+        //////////////////
+
+        //Set target (Right)
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-19.5 - myPose.getY()) ) );
+        turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.1 * (myPose.getY() + 36));
+
+        //Limit the range of motion for the turret
+        if (turretAngleTargetDegrees > 8.5) {
+            turretAngleTargetDegrees = 8.5;
+        } else if (turretAngleTargetDegrees < -38) {
+            turretAngleTargetDegrees = -38;
+        }
+
+        //Refresh time
+        turretTime = runtime.milliseconds();
+
+        while (turretTime + 350 > runtime.milliseconds() && !isStopRequested()) {
+            //Update the turret's ticks
+            turretTicks = drive.turretMotor.getCurrentPosition();
+
+            //Calculate angle error
+            turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees;
+
+            //Apply power for correction
+            if (turretAngleErrorDegrees > 0) {
+                if (turretAngleErrorDegrees > 8) {
+                    //Don't go too fast if turret is far from target
+                    drive.turretMotor.setPower(0.2);
+                } else {
+                    drive.turretMotor.setPower(Math.pow(0.1 * turretAngleErrorDegrees - 0.5848, 3) + 0.2);
+                }
+            } else if (turretAngleErrorDegrees < 0){
+                if (turretAngleErrorDegrees < -8) {
+                    //Don't go too fast if turret is far from target
+                    drive.turretMotor.setPower(-0.2);
+                } else {
+                    drive.turretMotor.setPower( Math.pow(0.1 * turretAngleErrorDegrees + 0.5848, 3) - 0.2);
+                }
+            }
+        }
+
+        //Kick
+        drive.kicker.setPosition(drive.kickerTo);
+        sleep(150);
+        drive.kicker.setPosition(drive.kickerInit);
+    }
 }
 

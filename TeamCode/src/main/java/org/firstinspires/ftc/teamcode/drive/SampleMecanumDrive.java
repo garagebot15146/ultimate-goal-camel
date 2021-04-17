@@ -236,14 +236,14 @@ public class SampleMecanumDrive extends MecanumDrive {
     public double kickerInit = 0.8829, kickerTo = 0.7710;
 
     //Suspension
-    public double frontSuspendUp = 0.2500, frontSuspendDown = 0.6293;
+    public double frontSuspendUp = 0.2700, frontSuspendDown = 0.6293; //Lower is higher
     public double backSuspendUp = 0.6293, backSuspendDown = 0.2500;
 
     //ringBlocker
     public double ringBlockUp = 0.41, ringBlockDown = 0.94;
 
     //Flap
-    private double netFlapAngleGoal = 0.54, netFlapAnglePowerShot = 0.51; //Higher = Steeper
+    private double netFlapAngleGoal = 0.545, netFlapAnglePowerShot = 0.53; //Higher = Steeper
     /////////Edit the above to change net angle
     public double leftFlapGoal = netFlapAngleGoal, leftFlapPowerShot = netFlapAnglePowerShot;
     public double rightFlapGoal = 1 - netFlapAngleGoal - 0.0186, rightFlapPowerShot = 1 - netFlapAnglePowerShot - 0.0186;
