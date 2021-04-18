@@ -456,6 +456,8 @@ public class auto extends LinearOpMode {
 //
 
         //Transfer Position
+        drive.update();
+        Pose2d myPose = drive.getPoseEstimate();
         PoseStorage.currentPose = drive.getPoseEstimate();
     }
 
@@ -529,9 +531,7 @@ public class auto extends LinearOpMode {
         drive.leftFlap.setPosition(drive.leftFlapPowerShot);
         drive.rightFlap.setPosition(drive.rightFlapPowerShot);
 
-        //TESTING GET RID OF THIS AFTERWARD
-        drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
-
+        //Updating Position
         drive.update();
         Pose2d myPose = drive.getPoseEstimate();
 
