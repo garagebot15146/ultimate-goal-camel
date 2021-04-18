@@ -454,6 +454,9 @@ public class auto extends LinearOpMode {
 //                break;
 //        }
 //
+
+        //Transfer Position
+        PoseStorage.currentPose = drive.getPoseEstimate();
     }
 
     public void shootGoal(int shotCount) {

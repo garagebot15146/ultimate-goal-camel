@@ -166,7 +166,7 @@ public class teleOp extends OpMode
     public void loop() {
         //Set starting position (run once)
         if (startPositionSet == false) {
-            drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(0)));
+            drive.setPoseEstimate(PoseStorage.currentPose);
             startPositionSet = true;
         }
 
