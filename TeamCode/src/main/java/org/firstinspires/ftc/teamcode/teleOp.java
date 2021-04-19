@@ -119,6 +119,10 @@ public class teleOp extends OpMode
     boolean turretManualMethodToggle = false;
     int turretTarget = 0; //0 = Goal, 1, 2, 3 are powershots left to right
 
+    //testing pods
+    private Encoder leftEncoder, rightEncoder;
+    double leftDistance, rightDistance;
+
     //Initialize
     @Override
     public void init() {
@@ -142,6 +146,12 @@ public class teleOp extends OpMode
 
         //Kicker
         drive.kicker.setPosition(drive.kickerInit);
+
+        //testing pods
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftFront"));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "frontIntake"));
+        leftDistance = leftEncoder.getCurrentPosition();
+        rightDistance = rightEncoder.getCurrentPosition();
 
         //Initialized
         telemetry.addData("Status", "Initialized");
@@ -179,6 +189,10 @@ public class teleOp extends OpMode
         telemetry.addData("y", myPose.getY());
         telemetry.addData("imu heading", lastAngles.firstAngle);
         telemetry.addData("odo heading", Math.toDegrees(myPose.getHeading()));
+
+        //testing pods
+        telemetry.addData("left distance", leftDistance - leftEncoder.getCurrentPosition());
+        telemetry.addData("right distance", rightDistance - rightEncoder.getCurrentPosition());
 
         dashboard = FtcDashboard.getInstance();
         dashboard.setTelemetryTransmissionInterval(25);
@@ -289,6 +303,7 @@ public class teleOp extends OpMode
         //Intake
         if (gamepad2.left_stick_y > 0.1) {
             //In
+
             drive.frontIntake.setPower(-1);
             drive.backIntake.setPower(1);
         } else if (gamepad2.left_stick_y < -0.1 ) {
