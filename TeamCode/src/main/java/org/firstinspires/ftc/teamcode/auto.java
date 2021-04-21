@@ -139,13 +139,19 @@ public class auto extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(-25, -37, Math.toRadians(0)))
                 .build();
         Trajectory trajectoryB5 = drive.trajectoryBuilder(trajectoryB4.end())
-                .strafeTo(new Vector2d(-2, -37))
+                .strafeTo(new Vector2d(-2, -35))
                 .build();
         Trajectory trajectoryB6 = drive.trajectoryBuilder(trajectoryB5.end())
-                .lineToLinearHeading(new Pose2d(-54.3, -20, Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(-58, -20, Math.toRadians(90)))
                 .build();
         Trajectory trajectoryB7 = drive.trajectoryBuilder(trajectoryB6.end())
-                .strafeTo(new Vector2d(-54.3, -35))
+                .strafeTo(new Vector2d(-56, -33.2))
+                .build();
+        Trajectory trajectoryB8 = drive.trajectoryBuilder(trajectoryB7.end().plus(new Pose2d(0, 0, Math.toRadians(90))), false)
+                .strafeTo(new Vector2d(18, -37))
+                .build();
+        Trajectory trajectoryB9 = drive.trajectoryBuilder(trajectoryB8.end())
+                .strafeTo(new Vector2d(12, -34))
                 .build();
 ////CASE B INIT END
 
@@ -237,19 +243,25 @@ public class auto extends LinearOpMode {
                 drive.lift.setPosition(drive.liftDown);
                 drive.backIntake.setPower(-1);
                 drive.followTrajectory(trajectoryB4);
+                drive.wobbleGoalArm.setPosition(drive.wobbleDown);
                 drive.followTrajectory(trajectoryB5);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(800);
                 shootGoal(1);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryB6);
-                drive.wobbleGoalArm.setPosition(drive.wobbleDown);
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen);
                 drive.followTrajectory(trajectoryB7);
                 drive.wobblePincher.setPosition(drive.wobblePinchClose);
                 sleep(800);
                 drive.wobbleGoalArm.setPosition(drive.wobbleUp);
-                drive.turn(Math.toRadians(-90));
+                drive.turn(Math.toRadians(90));
+                drive.followTrajectory(trajectoryB8);
+                drive.wobbleGoalArm.setPosition(drive.wobbleDown);
+                drive.wobblePincher.setPosition(drive.wobblePinchOpen);
+                sleep(800);
+                drive.wobbleGoalArm.setPosition(drive.wobbleUp);
+                drive.followTrajectory(trajectoryB9);
                 telemetry.addData("Path B", "Complete");
                 telemetry.update();
                 break;
@@ -426,8 +438,10 @@ public class auto extends LinearOpMode {
 
         //Kick
         drive.kicker.setPosition(drive.kickerTo);
-        sleep(150);
+        sleep(300);
         drive.kicker.setPosition(drive.kickerInit);
+        sleep(200);
+
 
         //////////////////
 
@@ -476,8 +490,9 @@ public class auto extends LinearOpMode {
 
         //Kick
         drive.kicker.setPosition(drive.kickerTo);
-        sleep(150);
+        sleep(300);
         drive.kicker.setPosition(drive.kickerInit);
+        sleep(200);
 
         //////////////////
 

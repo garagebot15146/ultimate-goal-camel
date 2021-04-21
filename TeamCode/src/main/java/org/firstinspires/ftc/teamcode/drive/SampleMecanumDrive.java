@@ -243,7 +243,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public double ringBlockUp = 0.41, ringBlockDown = 0.94;
 
     //Flap
-    private double netFlapAngleGoal = 0.557, netFlapAnglePowerShot = 0.525; //Higher = Steeper
+    private double netFlapAngleGoal = 0.5564, netFlapAnglePowerShot = 0.5242; //Higher = Steeper
     /////////Edit the above to change net angle
     public double leftFlapGoal = netFlapAngleGoal, leftFlapPowerShot = netFlapAnglePowerShot;
     public double rightFlapGoal = 1 - netFlapAngleGoal - 0.0186, rightFlapPowerShot = 1 - netFlapAnglePowerShot - 0.0186;
