@@ -500,7 +500,7 @@ public class teleOp extends OpMode
             }
         }
 
-        telemetry.addData("turretAngle", turretAngleErrorDegrees);
+        telemetry.addData("turretGlobalAngle", turretGlobalAngleTargetDegrees);
     }
 
     //Stop code

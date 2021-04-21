@@ -277,11 +277,11 @@ public class auto extends LinearOpMode {
                 dashboard = FtcDashboard.getInstance();
                 dashboard.setTelemetryTransmissionInterval(25);
 
-                drive.shooter.setPower(1);
+//                drive.shooter.setPower(1);
 //                drive.followTrajectory(trajectoryC1);
 //                drive.followTrajectory(trajectoryC2);
                 telemetry.update();
-                sleep(2000);
+//                sleep(2000);
                 shootPowerShots();
                 drive.shooter.setPower(0);
                 sleep(10000);
@@ -330,7 +330,7 @@ public class auto extends LinearOpMode {
         }
 
         //Set target
-        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-36 - myPose.getY())));
+        turretGlobalAngleTargetDegrees = 90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-36 - myPose.getY())));
         turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.05 * (myPose.getY() + 36));
 
         //Limit the range of motion for the turret
@@ -399,7 +399,7 @@ public class auto extends LinearOpMode {
         }
 
         //Set target (Left)
-        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-5 - myPose.getY())));
+        turretGlobalAngleTargetDegrees = 90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-5 - myPose.getY()) ) );
         turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.1 * (myPose.getY() + 36));
 
         telemetry.addData("global target", turretGlobalAngleTargetDegrees);
@@ -449,7 +449,7 @@ public class auto extends LinearOpMode {
         //////////////////
 
         //Set target (Middle)
-        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-12 - myPose.getY())));
+        turretGlobalAngleTargetDegrees = 90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-12 - myPose.getY())));
         turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.1 * (myPose.getY() + 36));
 
         //Limit the range of motion for the turret
@@ -496,7 +496,7 @@ public class auto extends LinearOpMode {
         //////////////////
 
         //Set target (Right)
-        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-19.5 - myPose.getY())));
+        turretGlobalAngleTargetDegrees = 90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-19.5 - myPose.getY())));
         turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.1 * (myPose.getY() + 36));
 
         //Limit the range of motion for the turret
