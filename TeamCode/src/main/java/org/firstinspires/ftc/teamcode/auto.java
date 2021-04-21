@@ -276,23 +276,11 @@ public class auto extends LinearOpMode {
                 //Put the stuff on dashboard
                 dashboard = FtcDashboard.getInstance();
                 dashboard.setTelemetryTransmissionInterval(25);
-
-//                drive.shooter.setPower(1);
-//                drive.followTrajectory(trajectoryC1);
-//                drive.followTrajectory(trajectoryC2);
-                telemetry.update();
-//                sleep(2000);
+                drive.shooter.setPower(1);
+                drive.followTrajectory(trajectoryC1);
+                drive.followTrajectory(trajectoryC2);
                 shootPowerShots();
                 drive.shooter.setPower(0);
-                sleep(10000);
-
-                drive.update();
-                telemetry.addData("x pose", myPose.getX());
-                telemetry.addData("y pose", myPose.getY());
-                telemetry.addData("heading", myPose.getHeading());
-                telemetry.update();
-                sleep(10000);
-
 //                drive.followTrajectory(trajectoryC3);
 //                drive.followTrajectory(trajectoryC4);
 //                drive.followTrajectory(trajectoryC45);
@@ -301,6 +289,17 @@ public class auto extends LinearOpMode {
 //                drive.followTrajectory(trajectoryC6);
 //                drive.followTrajectory(trajectoryC7);
 //                drive.followTrajectory(trajectoryC8);
+
+                //Wobble Goal
+                //drive.wobbleGoalArm.setPosition(drive.wobbleDown or drive.wobbleUp);
+                //drive.wobblePincher.setPosition(drive.wobblePinchClose or drive.wobblePinchOpen);
+
+
+                //basket
+//                drive.lift.setPosition(drive.liftUp or drive.liftDown);
+
+                //Intake
+//                drive.backIntake.setPower(0.3);
                 telemetry.addData("Path C", "Complete");
                 telemetry.update();
                 break;
@@ -330,7 +329,10 @@ public class auto extends LinearOpMode {
         }
 
         //Set target
-        turretGlobalAngleTargetDegrees = 90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-36 - myPose.getY())));
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-36 - myPose.getY())));
+        if (turretGlobalAngleTargetDegrees < -100) {
+            turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
+        }
         turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.05 * (myPose.getY() + 36));
 
         //Limit the range of motion for the turret
@@ -399,7 +401,10 @@ public class auto extends LinearOpMode {
         }
 
         //Set target (Left)
-        turretGlobalAngleTargetDegrees = 90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-5 - myPose.getY()) ) );
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-5 - myPose.getY()) ) );
+        if (turretGlobalAngleTargetDegrees < -100) {
+            turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
+        }
         turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.1 * (myPose.getY() + 36));
 
         telemetry.addData("global target", turretGlobalAngleTargetDegrees);
@@ -449,7 +454,10 @@ public class auto extends LinearOpMode {
         //////////////////
 
         //Set target (Middle)
-        turretGlobalAngleTargetDegrees = 90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-12 - myPose.getY())));
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-12 - myPose.getY())));
+        if (turretGlobalAngleTargetDegrees < -100) {
+            turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
+        }
         turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.1 * (myPose.getY() + 36));
 
         //Limit the range of motion for the turret
@@ -496,7 +504,10 @@ public class auto extends LinearOpMode {
         //////////////////
 
         //Set target (Right)
-        turretGlobalAngleTargetDegrees = 90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-19.5 - myPose.getY())));
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-19.5 - myPose.getY())));
+        if (turretGlobalAngleTargetDegrees < -100) {
+            turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
+        }
         turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.1 * (myPose.getY() + 36));
 
         //Limit the range of motion for the turret
