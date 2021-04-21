@@ -247,7 +247,7 @@ public class auto extends LinearOpMode {
                 drive.followTrajectory(trajectoryB5);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(800);
-                shootGoal(1);
+                shootGoal(1, 2.5);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryB6);
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen);
@@ -301,7 +301,7 @@ public class auto extends LinearOpMode {
         PoseStorage.currentPose = drive.getPoseEstimate();
     }
 
-    public void shootGoal(int shotCount) {
+    public void shootGoal(int shotCount, double yOffset) {
         //Set flap angle
         drive.leftFlap.setPosition(drive.leftFlapGoal);
         drive.rightFlap.setPosition(drive.rightFlapGoal);
@@ -319,7 +319,7 @@ public class auto extends LinearOpMode {
         }
 
         //Set target
-        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-36 - myPose.getY())));
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / ((-36 + yOffset) - myPose.getY())));
         if (turretGlobalAngleTargetDegrees < -100) {
             turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
         }

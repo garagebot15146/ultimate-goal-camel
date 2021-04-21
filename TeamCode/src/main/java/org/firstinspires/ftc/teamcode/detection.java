@@ -74,13 +74,13 @@ public class detection extends LinearOpMode {
         // Constants
         final int X_LEFT_T = 360;
         final int X_RIGHT_T = 550;
-        final int Y_UP_T = 430;
-        final int Y_DOWN_T = 460;
+        final int Y_UP_T = 400;
+        final int Y_DOWN_T = 430;
 
         final int X_LEFT_B = 360;
         final int X_RIGHT_B = 550;
-        final int Y_UP_B = 530;
-        final int Y_DOWN_B = 560;
+        final int Y_UP_B = 510;
+        final int Y_DOWN_B = 540;
 
         // Working Mat variables
         Mat yCbCrChan2Mat = new Mat();
