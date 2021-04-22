@@ -300,23 +300,41 @@ public class teleOp extends OpMode
         /////////////
 
         //Intake
-        if (gamepad2.left_stick_y > 0.1) {
-            //In
 
-            drive.frontIntake.setPower(-1);
-            drive.backIntake.setPower(1);
-        } else if (gamepad2.left_stick_y < -0.1 ) {
-            //Out
-            drive.frontIntake.setPower(1);
-            drive.backIntake.setPower(-1);
+        if (gamepad2.b) {
+            //Back Intake
+            if (gamepad2.left_stick_y > 0.1) {
+                //In
+                drive.frontIntake.setPower(0);
+                drive.backIntake.setPower(1);
+            } else if (gamepad2.left_stick_y < -0.1 ) {
+                //Out
+                drive.frontIntake.setPower(0);
+                drive.backIntake.setPower(-1);
+            } else {
+                //Stop
+                drive.frontIntake.setPower(0);
+                drive.backIntake.setPower(0);
+            }
         } else {
-            //Stop
-            drive.frontIntake.setPower(0);
-            drive.backIntake.setPower(0);
+            //Front Intake
+            if (gamepad2.left_stick_y > 0.1) {
+                //In
+                drive.frontIntake.setPower(-1);
+                drive.backIntake.setPower(0);
+            } else if (gamepad2.left_stick_y < -0.1 ) {
+                //Out
+                drive.frontIntake.setPower(1);
+                drive.backIntake.setPower(0);
+            } else {
+                //Stop
+                drive.frontIntake.setPower(0);
+                drive.backIntake.setPower(0);
+            }
         }
 
         //If intake is active, bring lift down, unless Y is pressed
-        if((gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1) && !gamepad2.b ) {
+        if((gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1)) {
             drive.lift.setPosition(drive.liftDown);
         }
 
