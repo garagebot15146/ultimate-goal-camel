@@ -80,7 +80,6 @@ public class teleOp extends OpMode
     //Initialize IMU
     BNO055IMU imu;
     Orientation lastAngles = new Orientation();
-    double angleOffset = 0;
 
     //Variables for running methods
     //Shooter
@@ -115,9 +114,9 @@ public class teleOp extends OpMode
     double turretAngleTargetDegrees; //Tells the turret what local angle to turn towards
     double turretAngleErrorDegrees; //Tells how far off the turret's local angle is from its local target
     double turretGlobalAngleTargetDegrees; //Sets the global angle target regardless of robot orientation
-    boolean turretManual = true;
-    boolean turretManualMethodToggle = false;
     int turretTarget = 0; //0 = Goal, 1, 2, 3 are powershots left to right
+    double turretManualOffset = 0;
+    boolean turretManualOffsetReset = false;
 
     //testing pods
     private Encoder leftEncoder, rightEncoder;
@@ -270,7 +269,7 @@ public class teleOp extends OpMode
         //Reset Position
         if (gamepad1.right_bumper) {
             drive.setPoseEstimate(new Pose2d(0, -39, Math.toRadians(0)));
-            angleOffset = lastAngles.firstAngle;
+            turretManualOffset = 0;
         }
 
         //Target Select
@@ -417,23 +416,13 @@ public class teleOp extends OpMode
             drive.wobblePincher.setPosition(drive.wobblePinchOpen);
         }
 
-
-        //Toggle manual turret controls
-        if (turretManualMethodToggle == false && gamepad2.right_stick_button) {
-            turretManualMethodToggle = true;
-            //Switch turret control mode
-            if (turretManual == false) {
-                turretManual = true;
-            } else if (turretManual == true) {
-                turretManual = false;
-            }
-        } else if (turretManualMethodToggle == true && !gamepad2.right_stick_button) {
-            turretManualMethodToggle = false;
+        //Odometry heading
+        double odoHeading;
+        if (Math.toDegrees(myPose.getHeading()) > 180) {
+            odoHeading = Math.toDegrees(myPose.getHeading()) - 360;
+        } else {
+            odoHeading = Math.toDegrees(myPose.getHeading());
         }
-
-
-        //IMU
-        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
         //////////
         //TURRET//
@@ -446,32 +435,25 @@ public class teleOp extends OpMode
         turretTicks = drive.turretMotor.getCurrentPosition();
 
         //Calculate Local angle target
-        //Check if manual
-        if (!turretManual) {
-            //Not manual
-
-            //Pick target:
-            if (turretTarget == 0) {
-                //Goal
-                turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-36 - myPose.getY()) ) );
-            } else if (turretTarget == 1) {
-                //Powershot left
-                turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-4.5 - myPose.getY()) ) );
-            } else if (turretTarget == 2) {
-                //Powershot middle
-                turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-12 - myPose.getY()) ) );
-            } else if (turretTarget == 3) {
-                //Powershot right
-                turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-19.5 - myPose.getY()) ) );
-            }
-
-            if (turretGlobalAngleTargetDegrees < -100) {
-                turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
-            }
-            turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - (lastAngles.firstAngle - angleOffset) + drive.turretAngleOffset + (0.05 * (myPose.getY() + 36));
-        } else if (turretManual) {
-            turretAngleTargetDegrees = turretAngleTargetDegrees - gamepad2.right_stick_x * 0.5;
+        //Pick target:
+        if (turretTarget == 0) {
+            //Goal
+            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-36 - myPose.getY()) ) );
+        } else if (turretTarget == 1) {
+            //Powershot left
+            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-4.5 - myPose.getY()) ) );
+        } else if (turretTarget == 2) {
+            //Powershot middle
+            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-12 - myPose.getY()) ) );
+        } else if (turretTarget == 3) {
+            //Powershot right
+            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-19.5 - myPose.getY()) ) );
         }
+        //Used for calculation
+        if (turretGlobalAngleTargetDegrees < -100) {
+            turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
+        }
+        turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.05 * (myPose.getY() + 36)) + turretManualOffset;
 
         //Limit the range of motion for the turret
         if (turretAngleTargetDegrees > 8.5) {
@@ -498,6 +480,19 @@ public class teleOp extends OpMode
             } else {
                 drive.turretMotor.setPower( Math.pow(0.1 * turretAngleErrorDegrees + 0.5848, 3) - 0.2);
             }
+        }
+
+        //Manual turret control
+        if (gamepad2.right_stick_x > 0.1 || gamepad2.right_stick_x < -0.1) {
+            turretManualOffset = turretManualOffset + (0.5 * -gamepad2.right_stick_x);
+        }
+
+        //Push right stick in to reset
+        if (gamepad2.right_stick_button && turretManualOffsetReset == false) {
+            turretManualOffsetReset = true;
+        } else if (!gamepad2.right_stick_button && turretManualOffsetReset == true) {
+            turretManualOffsetReset = false;
+            turretManualOffset = 0;
         }
 
         telemetry.addData("turretGlobalAngle", turretGlobalAngleTargetDegrees);
