@@ -241,7 +241,7 @@ public class auto extends LinearOpMode {
                 .strafeTo(new Vector2d(-37, -31))
                 .build();
         Trajectory trajectoryT9 = drive.trajectoryBuilder(trajectoryT8.end())
-                .strafeTo(new Vector2d(-11, -31))
+                .strafeTo(new Vector2d(-14, -31))
                 .build();
         Trajectory trajectoryT10 = drive.trajectoryBuilder(trajectoryT9.end())
                 .strafeTo(new Vector2d(-42, -21))
@@ -250,7 +250,7 @@ public class auto extends LinearOpMode {
                 .strafeTo(new Vector2d(-42, -30.5))
                 .build();
         Trajectory trajectoryT11 = drive.trajectoryBuilder(trajectoryT105.end())
-                .strafeTo(new Vector2d(61, -38))
+                .strafeTo(new Vector2d(61, -40))
                 .build();
         Trajectory trajectoryT12 = drive.trajectoryBuilder(trajectoryT11.end())
                 .strafeTo(new Vector2d(5, -36))
@@ -343,7 +343,7 @@ public class auto extends LinearOpMode {
                 drive.followTrajectory(trajectoryB5);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(800);
-                shootGoal(1, 3.5);
+                shootGoal(1, 3.5, drive.netFlapAngleGoal);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryB6);
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen);
@@ -375,14 +375,14 @@ public class auto extends LinearOpMode {
                 drive.followTrajectory(trajectoryC6);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(300);
-                shootGoal(2, 3.5);
+                shootGoal(2, 3.5, drive.netFlapAngleGoal);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryC7);
                 drive.followTrajectory(trajectoryC8);
                 drive.followTrajectory(trajectoryC9);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(200);
-                shootGoal(2, 3.5);
+                shootGoal(2, 3.5, drive.netFlapAngleGoal);
                 sleep(300);
                 drive.turn(Math.toRadians(139));
                 drive.followTrajectory(trajectoryC10);
@@ -396,7 +396,7 @@ public class auto extends LinearOpMode {
             case "TEST":
                 drive.shooter.setPower(1);
                 drive.followTrajectory(trajectoryT1);
-                shootPowerShots(3, -2.5 , -2);
+                shootPowerShots(2.2, -2.5 , -2);
                 sleep(300);
                 drive.followTrajectory(trajectoryT2);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
@@ -412,14 +412,14 @@ public class auto extends LinearOpMode {
                 drive.followTrajectory(trajectoryT6);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(200);
-                shootGoal(2, 1.5);
+                shootGoal(2, 1, drive.netFlapAngleGoal);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryT7);
                 drive.followTrajectory(trajectoryT8);
                 drive.followTrajectory(trajectoryT9);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(200);
-                shootGoal(3, 1.5);
+                shootGoal(3, 1, drive.netFlapAngleGoal - 0.003);
                 sleep(300);
                 drive.followTrajectory(trajectoryT10);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
@@ -441,10 +441,10 @@ public class auto extends LinearOpMode {
         PoseStorage.currentPose = drive.getPoseEstimate();
     }
 
-    public void shootGoal(int shotCount, double yOffset) {
+    public void shootGoal(int shotCount, double yOffset, double flapAngle) {
         //Set flap angle
-        drive.leftFlap.setPosition(drive.leftFlapGoal);
-        drive.rightFlap.setPosition(drive.rightFlapGoal);
+        drive.leftFlap.setPosition(flapAngle);
+        drive.rightFlap.setPosition(1 - flapAngle - 0.0186);
 
         //Updating Position
         drive.update();
