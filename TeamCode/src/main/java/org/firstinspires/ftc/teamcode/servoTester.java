@@ -63,7 +63,7 @@ public class servoTester extends OpMode
     private ElapsedTime runtime = new ElapsedTime();
     double currentTime;
 
-    double servo1Init = 0.5;
+    double servo1Init = 0.1;
     double servo2Init = 0.5;
 
     static SampleMecanumDrive drive;
@@ -148,7 +148,7 @@ public class servoTester extends OpMode
         telemetry.addData("Servo 2 Position", servo2Init);
 
         //CHANGE THIS if using a different servo
-        drive.wobblePincher.setPosition(servo1Init);
+        drive.wobbleGoalArm.setPosition(servo1Init);
 
         //up:
         //down:

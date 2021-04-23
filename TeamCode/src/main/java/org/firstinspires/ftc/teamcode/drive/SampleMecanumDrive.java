@@ -233,7 +233,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public double liftUp = 0.50, liftDown = 0.783; //Lower value = higher lift
 
     //Kicker
-    public double kickerInit = 0.8829, kickerTo = 0.7710;
+    public double kickerInit = 0.89, kickerTo = 0.7710;
 
     //Suspension
     public double frontSuspendUp = 0.2700, frontSuspendDown = 0.6293; //Lower is higher
@@ -243,7 +243,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public double ringBlockUp = 0.41, ringBlockDown = 0.94;
 
     //Flap
-    private double netFlapAngleGoal = 0.5564, netFlapAnglePowerShot = 0.5242; //Higher = Steeper
+    private double netFlapAngleGoal = 0.559, netFlapAnglePowerShot = 0.525; //Higher = Steeper
     /////////Edit the above to change net angle
     public double leftFlapGoal = netFlapAngleGoal, leftFlapPowerShot = netFlapAnglePowerShot;
     public double rightFlapGoal = 1 - netFlapAngleGoal - 0.0186, rightFlapPowerShot = 1 - netFlapAnglePowerShot - 0.0186;
@@ -253,7 +253,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public double turretAngleOffset = 4.3; //Degrees, positive is left from straight
 
     //Wobble Arm
-    public double wobbleUp = 0.1, wobbleDown = 0.4402;
+    public double wobbleUp = 0.1, wobbleDown = 0.4402, wobbleAutoStart = 0.01;
     public double wobblePinchClose = 0.7736, wobblePinchOpen = 0.4064;
 
 

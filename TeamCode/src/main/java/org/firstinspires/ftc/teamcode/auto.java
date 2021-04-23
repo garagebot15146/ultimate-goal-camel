@@ -76,7 +76,7 @@ public class auto extends LinearOpMode {
         //Hardware map
         drive = new SampleMecanumDrive(hardwareMap);
         //Set starting position
-        Pose2d startPose = new Pose2d(-63, -33, Math.toRadians(0));
+        Pose2d startPose = new Pose2d(-64, -33, Math.toRadians(0));
         drive.setPoseEstimate(startPose);
 
         Pose2d myPose = drive.getPoseEstimate();
@@ -85,7 +85,7 @@ public class auto extends LinearOpMode {
         //Kicker
         drive.kicker.setPosition(drive.kickerInit);
         //Claw
-        drive.wobbleGoalArm.setPosition(drive.wobbleUp);
+        drive.wobbleGoalArm.setPosition(drive.wobbleAutoStart);
         drive.wobblePincher.setPosition(drive.wobblePinchClose);
         //Reset turret's ticks
         drive.turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -120,9 +120,33 @@ public class auto extends LinearOpMode {
 
 //
 ////CASE A INIT START
-//        Trajectory trajectoryA1 = drive.trajectoryBuilder(new Pose2d())
-//                .strafeTo(new Vector2d(powerShotX, powerShotStrafe))
-//                .build();
+        Trajectory trajectoryA1 = drive.trajectoryBuilder(startPose)
+                .strafeTo(new Vector2d(-43, -13))
+                .build();
+        Trajectory trajectoryA2 = drive.trajectoryBuilder(trajectoryA1.end())
+                .strafeTo(new Vector2d(-5, -4))
+                .build();
+        Trajectory trajectoryA3 = drive.trajectoryBuilder(trajectoryA2.end())
+                .lineToLinearHeading(new Pose2d(32, -10, Math.toRadians(90)))
+                .build();
+        Trajectory trajectoryA4 = drive.trajectoryBuilder(trajectoryA3.end().plus(new Pose2d(0, 0, Math.toRadians(-90))), false)
+                .lineToLinearHeading(new Pose2d(-25, -37, Math.toRadians(0)))
+                .build();
+        Trajectory trajectoryA5 = drive.trajectoryBuilder(trajectoryA4.end())
+                .strafeTo(new Vector2d(-2, -35))
+                .build();
+        Trajectory trajectoryA6 = drive.trajectoryBuilder(trajectoryA5.end())
+                .lineToLinearHeading(new Pose2d(-58, -20, Math.toRadians(90)))
+                .build();
+        Trajectory trajectoryA7 = drive.trajectoryBuilder(trajectoryA6.end())
+                .strafeTo(new Vector2d(-53.7, -34.3))
+                .build();
+        Trajectory trajectoryA8 = drive.trajectoryBuilder(trajectoryA7.end().plus(new Pose2d(0, 0, Math.toRadians(90))), false)
+                .strafeTo(new Vector2d(18, -37))
+                .build();
+        Trajectory trajectoryA9 = drive.trajectoryBuilder(trajectoryA8.end())
+                .strafeTo(new Vector2d(12, -34))
+                .build();
 ////CASE A INIT END
 //
 ////CASE B INIT START
@@ -130,7 +154,7 @@ public class auto extends LinearOpMode {
                 .strafeTo(new Vector2d(-43, -13))
                 .build();
         Trajectory trajectoryB2 = drive.trajectoryBuilder(trajectoryB1.end())
-                .strafeTo(new Vector2d(-5, 0))
+                .strafeTo(new Vector2d(-5, -4))
                 .build();
         Trajectory trajectoryB3 = drive.trajectoryBuilder(trajectoryB2.end())
                 .lineToLinearHeading(new Pose2d(32, -10, Math.toRadians(90)))
@@ -145,7 +169,7 @@ public class auto extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(-58, -20, Math.toRadians(90)))
                 .build();
         Trajectory trajectoryB7 = drive.trajectoryBuilder(trajectoryB6.end())
-                .strafeTo(new Vector2d(-56, -33.2))
+                .strafeTo(new Vector2d(-53.7, -34.3))
                 .build();
         Trajectory trajectoryB8 = drive.trajectoryBuilder(trajectoryB7.end().plus(new Pose2d(0, 0, Math.toRadians(90))), false)
                 .strafeTo(new Vector2d(18, -37))
@@ -156,12 +180,39 @@ public class auto extends LinearOpMode {
 ////CASE B INIT END
 
 //CASE C INIT START
-//        Trajectory trajectoryC1 = drive.trajectoryBuilder(startPose)
-//                .strafeTo(new Vector2d(-43, -13))
-//                .build();
-//        Trajectory trajectoryC2 = drive.trajectoryBuilder(trajectoryC1.end())
-//                .strafeTo(new Vector2d(-5, 0))
-//                .build();
+        Trajectory trajectoryC1 = drive.trajectoryBuilder(startPose)
+                .strafeTo(new Vector2d(-43, -13))
+                .build();
+        Trajectory trajectoryC2 = drive.trajectoryBuilder(trajectoryC1.end())
+                .strafeTo(new Vector2d(-5, -4))
+                .build();
+        Trajectory trajectoryC3 = drive.trajectoryBuilder(trajectoryC2.end())
+                .strafeTo(new Vector2d(-6, -35))
+                .build();
+        Trajectory trajectoryC4 = drive.trajectoryBuilder(trajectoryC3.end())
+                .strafeTo(new Vector2d(-15, -35))
+                .build();
+        Trajectory trajectoryC5 = drive.trajectoryBuilder(trajectoryC4.end())
+                .strafeTo(new Vector2d(-20, -35))
+                .build();
+        Trajectory trajectoryC6 = drive.trajectoryBuilder(trajectoryC5.end())
+                .strafeTo(new Vector2d(-5, -35))
+                .build();
+        Trajectory trajectoryC7 = drive.trajectoryBuilder(trajectoryC6.end())
+                .strafeTo(new Vector2d(-30, -35))
+                .build();
+        Trajectory trajectoryC8 = drive.trajectoryBuilder(trajectoryC7.end())
+                .strafeTo(new Vector2d(-37, -35))
+                .build();
+        Trajectory trajectoryC9 = drive.trajectoryBuilder(trajectoryC8.end())
+                .strafeTo(new Vector2d(-5, -35))
+                .build();
+        Trajectory trajectoryC10 = drive.trajectoryBuilder(trajectoryC9.end().plus(new Pose2d(0, 0, Math.toRadians(139))), false)
+                .strafeTo(new Vector2d(42, -50))
+                .build();
+        Trajectory trajectoryC11 = drive.trajectoryBuilder(trajectoryC10.end())
+                .strafeTo(new Vector2d(0, -30))
+                .build();
 //CASE C INIT END
 
         telemetry.addData("Status", "Pipeline Initializing");
@@ -173,7 +224,10 @@ public class auto extends LinearOpMode {
         //Suspension Down
         drive.frontSuspendServo.setPosition(drive.frontSuspendDown);
 
-        String height = "ONE";
+        drive.wobbleGoalArm.setPosition(drive.wobbleUp);
+
+
+        String height = "FOUR";
 //        String height = stack;
         telemetry.addData("Ring Stack", stack);
         telemetry.update();
@@ -237,6 +291,7 @@ public class auto extends LinearOpMode {
                 shootPowerShots();
                 drive.followTrajectory(trajectoryB3);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
+                sleep(270);
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen);
                 sleep(800);
                 drive.wobbleGoalArm.setPosition(drive.wobbleUp);
@@ -247,7 +302,7 @@ public class auto extends LinearOpMode {
                 drive.followTrajectory(trajectoryB5);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(800);
-                shootGoal(1, 2.5);
+                shootGoal(1, 3.5);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryB6);
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen);
@@ -258,6 +313,7 @@ public class auto extends LinearOpMode {
                 drive.turn(Math.toRadians(90));
                 drive.followTrajectory(trajectoryB8);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
+                sleep(200);
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen);
                 sleep(800);
                 drive.wobbleGoalArm.setPosition(drive.wobbleUp);
@@ -266,30 +322,33 @@ public class auto extends LinearOpMode {
                 telemetry.update();
                 break;
             case "FOUR":
-//                drive.shooter.setPower(1);
-//                drive.followTrajectory(trajectoryC1);
-//                drive.followTrajectory(trajectoryC2);
-//                shootPowerShots();
-//                drive.shooter.setPower(0);
-//                drive.followTrajectory(trajectoryC3);
-//                drive.followTrajectory(trajectoryC4);
-//                drive.followTrajectory(trajectoryC45);
-//                drive.followTrajectory(trajectoryC48);
-//                drive.followTrajectory(trajectoryC5);
-//                drive.followTrajectory(trajectoryC6);
-//                drive.followTrajectory(trajectoryC7);
-//                drive.followTrajectory(trajectoryC8);
-
-                //Wobble Goal
-                //drive.wobbleGoalArm.setPosition(drive.wobbleDown or drive.wobbleUp);
-                //drive.wobblePincher.setPosition(drive.wobblePinchClose or drive.wobblePinchOpen);
-
-
-                //basket
-//                drive.lift.setPosition(drive.liftUp or drive.liftDown);
-
-                //Intake
-//                drive.backIntake.setPower(0.3);
+                drive.shooter.setPower(1);
+                drive.followTrajectory(trajectoryC1);
+                drive.followTrajectory(trajectoryC2);
+                shootPowerShots();
+                drive.followTrajectory(trajectoryC3);
+                drive.backIntake.setPower(-1);
+                drive.lift.setPosition(drive.liftDown);
+                drive.followTrajectory(trajectoryC4);
+                drive.followTrajectory(trajectoryC5);
+                drive.followTrajectory(trajectoryC6);
+                drive.lift.setPosition(drive.liftUp);
+                sleep(300);
+                shootGoal(2, 3.5);
+                drive.lift.setPosition(drive.liftDown);
+                drive.followTrajectory(trajectoryC7);
+                drive.followTrajectory(trajectoryC8);
+                drive.followTrajectory(trajectoryC9);
+                drive.lift.setPosition(drive.liftUp);
+                sleep(200);
+                shootGoal(2, 3.5);
+                sleep(300);
+                drive.turn(Math.toRadians(139));
+                drive.followTrajectory(trajectoryC10);
+                drive.wobbleGoalArm.setPosition(drive.wobbleDown);
+                sleep(200);
+                drive.wobblePincher.setPosition(drive.wobblePinchOpen);
+                drive.followTrajectory(trajectoryC11);
                 telemetry.addData("Path C", "Complete");
                 telemetry.update();
                 break;
