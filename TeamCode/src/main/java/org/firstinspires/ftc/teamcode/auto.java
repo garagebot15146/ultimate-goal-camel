@@ -412,14 +412,14 @@ public class auto extends LinearOpMode {
                 drive.followTrajectory(trajectoryT6);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(200);
-                shootGoal(2, 1, drive.netFlapAngleGoal);
+                shootGoal(2, 1.2, drive.netFlapAngleGoal);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryT7);
                 drive.followTrajectory(trajectoryT8);
                 drive.followTrajectory(trajectoryT9);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(200);
-                shootGoal(3, 1, drive.netFlapAngleGoal - 0.003);
+                shootGoal(3, 1.2, drive.netFlapAngleGoal - 0.007);
                 sleep(300);
                 drive.followTrajectory(trajectoryT10);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
