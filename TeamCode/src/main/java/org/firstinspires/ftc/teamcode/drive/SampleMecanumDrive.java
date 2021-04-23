@@ -65,7 +65,7 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(11, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(23, 0, 0);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(14, 0, 0);
 
     public static double LATERAL_MULTIPLIER = 1;
 
@@ -128,7 +128,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         ));
         accelConstraint = new ProfileAccelerationConstraint(MAX_ACCEL);
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.1);
+                new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.12);
 
         poseHistory = new LinkedList<>();
 
@@ -230,7 +230,8 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     //Declare global variables
     //Lift
-    public double liftUp = 0.50, liftDown = 0.783; //Lower value = higher lift
+    public double liftUp = 0.50, liftDown = 0.787
+            ; //Lower value = higher lift
 
     //Kicker
     public double kickerInit = 0.89, kickerTo = 0.71; //0.7710;
@@ -243,7 +244,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public double ringBlockUp = 0.41, ringBlockDown = 0.94;
 
     //Flap
-    private double netFlapAngleGoal = 0.5665, netFlapAnglePowerShot = 0.527; //Higher = Steeper
+    private double netFlapAngleGoal = 0.5665, netFlapAnglePowerShot = 0.537; //Higher = Steeper
     /////////Edit the above to change net angle
     public double leftFlapGoal = netFlapAngleGoal, leftFlapPowerShot = netFlapAnglePowerShot;
     public double rightFlapGoal = 1 - netFlapAngleGoal - 0.0186, rightFlapPowerShot = 1 - netFlapAnglePowerShot - 0.0186;

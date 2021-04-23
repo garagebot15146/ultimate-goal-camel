@@ -76,7 +76,7 @@ public class auto extends LinearOpMode {
         //Hardware map
         drive = new SampleMecanumDrive(hardwareMap);
         //Set starting position
-        Pose2d startPose = new Pose2d(-64, -33, Math.toRadians(0));
+        Pose2d startPose = new Pose2d(-64, -16, Math.toRadians(0));
         drive.setPoseEstimate(startPose);
 
         Pose2d myPose = drive.getPoseEstimate();
@@ -217,40 +217,40 @@ public class auto extends LinearOpMode {
 
 //CASE T INIT START
         Trajectory trajectoryT1 = drive.trajectoryBuilder(startPose)
-                .strafeTo(new Vector2d(-6, -4))
+                .strafeTo(new Vector2d(-6, -12))
                 .build();
         Trajectory trajectoryT2 = drive.trajectoryBuilder(trajectoryT1.end())
-                .strafeTo(new Vector2d(59, -44))
+                .strafeTo(new Vector2d(59, -45))
                 .build();
         Trajectory trajectoryT3 = drive.trajectoryBuilder(trajectoryT2.end())
-                .strafeTo(new Vector2d(-6, -29))
+                .strafeTo(new Vector2d(-6, -31))
                 .build();
         Trajectory trajectoryT4 = drive.trajectoryBuilder(trajectoryT3.end())
-                .strafeTo(new Vector2d(-18, -29))
+                .strafeTo(new Vector2d(-18, -31))
                 .build();
         Trajectory trajectoryT5 = drive.trajectoryBuilder(trajectoryT4.end())
-                .strafeTo(new Vector2d(-22, -29))
+                .strafeTo(new Vector2d(-22, -31))
                 .build();
         Trajectory trajectoryT6 = drive.trajectoryBuilder(trajectoryT5.end())
-                .strafeTo(new Vector2d(-12, -29))
+                .strafeTo(new Vector2d(-12, -31))
                 .build();
         Trajectory trajectoryT7 = drive.trajectoryBuilder(trajectoryT6.end())
-                .strafeTo(new Vector2d(-30, -29))
+                .strafeTo(new Vector2d(-30, -31))
                 .build();
         Trajectory trajectoryT8 = drive.trajectoryBuilder(trajectoryT7.end())
-                .strafeTo(new Vector2d(-37, -29))
+                .strafeTo(new Vector2d(-37, -31))
                 .build();
         Trajectory trajectoryT9 = drive.trajectoryBuilder(trajectoryT8.end())
-                .strafeTo(new Vector2d(-12, -29))
+                .strafeTo(new Vector2d(-11, -31))
                 .build();
         Trajectory trajectoryT10 = drive.trajectoryBuilder(trajectoryT9.end())
-                .strafeTo(new Vector2d(-44, -21))
+                .strafeTo(new Vector2d(-42, -21))
                 .build();
         Trajectory trajectoryT105 = drive.trajectoryBuilder(trajectoryT10.end())
-                .strafeTo(new Vector2d(-44, -28))
+                .strafeTo(new Vector2d(-42, -30.5))
                 .build();
         Trajectory trajectoryT11 = drive.trajectoryBuilder(trajectoryT105.end())
-                .strafeTo(new Vector2d(59, -39))
+                .strafeTo(new Vector2d(61, -38))
                 .build();
         Trajectory trajectoryT12 = drive.trajectoryBuilder(trajectoryT11.end())
                 .strafeTo(new Vector2d(5, -36))
@@ -396,7 +396,7 @@ public class auto extends LinearOpMode {
             case "TEST":
                 drive.shooter.setPower(1);
                 drive.followTrajectory(trajectoryT1);
-                shootPowerShots(2, 2 ,2);
+                shootPowerShots(3, -2.5 , -2);
                 sleep(300);
                 drive.followTrajectory(trajectoryT2);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
@@ -412,14 +412,14 @@ public class auto extends LinearOpMode {
                 drive.followTrajectory(trajectoryT6);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(200);
-                shootGoal(2, 4);
+                shootGoal(2, 1.5);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryT7);
                 drive.followTrajectory(trajectoryT8);
                 drive.followTrajectory(trajectoryT9);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(200);
-                shootGoal(3, 4);
+                shootGoal(3, 1.5);
                 sleep(300);
                 drive.followTrajectory(trajectoryT10);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
@@ -459,7 +459,7 @@ public class auto extends LinearOpMode {
         }
 
         //Set target
-        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / ((-36 + yOffset) - myPose.getY())));
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / ((-36) - myPose.getY())));
         if (turretGlobalAngleTargetDegrees < -100) {
             turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
         }
@@ -467,9 +467,9 @@ public class auto extends LinearOpMode {
 
         //Limit the range of motion for the turret
         if (turretAngleTargetDegrees > 8.5) {
-            turretAngleTargetDegrees = 8.5;
+            turretAngleTargetDegrees = 8.5 + yOffset;
         } else if (turretAngleTargetDegrees < -38) {
-            turretAngleTargetDegrees = -38;
+            turretAngleTargetDegrees = -38 + yOffset;
         }
 
         //Set timer
@@ -480,7 +480,7 @@ public class auto extends LinearOpMode {
             turretTicks = drive.turretMotor.getCurrentPosition();
 
             //Calculate angle error
-            turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees;
+            turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees - yOffset;
 
             //Apply power for correction
             if (turretAngleErrorDegrees > 0) {
@@ -531,15 +531,11 @@ public class auto extends LinearOpMode {
         }
 
         //Set target (Left)
-        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / ((-5 + off1) - myPose.getY())));
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / ((-5) - myPose.getY())));
         if (turretGlobalAngleTargetDegrees < -100) {
             turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
         }
         turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.1 * (myPose.getY() + 36));
-
-        telemetry.addData("global target", turretGlobalAngleTargetDegrees);
-        telemetry.addData("local target", turretAngleTargetDegrees);
-        telemetry.update();
 
         //Limit the range of motion for the turret
         if (turretAngleTargetDegrees > 8.5) {
@@ -556,8 +552,7 @@ public class auto extends LinearOpMode {
             turretTicks = drive.turretMotor.getCurrentPosition();
 
             //Calculate angle error
-            turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees;
-
+            turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees - off1;
             //Apply power for correction
             if (turretAngleErrorDegrees > 0) {
                 if (turretAngleErrorDegrees > 8) {
@@ -576,6 +571,11 @@ public class auto extends LinearOpMode {
             }
         }
 
+        telemetry.addData("global target", turretGlobalAngleTargetDegrees);
+        telemetry.addData("local target", turretAngleTargetDegrees);
+        telemetry.addData("turret ticks", turretTicks);
+        telemetry.addData("target error", turretAngleErrorDegrees);
+        telemetry.update();
         //Kick
         drive.kicker.setPosition(drive.kickerTo);
         sleep(300);
@@ -586,7 +586,7 @@ public class auto extends LinearOpMode {
         //////////////////
 
         //Set target (Middle)
-        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / ((-12 + off2) - myPose.getY())));
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / ((-12) - myPose.getY())));
         if (turretGlobalAngleTargetDegrees < -100) {
             turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
         }
@@ -594,9 +594,9 @@ public class auto extends LinearOpMode {
 
         //Limit the range of motion for the turret
         if (turretAngleTargetDegrees > 8.5) {
-            turretAngleTargetDegrees = 8.5;
+            turretAngleTargetDegrees = 8.5 + off2;
         } else if (turretAngleTargetDegrees < -38) {
-            turretAngleTargetDegrees = -38;
+            turretAngleTargetDegrees = -38 + off2;
         }
 
         //Refresh time
@@ -608,7 +608,7 @@ public class auto extends LinearOpMode {
             turretTicks = drive.turretMotor.getCurrentPosition();
 
             //Calculate angle error
-            turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees;
+            turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees - off2;
 
             //Apply power for correction
             if (turretAngleErrorDegrees > 0) {
@@ -637,7 +637,7 @@ public class auto extends LinearOpMode {
         //////////////////
 
         //Set target (Right)
-        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / ((-19.5 + off3) - myPose.getY())));
+        turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / ((-19.5) - myPose.getY())));
         if (turretGlobalAngleTargetDegrees < -100) {
             turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
         }
@@ -645,9 +645,9 @@ public class auto extends LinearOpMode {
 
         //Limit the range of motion for the turret
         if (turretAngleTargetDegrees > 8.5) {
-            turretAngleTargetDegrees = 8.5;
+            turretAngleTargetDegrees = 8.5 + off3;
         } else if (turretAngleTargetDegrees < -38) {
-            turretAngleTargetDegrees = -38;
+            turretAngleTargetDegrees = -38 + off3;
         }
 
         //Refresh time
@@ -658,7 +658,7 @@ public class auto extends LinearOpMode {
             turretTicks = drive.turretMotor.getCurrentPosition();
 
             //Calculate angle error
-            turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees;
+            turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees - off3;
 
             //Apply power for correction
             if (turretAngleErrorDegrees > 0) {
@@ -688,15 +688,15 @@ public class auto extends LinearOpMode {
     class RingPipeline extends OpenCvPipeline {
 
         // Constants
-        final int X_LEFT_T = 360;
-        final int X_RIGHT_T = 550;
-        final int Y_UP_T = 430;
-        final int Y_DOWN_T = 460;
+        final int X_LEFT_T = 1035;
+        final int X_RIGHT_T = 1230;
+        final int Y_UP_T = 450;
+        final int Y_DOWN_T = 475;
 
-        final int X_LEFT_B = 360;
-        final int X_RIGHT_B = 550;
-        final int Y_UP_B = 530;
-        final int Y_DOWN_B = 560;
+        final int X_LEFT_B = 1035;
+        final int X_RIGHT_B = 1230;
+        final int Y_UP_B = 560;
+        final int Y_DOWN_B = 585;
 
         // Working Mat variables
         Mat yCbCrChan2Mat = new Mat();
