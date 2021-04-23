@@ -143,6 +143,10 @@ public class teleOp extends OpMode
         drive.wobbleGoalArm.setPosition(drive.wobbleUp);
         drive.wobblePincher.setPosition(drive.wobblePinchClose);
 
+        //Flap Goal
+        drive.leftFlap.setPosition(drive.leftFlapGoal);
+        drive.rightFlap.setPosition(drive.rightFlapGoal);
+
         //Kicker
         drive.kicker.setPosition(drive.kickerInit);
 
@@ -347,6 +351,7 @@ public class teleOp extends OpMode
 
 
         //Shooter
+        telemetry.addData("Shooter Velo", drive.shooter.getVelocity());
         //Toggle
         if (gamepad2.y && shooterToggle == false) {
             shooterToggle = true;
