@@ -175,7 +175,7 @@ public class auto extends LinearOpMode {
                 .strafeTo(new Vector2d(40, -14))
                 .build();
         Trajectory trajectoryB8 = drive.trajectoryBuilder(trajectoryB7.end())
-                .strafeTo(new Vector2d(57.5, -6))
+                .strafeTo(new Vector2d(57, -6))
                 .build();
         Trajectory trajectoryB9 = drive.trajectoryBuilder(trajectoryB8.end())
                 .strafeTo(new Vector2d(-6, -20))

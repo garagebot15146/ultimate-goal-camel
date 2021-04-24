@@ -103,6 +103,10 @@ public class teleOp extends OpMode
     //Setting position
     boolean startPositionSet = false;
 
+    //Flaps
+    double leftFlapCalc;
+    double rightFlapCalc;
+
     //Display on Dashboard
     private FtcDashboard dashboard;
 
@@ -462,23 +466,35 @@ public class teleOp extends OpMode
             //Goal
             turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-36 - myPose.getY()) ) );
             //Flap
-            drive.leftFlap.setPosition(drive.leftFlapGoal);
-            drive.rightFlap.setPosition(drive.rightFlapGoal);
+            leftFlapCalc = drive.leftFlapGoal + (0.001 * (72 - (Math.sqrt(Math.pow(72 - myPose.getX(), 2) + Math.pow(-36 - myPose.getY(), 2)))));
+            rightFlapCalc = drive.rightFlapGoal - (0.001 * (72 - (Math.sqrt(Math.pow(72 - myPose.getX(), 2) + Math.pow(-36 - myPose.getY(), 2)))));
+            //Limit motion
+            if (leftFlapCalc > 0.5785) {
+                leftFlapCalc = 0.5785;
+            }
+            if (rightFlapCalc < 0.4026) {
+                rightFlapCalc = 0.4026;
+            }
+
+            drive.leftFlap.setPosition(leftFlapCalc);
+            drive.rightFlap.setPosition(rightFlapCalc);
+            telemetry.addData("left flap", leftFlapCalc);
+            telemetry.addData("right flap", rightFlapCalc);
         } else if (turretTarget == 1) {
             //Powershot left
-            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-4.5 - myPose.getY()) ) );
+            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-6 - myPose.getY()) ) );
             //Flap
             drive.leftFlap.setPosition(drive.leftFlapPowerShot);
             drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         } else if (turretTarget == 2) {
             //Powershot middle
-            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-12 - myPose.getY()) ) );
+            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-13 - myPose.getY()) ) );
             //Flap
             drive.leftFlap.setPosition(drive.leftFlapPowerShot);
             drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         } else if (turretTarget == 3) {
             //Powershot right
-            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-19.5 - myPose.getY()) ) );
+            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-21 - myPose.getY()) ) );
             //Flap
             drive.leftFlap.setPosition(drive.leftFlapPowerShot);
             drive.rightFlap.setPosition(drive.rightFlapPowerShot);
@@ -487,11 +503,11 @@ public class teleOp extends OpMode
         if (turretGlobalAngleTargetDegrees < -100) {
             turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
         }
-        turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.05 * (myPose.getY() + 36)) + turretManualOffset;
+        turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.15 * (myPose.getY() + 36)) + turretManualOffset;
 
         //Limit the range of motion for the turret
-        if (turretAngleTargetDegrees > 8.5) {
-            turretAngleTargetDegrees = 8.5;
+        if (turretAngleTargetDegrees > 9) {
+            turretAngleTargetDegrees = 9;
         } else if (turretAngleTargetDegrees < -38) {
             turretAngleTargetDegrees = -38;
         }
@@ -503,16 +519,16 @@ public class teleOp extends OpMode
         if (turretAngleErrorDegrees > 0) {
             if (turretAngleErrorDegrees > 8) {
                 //Don't go too fast if turret is far from target
-                drive.turretMotor.setPower(0.2);
+                drive.turretMotor.setPower(0.3);
             } else {
-                drive.turretMotor.setPower(Math.pow(0.1 * turretAngleErrorDegrees - 0.5848, 3) + 0.2);
+                drive.turretMotor.setPower(Math.pow(0.1 * turretAngleErrorDegrees - 0.6694, 3) + 0.3);
             }
         } else if (turretAngleErrorDegrees < 0){
             if (turretAngleErrorDegrees < -8) {
                 //Don't go too fast if turret is far from target
-                drive.turretMotor.setPower(-0.2);
+                drive.turretMotor.setPower(-0.3);
             } else {
-                drive.turretMotor.setPower( Math.pow(0.1 * turretAngleErrorDegrees + 0.5848, 3) - 0.2);
+                drive.turretMotor.setPower( Math.pow(0.1 * turretAngleErrorDegrees + 0.6694, 3) - 0.3);
             }
         }
 
@@ -520,11 +536,11 @@ public class teleOp extends OpMode
         //Turning left:
         if (gamepad2.right_stick_x < -0.1) {
             if (turretAngleTargetDegrees < 8.5) {
-                turretManualOffset = turretManualOffset + (0.5 * -gamepad2.right_stick_x);
+                turretManualOffset = turretManualOffset + (1 * -gamepad2.right_stick_x);
             }
         } else if (gamepad2.right_stick_x > 0.1) {
             if (turretAngleTargetDegrees > -38) {
-                turretManualOffset = turretManualOffset + (0.5 * -gamepad2.right_stick_x);
+                turretManualOffset = turretManualOffset + (1 * -gamepad2.right_stick_x);
             }
         }
 
