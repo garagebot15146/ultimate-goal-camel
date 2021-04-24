@@ -90,10 +90,10 @@ public class auto extends LinearOpMode {
         //Reset turret's ticks
         drive.turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         drive.turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        //Suspension
-        // drive.frontSuspendServo.setPosition(drive.frontSuspendUp);
         //Lift
         drive.lift.setPosition(drive.liftUp);
+        //Ringblocker
+        drive.ringBlocker.setPosition(drive.ringBlockUp);
 
 
         // Camera Init
@@ -266,7 +266,7 @@ public class auto extends LinearOpMode {
 
         drive.wobbleGoalArm.setPosition(drive.wobbleUp);
 
-        String height = "ONE";
+        String height = "FOUR";
 //        String height = stack;
         telemetry.addData("Ring Stack", stack);
         telemetry.update();
@@ -341,7 +341,7 @@ public class auto extends LinearOpMode {
                 sleep(800);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(800);
-                shootGoal(2, 0, drive.netFlapAngleGoal - 0.007);
+                shootGoal(2, 0, -0.007);
                 sleep(800);
                 drive.wobbleGoalArm.setPosition(drive.wobbleUp);
                 drive.lift.setPosition(drive.liftDown);
@@ -365,7 +365,7 @@ public class auto extends LinearOpMode {
             case "FOUR":
                 drive.shooter.setPower(1);
                 drive.followTrajectory(trajectoryC1);
-                shootPowerShots(2.2, -2.5 , -2);
+                shootPowerShots(2.2, -2.5 , -2.5);
                 sleep(300);
                 drive.followTrajectory(trajectoryC2);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
@@ -381,14 +381,14 @@ public class auto extends LinearOpMode {
                 drive.followTrajectory(trajectoryC6);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(200);
-                shootGoal(2, 1.2, drive.netFlapAngleGoal);
+                shootGoal(2, 0, -0.005);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryC7);
                 drive.followTrajectory(trajectoryC8);
                 drive.followTrajectory(trajectoryC9);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(200);
-                shootGoal(3, 1.2, drive.netFlapAngleGoal - 0.007);
+                shootGoal(3, -1.5, -0.007);
                 sleep(300);
                 drive.followTrajectory(trajectoryC10);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
@@ -415,14 +415,14 @@ public class auto extends LinearOpMode {
                 drive.followTrajectory(trajectoryT6);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(300);
-                shootGoal(2, 3.5, drive.netFlapAngleGoal);
+                shootGoal(2, 3.5, 0);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryT7);
                 drive.followTrajectory(trajectoryT8);
                 drive.followTrajectory(trajectoryT9);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(200);
-                shootGoal(2, 3.5, drive.netFlapAngleGoal);
+                shootGoal(2, 3.5, 0);
                 sleep(300);
                 drive.turn(Math.toRadians(139));
                 drive.followTrajectory(trajectoryT10);
@@ -441,10 +441,10 @@ public class auto extends LinearOpMode {
         PoseStorage.currentPose = drive.getPoseEstimate();
     }
 
-    public void shootGoal(int shotCount, double yOffset, double flapAngle) {
+    public void shootGoal(int shotCount, double yOffset, double extraHeight) {
         //Set flap angle
-        drive.leftFlap.setPosition(flapAngle);
-        drive.rightFlap.setPosition(1 - flapAngle - 0.0186);
+        drive.leftFlap.setPosition(drive.leftFlapGoal + extraHeight);
+        drive.rightFlap.setPosition(drive.rightFlapGoal - extraHeight);
 
         //Updating Position
         drive.update();
@@ -477,7 +477,7 @@ public class auto extends LinearOpMode {
 
         while (turretTime + 500 > runtime.milliseconds() && !isStopRequested()) {
             //Update the turret's ticks
-            turretTicks = drive.turretMotor.getCurrentPosition();
+            turretTicks = drive.turretMotor.getCurrentPosition() + drive.turretStartTicksOff;
 
             //Calculate angle error
             turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees - yOffset;
@@ -509,7 +509,7 @@ public class auto extends LinearOpMode {
         }
     }
 
-    public void shootPowerShots(double off1, double off2, double off3) {
+    public void shootPowerShots(double off1, double off2, double off3 /*Positive is left*/ ) {
         //Set flap angle
         drive.leftFlap.setPosition(drive.leftFlapPowerShot);
         drive.rightFlap.setPosition(drive.rightFlapPowerShot);
@@ -549,7 +549,7 @@ public class auto extends LinearOpMode {
 
         while (turretTime + 500 > runtime.milliseconds() && !isStopRequested()) {
             //Update the turret's ticks
-            turretTicks = drive.turretMotor.getCurrentPosition();
+            turretTicks = drive.turretMotor.getCurrentPosition() + drive.turretStartTicksOff;
 
             //Calculate angle error
             turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees - off1;
@@ -605,7 +605,7 @@ public class auto extends LinearOpMode {
         //turretTime + 200 for control video
         while (turretTime + 350 > runtime.milliseconds() && !isStopRequested()) {
             //Update the turret's ticks
-            turretTicks = drive.turretMotor.getCurrentPosition();
+            turretTicks = drive.turretMotor.getCurrentPosition() + drive.turretStartTicksOff;
 
             //Calculate angle error
             turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees - off2;
@@ -655,7 +655,7 @@ public class auto extends LinearOpMode {
 
         while (turretTime + 350 > runtime.milliseconds() && !isStopRequested()) {
             //Update the turret's ticks
-            turretTicks = drive.turretMotor.getCurrentPosition();
+            turretTicks = drive.turretMotor.getCurrentPosition() + drive.turretStartTicksOff;
 
             //Calculate angle error
             turretAngleErrorDegrees = (turretTicks * -0.32360) - turretAngleTargetDegrees - off3;

@@ -89,6 +89,7 @@ public class teleOp extends OpMode
 
     //Kicker
     boolean kickerHasRun = false;
+    boolean kickerMethod = false;
 
     boolean blockerToggle = false;
     boolean blockerDown = false;
@@ -280,23 +281,15 @@ public class teleOp extends OpMode
         if (gamepad1.dpad_right) {
             //Goal
             turretTarget = 0;
-            drive.leftFlap.setPosition(drive.leftFlapGoal);
-            drive.rightFlap.setPosition(drive.rightFlapGoal);
         } else if (gamepad1.dpad_up) {
             //Left
             turretTarget = 1;
-            drive.leftFlap.setPosition(drive.leftFlapPowerShot);
-            drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         } else if (gamepad1.dpad_left) {
             //Middle
             turretTarget = 2;
-            drive.leftFlap.setPosition(drive.leftFlapPowerShot);
-            drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         } else if (gamepad1.dpad_down) {
             //Right
             turretTarget = 3;
-            drive.leftFlap.setPosition(drive.leftFlapPowerShot);
-            drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         }
 
         /////////////
@@ -391,10 +384,11 @@ public class teleOp extends OpMode
 
 
         //Kicker
-        if (gamepad2.a && !kickerHasRun && !gamepad2.start && runtime.milliseconds() > currentTime + 300) {
+        if (gamepad2.a && !kickerHasRun && !gamepad2.start && kickerMethod == false && runtime.milliseconds() > currentTime + 300) {
             currentTime = runtime.milliseconds();
             drive.kicker.setPosition(drive.kickerTo);
             kickerHasRun = true;
+            kickerMethod = true;
             //Bring down ring blocker
             drive.ringBlocker.setPosition(drive.ringBlockDown);
             blockerDown = true;
@@ -403,6 +397,11 @@ public class teleOp extends OpMode
             drive.kicker.setPosition(drive.kickerInit);
             kickerHasRun = false;
         }
+
+        if (!gamepad2.a && kickerMethod == true) {
+            kickerMethod = false;
+        }
+
 
         //Wobble Goal
         //Arm
@@ -455,22 +454,34 @@ public class teleOp extends OpMode
         //1 Degree = 3.08793 ticks.
 
         //keep track of the ticks on the turret motor for this session.
-        turretTicks = drive.turretMotor.getCurrentPosition();
+        turretTicks = drive.turretMotor.getCurrentPosition() + drive.turretStartTicksOff;
 
         //Calculate Local angle target
         //Pick target:
         if (turretTarget == 0) {
             //Goal
             turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-36 - myPose.getY()) ) );
+            //Flap
+            drive.leftFlap.setPosition(drive.leftFlapGoal);
+            drive.rightFlap.setPosition(drive.rightFlapGoal);
         } else if (turretTarget == 1) {
             //Powershot left
             turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-4.5 - myPose.getY()) ) );
+            //Flap
+            drive.leftFlap.setPosition(drive.leftFlapPowerShot);
+            drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         } else if (turretTarget == 2) {
             //Powershot middle
             turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-12 - myPose.getY()) ) );
+            //Flap
+            drive.leftFlap.setPosition(drive.leftFlapPowerShot);
+            drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         } else if (turretTarget == 3) {
             //Powershot right
             turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-19.5 - myPose.getY()) ) );
+            //Flap
+            drive.leftFlap.setPosition(drive.leftFlapPowerShot);
+            drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         }
         //Used for calculation
         if (turretGlobalAngleTargetDegrees < -100) {
@@ -506,8 +517,18 @@ public class teleOp extends OpMode
         }
 
         //Manual turret control
+        //Turning left:
+        if (gamepad2.right_stick_x < -0.1) {
+            if (turretAngleTargetDegrees < 8.5) {
+                turretManualOffset = turretManualOffset + (0.5 * -gamepad2.right_stick_x);
+            }
+        } else if (gamepad2.right_stick_x > 0.1) {
+            if (turretAngleTargetDegrees > -38) {
+                turretManualOffset = turretManualOffset + (0.5 * -gamepad2.right_stick_x);
+            }
+        }
+
         if (gamepad2.right_stick_x > 0.1 || gamepad2.right_stick_x < -0.1) {
-            turretManualOffset = turretManualOffset + (0.5 * -gamepad2.right_stick_x);
         }
 
         //Push right stick in to reset
@@ -517,8 +538,6 @@ public class teleOp extends OpMode
             turretManualOffsetReset = false;
             turretManualOffset = 0;
         }
-
-        telemetry.addData("turretGlobalAngle", turretGlobalAngleTargetDegrees);
     }
 
     //Stop code
