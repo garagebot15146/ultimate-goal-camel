@@ -72,15 +72,15 @@ public class detection extends LinearOpMode {
     class RingPipeline extends OpenCvPipeline {
 
         // Constants
-        final int X_LEFT_T = 1035;
-        final int X_RIGHT_T = 1230;
+        final int X_LEFT_T = 1135;
+        final int X_RIGHT_T = 1280;
         final int Y_UP_T = 450;
         final int Y_DOWN_T = 475;
 
-        final int X_LEFT_B = 1035;
-        final int X_RIGHT_B = 1230;
-        final int Y_UP_B = 560;
-        final int Y_DOWN_B = 585;
+        final int X_LEFT_B = 1135;
+        final int X_RIGHT_B = 1280;
+        final int Y_UP_B = 564;
+        final int Y_DOWN_B = 589;
 
         // Working Mat variables
         Mat yCbCrChan2Mat = new Mat();
@@ -95,7 +95,7 @@ public class detection extends LinearOpMode {
         // Variables that will store the results of our pipeline
         public int avgTop;
         public int avgBottom;
-        public int threshold = 110;
+        public int threshold = 117;
 
         // Space which we will annalise data
         public Point TopSquare1 = new Point(X_LEFT_T, Y_UP_T);

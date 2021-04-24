@@ -121,37 +121,40 @@ public class auto extends LinearOpMode {
 //
 ////CASE A INIT START
         Trajectory trajectoryA1 = drive.trajectoryBuilder(startPose)
-                .strafeTo(new Vector2d(-43, -13))
+                .strafeTo(new Vector2d(-6, -12))
                 .build();
         Trajectory trajectoryA2 = drive.trajectoryBuilder(trajectoryA1.end())
-                .strafeTo(new Vector2d(-5, -4))
+                .strafeTo(new Vector2d(19, -48))
                 .build();
         Trajectory trajectoryA3 = drive.trajectoryBuilder(trajectoryA2.end())
-                .lineToLinearHeading(new Pose2d(32, -10, Math.toRadians(90)))
+                .strafeTo(new Vector2d(-42.5, -26))
                 .build();
-        Trajectory trajectoryA4 = drive.trajectoryBuilder(trajectoryA3.end().plus(new Pose2d(0, 0, Math.toRadians(-90))), false)
-                .lineToLinearHeading(new Pose2d(-25, -37, Math.toRadians(0)))
+        Trajectory trajectoryA4 = drive.trajectoryBuilder(trajectoryA3.end())
+                .strafeTo(new Vector2d(-42.5, -33))
                 .build();
         Trajectory trajectoryA5 = drive.trajectoryBuilder(trajectoryA4.end())
-                .strafeTo(new Vector2d(-2, -35))
+                .strafeTo(new Vector2d(18, -39))
                 .build();
         Trajectory trajectoryA6 = drive.trajectoryBuilder(trajectoryA5.end())
-                .lineToLinearHeading(new Pose2d(-58, -20, Math.toRadians(90)))
+                .lineToLinearHeading(new Pose2d(57, -60, Math.toRadians(-30)))
                 .build();
         Trajectory trajectoryA7 = drive.trajectoryBuilder(trajectoryA6.end())
-                .strafeTo(new Vector2d(-53.7, -34.3))
+                .strafeTo(new Vector2d(53, -55))
                 .build();
-        Trajectory trajectoryA8 = drive.trajectoryBuilder(trajectoryA7.end().plus(new Pose2d(0, 0, Math.toRadians(90))), false)
-                .strafeTo(new Vector2d(18, -37))
+        Trajectory trajectoryA8 = drive.trajectoryBuilder(trajectoryA7.end().plus(new Pose2d(0, 0, Math.toRadians(120))), false)
+                .strafeTo(new Vector2d(70, 13))
                 .build();
         Trajectory trajectoryA9 = drive.trajectoryBuilder(trajectoryA8.end())
-                .strafeTo(new Vector2d(12, -34))
+                .lineToLinearHeading(new Pose2d(-6, -31, Math.toRadians(0)))
+                .build();
+        Trajectory trajectoryA10 = drive.trajectoryBuilder(trajectoryA9.end())
+                .strafeTo(new Vector2d(4, -31))
                 .build();
 ////CASE A INIT END
 //
 ////CASE B INIT START
         Trajectory trajectoryB1 = drive.trajectoryBuilder(startPose)
-                .strafeTo(new Vector2d(-6, -16))
+                .strafeTo(new Vector2d(-6, -12))
                 .build();
         Trajectory trajectoryB2 = drive.trajectoryBuilder(trajectoryB1.end())
                 .lineToLinearHeading(new Pose2d(45, -23))
@@ -166,13 +169,19 @@ public class auto extends LinearOpMode {
                 .strafeTo(new Vector2d(-43, -26))
                 .build();
         Trajectory trajectoryB6 = drive.trajectoryBuilder(trajectoryB5.end())
-                .strafeTo(new Vector2d(-41.5, -32.6))
+                .strafeTo(new Vector2d(-41.5, -33.6))
                 .build();
         Trajectory trajectoryB7 = drive.trajectoryBuilder(trajectoryB6.end())
                 .strafeTo(new Vector2d(40, -14))
                 .build();
         Trajectory trajectoryB8 = drive.trajectoryBuilder(trajectoryB7.end())
-                .strafeTo(new Vector2d(7, -11))
+                .strafeTo(new Vector2d(60, -6))
+                .build();
+        Trajectory trajectoryB9 = drive.trajectoryBuilder(trajectoryB8.end())
+                .strafeTo(new Vector2d(-6, -20))
+                .build();
+        Trajectory trajectoryB10 = drive.trajectoryBuilder(trajectoryB9.end())
+                .strafeTo(new Vector2d(4, -20))
                 .build();
 ////CASE B INIT END
 
@@ -209,7 +218,7 @@ public class auto extends LinearOpMode {
                 .strafeTo(new Vector2d(-42, -21))
                 .build();
         Trajectory trajectoryC105 = drive.trajectoryBuilder(trajectoryC10.end())
-                .strafeTo(new Vector2d(-42, -30.5))
+                .strafeTo(new Vector2d(-42, -31))
                 .build();
         Trajectory trajectoryC11 = drive.trajectoryBuilder(trajectoryC105.end())
                 .strafeTo(new Vector2d(61, -40))
@@ -266,99 +275,90 @@ public class auto extends LinearOpMode {
 
         drive.wobbleGoalArm.setPosition(drive.wobbleUp);
 
-        String height = "FOUR";
-//        String height = stack;
+//        String height = "ZERO";
+        String height = stack;
         telemetry.addData("Ring Stack", stack);
         telemetry.update();
         FtcDashboard.getInstance().stopCameraStream();
 
         switch (height) {
             case "ZERO":
-//                //Turn on shooter. Move to Power Shot
-//                shooter.setPower(1);
-//                drive.followTrajectory(trajectoryA1);
-//                sleep(1000);
-//                //Take shot 1
-//                kick(1);
-//                //Turn to left powershot
-//                drive.turn(Math.toRadians(firstAngle));
-//                //Take shot 2
-//                kick(1);
-//                //Turn to right powershot
-//                drive.turn(Math.toRadians(secondAngle));
-//                //Take shot 3
-//                kick(1);
-//                shooter.setPower(0);
-//                //Reset heading to 0
-//                drive.turn(Math.toRadians(thirdAngle));
-//                //Drive to zone
-//                drive.followTrajectory(trajectoryA2);
-//                //Drop off wobble goal
-//                armAngle(-100, 0.5);
-//                clawServo.setPosition(clawOpen);
-//                sleep(500);
-//                armAngle(120, 0.4);
-//                clawServo.setPosition(clawClose);
-//                sleep(300);
-//                //Prepare to pickup second wobble goal
-//                drive.followTrajectory(trajectoryA3);
-//                armAngle(-90, 0.3);
-//                clawServo.setPosition(clawOpen);
-//                sleep(200);
-//                //Collect second wobble goal
-//                drive.followTrajectory(trajectoryA4);
-//                clawServo.setPosition(clawClose);
-//                sleep(500);
-//                //Move to zone again
-//                drive.followTrajectory(trajectoryA5);
-//                //Drop off wobble goal 2
-//                clawServo.setPosition(clawOpen);
-//                sleep(500);
-//                armAngle(120, 0.4);
-//                clawServo.setPosition(clawClose);
-//                //Park on tape
-//                drive.followTrajectory(trajectoryA6);
-//                drive.followTrajectory(trajectoryA7);
-//                sleep(2000);
-//                telemetry.addData("Path A", "Complete");
-//                telemetry.update();
-                break;
-            case "ONE":
                 drive.shooter.setPower(1);
-                drive.followTrajectory(trajectoryB1);
-                shootPowerShots(0, 0 ,0);
-                drive.followTrajectory(trajectoryB2);
+                drive.followTrajectory(trajectoryA1);
+                shootPowerShots(2.2, -2.5 , -2.5);
+                drive.followTrajectory(trajectoryA2);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
                 sleep(270);
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen);
                 sleep(800);
                 drive.wobbleGoalArm.setPosition(drive.wobbleUp);
                 drive.lift.setPosition(drive.liftDown);
+                drive.followTrajectory(trajectoryA3);
+                drive.wobbleGoalArm.setPosition(drive.wobbleDown);
+                drive.followTrajectory(trajectoryA4);
+                drive.wobblePincher.setPosition(drive.wobblePinchClose);
+                sleep(400);
+                drive.followTrajectory(trajectoryA5);
+                drive.wobblePincher.setPosition(drive.wobblePinchOpen);
+                sleep(400);
+                drive.frontIntake.setPower(1);
+                drive.wobbleGoalArm.setPosition(drive.wobbleUp);
+                sleep(400);
+                drive.followTrajectory(trajectoryA6);
+                drive.followTrajectory(trajectoryA7);
+                drive.turn(Math.toRadians(120));
+                drive.followTrajectory(trajectoryA8);
+                drive.followTrajectory(trajectoryA9);
+                sleep(400);
+                drive.lift.setPosition(drive.liftUp);
+                shootGoal(3, -1, -0.005);
+                drive.followTrajectory(trajectoryA10);
+                telemetry.addData("Path A", "Complete");
+                telemetry.update();
+                break;
+            case "ONE":
+                drive.shooter.setPower(1);
+                drive.followTrajectory(trajectoryB1);
+                shootPowerShots(2.2, -2.5 , -2.5);
+                drive.followTrajectory(trajectoryB2);
+                drive.wobbleGoalArm.setPosition(drive.wobbleDown);
+                sleep(270);
+                drive.wobblePincher.setPosition(drive.wobblePinchOpen);
+                sleep(400);
+                drive.wobbleGoalArm.setPosition(drive.wobbleUp);
+                drive.lift.setPosition(drive.liftDown);
                 drive.backIntake.setPower(-1);
                 drive.followTrajectory(trajectoryB3);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
                 drive.followTrajectory(trajectoryB4);
-                sleep(800);
+                sleep(600);
                 drive.lift.setPosition(drive.liftUp);
-                sleep(800);
+                sleep(500);
                 shootGoal(2, 0, -0.007);
-                sleep(800);
+                sleep(500);
                 drive.wobbleGoalArm.setPosition(drive.wobbleUp);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryB5);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen);
                 drive.followTrajectory(trajectoryB6);
+                drive.frontIntake.setPower(1);
                 drive.wobblePincher.setPosition(drive.wobblePinchClose);
-                sleep(800);
+                sleep(400);
                 drive.wobbleGoalArm.setPosition(drive.wobbleUp);
                 drive.followTrajectory(trajectoryB7);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
                 sleep(200);
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen);
-                sleep(800);
+                sleep(400);
                 drive.wobbleGoalArm.setPosition(drive.wobbleUp);
                 drive.followTrajectory(trajectoryB8);
+                drive.followTrajectory(trajectoryB9);
+                sleep(100);
+                drive.lift.setPosition(drive.liftUp);
+                sleep(200);
+                shootGoal(2, 1, -0.007);
+                drive.followTrajectory(trajectoryB10);
                 telemetry.addData("Path B", "Complete");
                 telemetry.update();
                 break;
@@ -688,15 +688,15 @@ public class auto extends LinearOpMode {
     class RingPipeline extends OpenCvPipeline {
 
         // Constants
-        final int X_LEFT_T = 1035;
-        final int X_RIGHT_T = 1230;
+        final int X_LEFT_T = 1135;
+        final int X_RIGHT_T = 1280;
         final int Y_UP_T = 450;
         final int Y_DOWN_T = 475;
 
-        final int X_LEFT_B = 1035;
-        final int X_RIGHT_B = 1230;
-        final int Y_UP_B = 560;
-        final int Y_DOWN_B = 585;
+        final int X_LEFT_B = 1135;
+        final int X_RIGHT_B = 1280;
+        final int Y_UP_B = 564;
+        final int Y_DOWN_B = 589;
 
         // Working Mat variables
         Mat yCbCrChan2Mat = new Mat();
@@ -711,7 +711,7 @@ public class auto extends LinearOpMode {
         // Variables that will store the results of our pipeline
         public int avgTop;
         public int avgBottom;
-        public int threshold = 110;
+        public int threshold = 117;
 
         // Space which we will annalise data
         public Point TopSquare1 = new Point(X_LEFT_T, Y_UP_T);
