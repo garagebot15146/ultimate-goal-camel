@@ -72,15 +72,15 @@ public class detection extends LinearOpMode {
     class RingPipeline extends OpenCvPipeline {
 
         // Constants
-        final int X_LEFT_T = 1135;
-        final int X_RIGHT_T = 1280;
-        final int Y_UP_T = 450;
-        final int Y_DOWN_T = 475;
+        final int X_LEFT_T = 830;
+        final int X_RIGHT_T = 1050;
+        final int Y_UP_T = 430;
+        final int Y_DOWN_T = 455;
 
-        final int X_LEFT_B = 1135;
-        final int X_RIGHT_B = 1280;
-        final int Y_UP_B = 564;
-        final int Y_DOWN_B = 589;
+        final int X_LEFT_B = 830;
+        final int X_RIGHT_B = 1050;
+        final int Y_UP_B = 525;
+        final int Y_DOWN_B = 550;
 
         // Working Mat variables
         Mat yCbCrChan2Mat = new Mat();

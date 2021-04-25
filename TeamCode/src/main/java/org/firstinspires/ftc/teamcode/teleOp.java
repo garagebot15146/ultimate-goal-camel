@@ -59,18 +59,17 @@ import org.firstinspires.ftc.teamcode.util.Encoder;
  * The names of OpModes appear on the menu of the FTC Driver Station.
  * When an selection is made from the menu, the corresponding OpMode
  * class is instantiated on the Robot Controller and executed.
- *
+ * <p>
  * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
  * It includes all the skeletal structure that all iterative OpModes contain.
- *
+ * <p>
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="teleOp", group="Iterative Opmode")
+@TeleOp(name = "teleOp", group = "Iterative Opmode")
 //@Disabled
-public class teleOp extends OpMode
-{
+public class teleOp extends OpMode {
     //Declare runtime variable
     private ElapsedTime runtime = new ElapsedTime();
     double currentTime;
@@ -123,6 +122,11 @@ public class teleOp extends OpMode
     double turretManualOffset = 0;
     boolean turretManualOffsetReset = false;
 
+    //Kinematics
+    double kinTime;
+    double yVelo;
+    double kinY0 = 0;
+
     //testing pods
     private Encoder leftEncoder, rightEncoder;
     double leftDistance, rightDistance;
@@ -135,10 +139,10 @@ public class teleOp extends OpMode
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
-        parameters.mode                = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled      = false;
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
 
         imu.initialize(parameters);
 
@@ -195,12 +199,11 @@ public class teleOp extends OpMode
         Pose2d myPose = drive.getPoseEstimate();
         telemetry.addData("x", myPose.getX());
         telemetry.addData("y", myPose.getY());
-        telemetry.addData("imu heading", lastAngles.firstAngle);
         telemetry.addData("odo heading", Math.toDegrees(myPose.getHeading()));
 
         //testing pods
-        telemetry.addData("left distance", leftDistance - leftEncoder.getCurrentPosition());
-        telemetry.addData("right distance", rightDistance - rightEncoder.getCurrentPosition());
+//        telemetry.addData("left distance", leftDistance - leftEncoder.getCurrentPosition());
+//        telemetry.addData("right distance", rightDistance - rightEncoder.getCurrentPosition());
 
         dashboard = FtcDashboard.getInstance();
         dashboard.setTelemetryTransmissionInterval(25);
@@ -308,7 +311,7 @@ public class teleOp extends OpMode
                 //In
                 drive.frontIntake.setPower(0);
                 drive.backIntake.setPower(1);
-            } else if (gamepad2.left_stick_y < -0.1 ) {
+            } else if (gamepad2.left_stick_y < -0.1) {
                 //Out
                 drive.frontIntake.setPower(0);
                 drive.backIntake.setPower(-1);
@@ -323,7 +326,7 @@ public class teleOp extends OpMode
                 //In
                 drive.frontIntake.setPower(-1);
                 drive.backIntake.setPower(0);
-            } else if (gamepad2.left_stick_y < -0.1 ) {
+            } else if (gamepad2.left_stick_y < -0.1) {
                 //Out
                 drive.frontIntake.setPower(1);
                 drive.backIntake.setPower(0);
@@ -335,20 +338,21 @@ public class teleOp extends OpMode
         }
 
         //If intake is active, bring lift down, unless Y is pressed
-        if((gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1)) {
+        if ((gamepad2.left_stick_y > 0.1 || gamepad2.left_stick_y < -0.1)) {
             drive.lift.setPosition(drive.liftDown);
         }
 
         //Lift
         if (gamepad2.dpad_up) {
             drive.lift.setPosition(drive.liftUp);
+            drive.ringBlocker.setPosition(drive.ringBlockUp);
         } else if (gamepad2.dpad_down) {
             drive.lift.setPosition(drive.liftDown);
         }
 
 
         //Shooter
-        telemetry.addData("Shooter Velo", drive.shooter.getVelocity());
+//        telemetry.addData("Shooter Velo", drive.shooter.getVelocity());
         //Toggle
         if (gamepad2.y && shooterToggle == false) {
             shooterToggle = true;
@@ -412,7 +416,7 @@ public class teleOp extends OpMode
         if (gamepad2.right_bumper && wobbleHasRun == false) {
             //Cycle through stages by pressing button
             wobbleStage = wobbleStage + 1;
-            if (wobbleStage == 5){
+            if (wobbleStage == 5) {
                 wobbleStage = 1;
             }
             wobbleHasRun = true;
@@ -450,6 +454,17 @@ public class teleOp extends OpMode
             odoHeading = Math.toDegrees(myPose.getHeading());
         }
 
+        //Kinematics
+        if (runtime.milliseconds() > kinTime + 20) {
+            yVelo = ((myPose.getY() - kinY0) / 100) * 1000;
+
+            kinTime = runtime.milliseconds();
+            kinY0 = myPose.getY();
+        }
+
+
+        telemetry.addData("Y Velocity", yVelo);
+
         //////////
         //TURRET//
         //////////
@@ -464,7 +479,7 @@ public class teleOp extends OpMode
         //Pick target:
         if (turretTarget == 0) {
             //Goal
-            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-36 - myPose.getY()) ) );
+            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-36 - myPose.getY())));
             //Flap
             leftFlapCalc = drive.leftFlapGoal + (0.001 * (72 - (Math.sqrt(Math.pow(72 - myPose.getX(), 2) + Math.pow(-36 - myPose.getY(), 2)))));
             rightFlapCalc = drive.rightFlapGoal - (0.001 * (72 - (Math.sqrt(Math.pow(72 - myPose.getX(), 2) + Math.pow(-36 - myPose.getY(), 2)))));
@@ -478,23 +493,23 @@ public class teleOp extends OpMode
 
             drive.leftFlap.setPosition(leftFlapCalc);
             drive.rightFlap.setPosition(rightFlapCalc);
-            telemetry.addData("left flap", leftFlapCalc);
-            telemetry.addData("right flap", rightFlapCalc);
+//            telemetry.addData("left flap", leftFlapCalc);
+//            telemetry.addData("right flap", rightFlapCalc);
         } else if (turretTarget == 1) {
             //Powershot left
-            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-6 - myPose.getY()) ) );
+            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-4 - myPose.getY())));
             //Flap
             drive.leftFlap.setPosition(drive.leftFlapPowerShot);
             drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         } else if (turretTarget == 2) {
             //Powershot middle
-            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-13 - myPose.getY()) ) );
+            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-13 - myPose.getY())));
             //Flap
             drive.leftFlap.setPosition(drive.leftFlapPowerShot);
             drive.rightFlap.setPosition(drive.rightFlapPowerShot);
         } else if (turretTarget == 3) {
             //Powershot right
-            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan( (72 - myPose.getX()) / (-21 - myPose.getY()) ) );
+            turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / (-21 - myPose.getY())));
             //Flap
             drive.leftFlap.setPosition(drive.leftFlapPowerShot);
             drive.rightFlap.setPosition(drive.rightFlapPowerShot);
@@ -503,7 +518,15 @@ public class teleOp extends OpMode
         if (turretGlobalAngleTargetDegrees < -100) {
             turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
         }
-        turretAngleTargetDegrees = turretGlobalAngleTargetDegrees - odoHeading + drive.turretAngleOffset + (0.15 * (myPose.getY() + 36)) + turretManualOffset;
+
+        //Calculate local angle
+        turretAngleTargetDegrees = turretGlobalAngleTargetDegrees
+                - odoHeading
+                + drive.turretAngleOffset
+                + (0 * (myPose.getY() + 36))
+                + turretManualOffset
+                - yVelo * 0.25
+        ;
 
         //Limit the range of motion for the turret
         if (turretAngleTargetDegrees > 9) {
@@ -519,16 +542,16 @@ public class teleOp extends OpMode
         if (turretAngleErrorDegrees > 0) {
             if (turretAngleErrorDegrees > 8) {
                 //Don't go too fast if turret is far from target
-                drive.turretMotor.setPower(0.3);
+                drive.turretMotor.setPower(0.2);
             } else {
-                drive.turretMotor.setPower(Math.pow(0.1 * turretAngleErrorDegrees - 0.6694, 3) + 0.3);
+                drive.turretMotor.setPower(Math.pow(0.125 * turretAngleErrorDegrees - 0.5848, 3) + 0.2);
             }
-        } else if (turretAngleErrorDegrees < 0){
+        } else if (turretAngleErrorDegrees < 0) {
             if (turretAngleErrorDegrees < -8) {
                 //Don't go too fast if turret is far from target
-                drive.turretMotor.setPower(-0.3);
+                drive.turretMotor.setPower(-0.2);
             } else {
-                drive.turretMotor.setPower( Math.pow(0.1 * turretAngleErrorDegrees + 0.6694, 3) - 0.3);
+                drive.turretMotor.setPower(Math.pow(0.125 * turretAngleErrorDegrees + 0.5848, 3) - 0.2);
             }
         }
 
@@ -554,6 +577,7 @@ public class teleOp extends OpMode
             turretManualOffsetReset = false;
             turretManualOffset = 0;
         }
+
     }
 
     //Stop code

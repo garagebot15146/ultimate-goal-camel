@@ -93,7 +93,9 @@ public class auto extends LinearOpMode {
         //Lift
         drive.lift.setPosition(drive.liftUp);
         //Ringblocker
-        drive.ringBlocker.setPosition(drive.ringBlockUp);
+        drive.ringBlocker.setPosition(drive.ringBlockUp + 0.02);
+        //Front Intake
+        drive.frontIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         // Camera Init
@@ -130,25 +132,25 @@ public class auto extends LinearOpMode {
                 .strafeTo(new Vector2d(-42.5, -26))
                 .build();
         Trajectory trajectoryA4 = drive.trajectoryBuilder(trajectoryA3.end())
-                .strafeTo(new Vector2d(-42.5, -33))
+                .strafeTo(new Vector2d(-42.5, -33.3))
                 .build();
         Trajectory trajectoryA5 = drive.trajectoryBuilder(trajectoryA4.end())
                 .strafeTo(new Vector2d(18, -39))
                 .build();
         Trajectory trajectoryA6 = drive.trajectoryBuilder(trajectoryA5.end())
-                .lineToLinearHeading(new Pose2d(57, -60, Math.toRadians(-30)))
+                .lineToLinearHeading(new Pose2d(53, -60, Math.toRadians(-30)))
                 .build();
         Trajectory trajectoryA7 = drive.trajectoryBuilder(trajectoryA6.end())
-                .strafeTo(new Vector2d(53, -55))
+                .strafeTo(new Vector2d(51, -55))
                 .build();
         Trajectory trajectoryA8 = drive.trajectoryBuilder(trajectoryA7.end().plus(new Pose2d(0, 0, Math.toRadians(120))), false)
-                .strafeTo(new Vector2d(70, 10.5))
+                .strafeTo(new Vector2d(58.5, 5.5))
                 .build();
         Trajectory trajectoryA9 = drive.trajectoryBuilder(trajectoryA8.end())
-                .lineToLinearHeading(new Pose2d(-6, -31, Math.toRadians(0)))
+                .lineToLinearHeading(new Pose2d(-10, -31, Math.toRadians(0)))
                 .build();
         Trajectory trajectoryA10 = drive.trajectoryBuilder(trajectoryA9.end())
-                .strafeTo(new Vector2d(4, -31))
+                .strafeTo(new Vector2d(4, -28))
                 .build();
 ////CASE A INIT END
 //
@@ -175,7 +177,7 @@ public class auto extends LinearOpMode {
                 .strafeTo(new Vector2d(40, -14))
                 .build();
         Trajectory trajectoryB8 = drive.trajectoryBuilder(trajectoryB7.end())
-                .strafeTo(new Vector2d(57, -6))
+                .strafeTo(new Vector2d(51, -6))
                 .build();
         Trajectory trajectoryB9 = drive.trajectoryBuilder(trajectoryB8.end())
                 .strafeTo(new Vector2d(-6, -20))
@@ -191,7 +193,7 @@ public class auto extends LinearOpMode {
                 .strafeTo(new Vector2d(-6, -12))
                 .build();
         Trajectory trajectoryC2 = drive.trajectoryBuilder(trajectoryC1.end())
-                .strafeTo(new Vector2d(59, -45))
+                .strafeTo(new Vector2d(59, -45.5))
                 .build();
         Trajectory trajectoryC3 = drive.trajectoryBuilder(trajectoryC2.end())
                 .strafeTo(new Vector2d(-6, -31))
@@ -218,13 +220,13 @@ public class auto extends LinearOpMode {
                 .strafeTo(new Vector2d(-42, -21))
                 .build();
         Trajectory trajectoryC105 = drive.trajectoryBuilder(trajectoryC10.end())
-                .strafeTo(new Vector2d(-42, -31))
+                .strafeTo(new Vector2d(-43, -30.2))
                 .build();
         Trajectory trajectoryC11 = drive.trajectoryBuilder(trajectoryC105.end())
-                .strafeTo(new Vector2d(61, -40))
+                .strafeTo(new Vector2d(61, -39))
                 .build();
         Trajectory trajectoryC12 = drive.trajectoryBuilder(trajectoryC11.end())
-                .strafeTo(new Vector2d(7, -36))
+                .strafeTo(new Vector2d(7, -34))
                 .build();
 //CASE C INIT END
 
@@ -283,9 +285,10 @@ public class auto extends LinearOpMode {
 
         switch (height) {
             case "ZERO":
+                drive.frontIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 drive.shooter.setPower(1);
                 drive.followTrajectory(trajectoryA1);
-                shootPowerShots(2.2, -2.5 , -2.5);
+                shootPowerShots(2.2, -2.5 , -2.5, 0.0035, -0.004);
                 drive.followTrajectory(trajectoryA2);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
                 sleep(270);
@@ -295,31 +298,36 @@ public class auto extends LinearOpMode {
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryA3);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
+                drive.frontIntake.setPower(0.5);
                 drive.followTrajectory(trajectoryA4);
+                drive.frontIntake.setPower(0.5);
                 drive.wobblePincher.setPosition(drive.wobblePinchClose);
                 sleep(400);
                 drive.followTrajectory(trajectoryA5);
+                drive.frontIntake.setPower(1);
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen);
                 sleep(400);
-                drive.frontIntake.setPower(1);
                 drive.wobbleGoalArm.setPosition(drive.wobbleUp);
                 sleep(400);
                 drive.followTrajectory(trajectoryA6);
                 drive.followTrajectory(trajectoryA7);
                 drive.turn(Math.toRadians(120));
                 drive.followTrajectory(trajectoryA8);
+                drive.backIntake.setPower(-1);
                 drive.followTrajectory(trajectoryA9);
                 sleep(400);
                 drive.lift.setPosition(drive.liftUp);
                 shootGoal(3, -1, -0.005);
                 drive.followTrajectory(trajectoryA10);
+                drive.frontIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 telemetry.addData("Path A", "Complete");
                 telemetry.update();
                 break;
             case "ONE":
+                drive.frontIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 drive.shooter.setPower(1);
                 drive.followTrajectory(trajectoryB1);
-                shootPowerShots(2.2, -2.5 , -2.5);
+                shootPowerShots(2.2, -2.5 , -2.5, 0.0035, -0.004);
                 drive.followTrajectory(trajectoryB2);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
                 sleep(270);
@@ -334,24 +342,24 @@ public class auto extends LinearOpMode {
                 sleep(600);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(500);
-                shootGoal(2, 0, -0.007);
+                shootGoal(2, 0, -0.0035);
                 sleep(500);
                 drive.wobbleGoalArm.setPosition(drive.wobbleUp);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryB5);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
+                drive.frontIntake.setPower(0.5);
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen);
                 drive.followTrajectory(trajectoryB6);
                 drive.frontIntake.setPower(1);
                 drive.wobblePincher.setPosition(drive.wobblePinchClose);
                 sleep(400);
-                drive.wobbleGoalArm.setPosition(drive.wobbleUp);
                 drive.followTrajectory(trajectoryB7);
-                drive.wobbleGoalArm.setPosition(drive.wobbleDown);
                 sleep(200);
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen);
                 sleep(400);
                 drive.wobbleGoalArm.setPosition(drive.wobbleUp);
+                sleep(400);
                 drive.followTrajectory(trajectoryB8);
                 drive.followTrajectory(trajectoryB9);
                 sleep(100);
@@ -359,13 +367,15 @@ public class auto extends LinearOpMode {
                 sleep(200);
                 shootGoal(2, 1, -0.007);
                 drive.followTrajectory(trajectoryB10);
+                drive.frontIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 telemetry.addData("Path B", "Complete");
                 telemetry.update();
                 break;
             case "FOUR":
+                drive.frontIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 drive.shooter.setPower(1);
                 drive.followTrajectory(trajectoryC1);
-                shootPowerShots(2.2, -2.5 , -2.5);
+                shootPowerShots(2.2, -2.5 , -2.5, 0.0035, -0.004);
                 sleep(300);
                 drive.followTrajectory(trajectoryC2);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
@@ -381,7 +391,7 @@ public class auto extends LinearOpMode {
                 drive.followTrajectory(trajectoryC6);
                 drive.lift.setPosition(drive.liftUp);
                 sleep(200);
-                shootGoal(2, 0, -0.005);
+                shootGoal(2, 0, -0.001);
                 drive.lift.setPosition(drive.liftDown);
                 drive.followTrajectory(trajectoryC7);
                 drive.followTrajectory(trajectoryC8);
@@ -389,6 +399,7 @@ public class auto extends LinearOpMode {
                 drive.lift.setPosition(drive.liftUp);
                 sleep(200);
                 shootGoal(3, -1.5, -0.007);
+                drive.lift.setPosition(drive.liftDown);
                 sleep(300);
                 drive.followTrajectory(trajectoryC10);
                 drive.wobbleGoalArm.setPosition(drive.wobbleDown);
@@ -399,6 +410,7 @@ public class auto extends LinearOpMode {
                 drive.wobblePincher.setPosition(drive.wobblePinchOpen - 0.1);
                 drive.wobbleGoalArm.setPosition(drive.wobbleUp);
                 drive.followTrajectory(trajectoryC12);
+                drive.frontIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 telemetry.addData("Path C", "Complete");
                 telemetry.update();
                 break;
@@ -406,7 +418,7 @@ public class auto extends LinearOpMode {
                 drive.shooter.setPower(1);
                 drive.followTrajectory(trajectoryT1);
                 drive.followTrajectory(trajectoryT2);
-                shootPowerShots(0, 0 ,0);
+                shootPowerShots(0, 0 ,0, 0.0035, -0.004);
                 drive.followTrajectory(trajectoryT3);
                 drive.backIntake.setPower(-1);
                 drive.lift.setPosition(drive.liftDown);
@@ -509,10 +521,10 @@ public class auto extends LinearOpMode {
         }
     }
 
-    public void shootPowerShots(double off1, double off2, double off3 /*Positive is left*/ ) {
+    public void shootPowerShots(double off1, double off2, double off3, double angleOff, double leftOff /*Positive is left*/ ) {
         //Set flap angle
-        drive.leftFlap.setPosition(drive.leftFlapPowerShot);
-        drive.rightFlap.setPosition(drive.rightFlapPowerShot);
+        drive.leftFlap.setPosition(drive.leftFlapPowerShot + angleOff + leftOff);
+        drive.rightFlap.setPosition(drive.rightFlapPowerShot - angleOff - leftOff);
 
         //Updating Position
         drive.update();
@@ -586,6 +598,9 @@ public class auto extends LinearOpMode {
         //////////////////
 
         //Set target (Middle)
+        drive.leftFlap.setPosition(drive.leftFlapPowerShot + angleOff);
+        drive.rightFlap.setPosition(drive.rightFlapPowerShot - angleOff);
+
         turretGlobalAngleTargetDegrees = -90 - Math.toDegrees(Math.atan((72 - myPose.getX()) / ((-12) - myPose.getY())));
         if (turretGlobalAngleTargetDegrees < -100) {
             turretGlobalAngleTargetDegrees = turretGlobalAngleTargetDegrees + 180;
@@ -688,15 +703,15 @@ public class auto extends LinearOpMode {
     class RingPipeline extends OpenCvPipeline {
 
         // Constants
-        final int X_LEFT_T = 1135;
-        final int X_RIGHT_T = 1280;
-        final int Y_UP_T = 450;
-        final int Y_DOWN_T = 475;
+        final int X_LEFT_T = 830;
+        final int X_RIGHT_T = 1050;
+        final int Y_UP_T = 430;
+        final int Y_DOWN_T = 455;
 
-        final int X_LEFT_B = 1135;
-        final int X_RIGHT_B = 1280;
-        final int Y_UP_B = 564;
-        final int Y_DOWN_B = 589;
+        final int X_LEFT_B = 830;
+        final int X_RIGHT_B = 1050;
+        final int Y_UP_B = 525;
+        final int Y_DOWN_B = 550;
 
         // Working Mat variables
         Mat yCbCrChan2Mat = new Mat();

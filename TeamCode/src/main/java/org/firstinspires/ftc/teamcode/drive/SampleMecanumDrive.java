@@ -230,8 +230,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     //Declare global variables
     //Lift
-    public double liftUp = 0.50, liftDown = 0.787
-            ; //Lower value = higher lift
+    public double liftUp = 0.485, liftDown = 0.795; //Lower value = higher lift
 
     //Kicker
     public double kickerInit = 0.89, kickerTo = 0.675; //0.7710;
@@ -241,7 +240,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public double backSuspendUp = 0.6293, backSuspendDown = 0.2500;
 
     //ringBlocker
-    public double ringBlockUp = 0.41, ringBlockDown = 0.94;
+    public double ringBlockUp = 0.44, ringBlockDown = 0.94; //Lower is higher
 
     //Flap
     public double netFlapAngleGoal = 0.565, netFlapAnglePowerShot = 0.537; //Higher = Steeper
